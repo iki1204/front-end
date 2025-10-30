@@ -1,0 +1,18 @@
+---
+import BaseLayout from "../layouts/Layout.astro";
+import ProductCard from "../components/ProductCard.astro";
+import { getProductos, getGlobalData } from "../lib/api";
+
+const [productos, global] = await Promise.all([
+  getProductos(),
+  getGlobalData()
+]);
+---
+
+<BaseLayout global={global}>
+  <section class="p-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    {productos.data.map((producto) => (
+      <ProductCard producto={producto} />
+    ))}
+  </section>
+</BaseLayout>

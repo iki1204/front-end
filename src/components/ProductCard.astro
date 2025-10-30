@@ -1,0 +1,12 @@
+---
+const { producto } = Astro.props;
+const imgUrl = producto.imagen
+  ? `http://localhost:1337${producto.imagen.url}`
+  : "/placeholder.png";
+---
+
+<article class="bg-zinc-900 p-4 rounded-2xl hover:scale-105 transition">
+  <img src={imgUrl} alt={producto.nombre} class="rounded-xl w-full h-56 object-cover" />
+  <h3 class="text-lg font-semibold mt-2">{producto.nombre}</h3>
+  <p class="text-red-500 font-bold">${producto.precio}</p>
+</article>

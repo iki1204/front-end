@@ -2,7 +2,19 @@
 import { AstroFont } from 'astro-font';
 import AppFooter from "../components/AppFooter.astro";
 import AppHeader from "../components/AppHeader.astro";
-import "./../tailus.css"
+import { getGlobalData } from "../lib/api.ts";
+import "../css/tailus.css"
+
+const API_URL = import.meta.env.PUBLIC_STRAPI_URL;
+
+const response = await getGlobalData();
+const metaTitle = response.data.defaultSeo.metaTitle;
+const metaDescription = response.data.defaultSeo.metaDescription;
+const metaKeywords = response.data.defaultSeo.metaKeywords;
+const metaIcon = response.data.favicon ? API_URL + response.data.favicon.url : null;
+const metaImage = response.data.defaultSeo?.shareImage ? API_URL + response.data.defaultSeo.shareImage.url : null;
+const siteName = response.data.siteName;
+
 ---
 
 <!DOCTYPE html>
@@ -10,10 +22,27 @@ import "./../tailus.css"
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/svg+xml" href={metaIcon} />
         <meta name="generator" content={Astro.generator} />
-        <meta name="description" content="Template built with tailwindcss using Tailus blocks v2" />
-        <title>Tailus astro theme</title>
+        <meta name="description" content={metaDescription} />
+        <meta name="keywords" content={metaKeywords} />
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:image" content={metaImage} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content={siteName} />
+
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <meta name="twitter:image" content={metaImage} />
+        
+        <title>{siteName}</title>
+
+
 
         <AstroFont
             config={[
