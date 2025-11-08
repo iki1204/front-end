@@ -1,5 +1,5 @@
-const API_URL = import.meta.env.PUBLIC_STRAPI_URL + "/api";
-const API_TOKEN = import.meta.env.PUBLIC_STRAPI_API_TOKEN; 
+const API_URL = import.meta.env.VITE_STRAPI_URL + "/api";
+const API_TOKEN = import.meta.env.VITE_STRAPI_API_TOKEN; 
 
 async function fetchAPI(endpoint: string, params: string = "") {
   const res = await fetch(`${API_URL}/${endpoint}${params}`, {

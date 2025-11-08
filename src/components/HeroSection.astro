@@ -1,5 +1,24 @@
 ---
 import Container from "./Container.astro"
+import { getPageData } from "../lib/api";
+
+const API_URL = import.meta.env.VITE_STRAPI_URL;
+const responseHome = await getPageData("home-page");
+
+const heroSection = responseHome?.data?.[0]?.Secciones?.find(
+  (s) => s.__component === "shared.hero"
+);
+const mainTitulo = heroSection.Titulo.slice(0, -2);
+const lastTitulo = heroSection.Titulo.slice(-2); 
+
+const mainDescripcion = heroSection.Descripcion.slice(0, -7);
+const lastDescripcion = heroSection.Descripcion.slice(-7);
+
+const botones = heroSection?.boton_link ?? [];
+const img = heroSection.Imagen[0].url ? API_URL + heroSection.Imagen[0].url : null;
+
+console.log(heroSection);
+
 ---
 
 <div class="relative" id="home">
@@ -7,65 +26,41 @@ import Container from "./Container.astro"
         <div class="blur-[106px] h-56 bg-gradient-to-br from-primary to-red-400 dark:from-orange-700"></div>
         <div class="blur-[80px] h-32 bg-gradient-to-r from-orange-400 to-orange-300 dark:to-red-600"></div>
     </div>
+
+
     <Container>
-        <div class="relative pt-36 ml-auto">
-            <div class="lg:w-2/3 text-center mx-auto">
-                <h1 class="text-gray-900 text-balance dark:text-white font-bold text-5xl md:text-6xl xl:text-7xl">UNICOM<span class="text-primary dark:text-white">EC</span></h1>
-                <p class="mt-8 text-gray-700 dark:text-gray-300">Los mejores importadores de telecomunicaciones en el <span class="text-primary dark:text-white">Ecuador</span></p>
-                <div class="mt-16 flex flex-wrap justify-center gap-y-4 gap-x-6">
-                    <a
-                      href="#"
-                      class="relative flex h-11 w-full items-center justify-center px-6 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95 sm:w-max"
-                    >
-                      <span class="relative text-base font-semibold text-white"
-                        >Tienda</span
-                      >
-                    </a>
-                    <a
-                      href="#"
-                      class="relative flex h-11 w-full items-center justify-center px-6 before:absolute before:inset-0 before:rounded-full before:border before:border-transparent before:bg-primary/10 before:bg-gradient-to-b before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95 dark:before:border-gray-700 dark:before:bg-gray-800 sm:w-max"
-                    >
-                      <span
-                        class="relative text-base font-semibold text-primary dark:text-white"
-                        >Calculadora Solar</span
-                      >
-                    </a>
-                </div>
-                <div class="hidden py-8 mt-16 border-y border-gray-100 dark:border-gray-800 sm:flex justify-between">
-                    <div class="text-left">
-                        <h6 class="text-lg font-semibold text-gray-700 dark:text-white">The lowest price</h6>
-                        <p class="mt-2 text-gray-500">Some text here</p>
-                    </div>
-                    <div class="text-left">
-                        <h6 class="text-lg font-semibold text-gray-700 dark:text-white">The fastest on the market</h6>
-                        <p class="mt-2 text-gray-500">Some text here</p>
-                    </div>
-                    <div class="text-left">
-                        <h6 class="text-lg font-semibold text-gray-700 dark:text-white">The most loved</h6>
-                        <p class="mt-2 text-gray-500">Some text here</p>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-12 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6">
-                <div class="p-4 grayscale transition duration-200 hover:grayscale-0">
-                    <img src="./images/clients/microsoft.svg" class="h-12 w-auto mx-auto" loading="lazy" alt="client logo" width="" height="" />
-                  </div>
-                <div class="p-4 grayscale transition duration-200 hover:grayscale-0">
-                  <img src="./images/clients/airbnb.svg" class="h-12 w-auto mx-auto" loading="lazy" alt="client logo" width="" height="" />
-                </div>
-                <div class="p-4 flex grayscale transition duration-200 hover:grayscale-0">
-                  <img src="./images/clients/google.svg" class="h-9 w-auto m-auto" loading="lazy" alt="client logo" width="" height="" />
-                </div>
-                <div class="p-4 grayscale transition duration-200 hover:grayscale-0">
-                    <img src="./images/clients/ge.svg" class="h-12 w-auto mx-auto" loading="lazy" alt="client logo" width="" height="" />
-                  </div>
-                  <div class="p-4 flex grayscale transition duration-200 hover:grayscale-0">
-                    <img src="./images/clients/netflix.svg" class="h-8 w-auto m-auto" loading="lazy" alt="client logo" width="" height="" />
-                  </div>
-                <div class="p-4 grayscale transition duration-200 hover:grayscale-0">
-                    <img src="./images/clients/google-cloud.svg" class="h-12 w-auto mx-auto" loading="lazy" alt="client logo" width="" height="" />
-                </div>
+      <header>
+        <div class="relative pt-36 ml-auto grid grid-cols-1 md:grid-cols-2 items-center gap-1">
+          <div class="lg:w-2/3 text-center mx-auto">
+              <h1 class="text-gray-900 text-balance dark:text-white font-bold text-5xl md:text-6xl xl:text-7xl">{mainTitulo}<span class="text-primary dark:text-white">{lastTitulo}</span></h1>
+              <p class="mt-8 text-gray-700 dark:text-gray-300">{mainDescripcion}<span class="text-primary dark:text-white">{lastDescripcion}</span></p>
+              <div class="mt-16 flex flex-wrap justify-center gap-y-4 gap-x-6">
+                {botones.map((btn, index) => {
+                  const isEven = index % 2 === 0;
+                  const baseClasses =
+                    'relative flex h-11 w-full items-center justify-center px-6 before:absolute before:inset-0 before:rounded-full before:transition before:duration-300 active:duration-75 sm:w-max';
+                  const colorClasses = isEven
+                    ? 'before:bg-primary hover:before:scale-105 active:before:scale-95'
+                    : 'before:border before:border-transparent before:bg-primary/10 before:bg-gradient-to-b hover:before:scale-105 active:before:scale-95 dark:before:border-gray-700 dark:before:bg-gray-800';
+                  const textClasses = isEven
+                    ? 'relative text-base font-semibold text-white'
+                    : 'relative text-base font-semibold text-primary dark:text-white';
+
+                  return (
+                    <>
+                      <a href={btn.url} class={`${baseClasses} ${colorClasses}`}>
+                        <span class={textClasses}>{btn.etiqueta}</span>
+                      </a>
+                    </>
+                  );
+                })}
               </div>
+          </div>
+          <div class="lg:w-2/3 text-center mx-auto">
+            <img src={img} alt="">
+          </div>
         </div>
+      </header>
     </Container>
 </div>
+

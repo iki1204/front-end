@@ -1,0 +1,29 @@
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+ .no-scrollbar::-webkit-scrollbar {
+   display: none; /* Oculta scrollbar en Chrome, Safari y Opera */
+ }
+ .no-scrollbar {
+   -ms-overflow-style: none; /* Oculta scrollbar en IE y Edge */
+   scrollbar-width: none; /* Oculta scrollbar en Firefox */
+ }
+
+  @keyframes scroll-x {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  .animate-scroll-x {
+    animation: scroll-x 10s linear infinite;
+  }
+
+
+}

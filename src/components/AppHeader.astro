@@ -2,16 +2,18 @@
 import Container from "./Container.astro";
 import { getGlobalData } from "../lib/api";   
 
-const API_URL = import.meta.env.PUBLIC_STRAPI_URL;
-const responseGlobal = await getGlobalData();
-console.log(responseGlobal);
-const siteName = responseGlobal.data.header.Etiqueta;
-const logoUrl = responseGlobal.data.header.Logo ? API_URL + responseGlobal.data.header.Logo.url : null;
-const links = responseGlobal.data.header.subitem.map((link) => ({
+const API_URL = import.meta.env.VITE_STRAPI_URL;
+const response = await getGlobalData();
+const siteName = response.data.header.Etiqueta;
+const logoUrl = response.data.header.Logo ? API_URL + response.data.header.Logo.url : null;
+const links = response.data.header.subitem.map((link) => ({
     label: link.etiqueta,
     to: link.url,
 }));
-console.log(links);
+const botones = response.data.header.Botones.map((boton) => ({
+    label: boton.title,
+    to: boton.body,
+}));
 ---
 
 <header>
@@ -24,7 +26,9 @@ console.log(links);
                             <div class="size-4 rounded-full bg-gray-900 dark:bg-white"></div>
                             <div class="h-6 w-2 bg-primary"></div>
                         </div>
-                        <span class="text-2xl font-bold text-gray-900 dark:text-white">{siteName}</span>
+                        <div>
+                            {logoUrl ? <img src={logoUrl} alt={siteName} class="h-8 w-auto" /> : null}
+                        </div>
                     </a>
 
                     <div class="relative flex max-h-10 items-center lg:hidden">
@@ -46,17 +50,16 @@ console.log(links);
                                 ))
                             }
                         </div>
-                    </div>
-
-                    <div class="mt-12 lg:mt-0">
-                        <a href="/register" class="relative flex h-9 w-full items-center justify-center px-4 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95 sm:w-max">
-                            <span class="relative text-sm font-semibold text-white"> Tienda</span>
-                        </a>
-                    </div>
-                    <div class="mt-12 ml-1 lg:mt-0">
-                        <a href="/register" class="relative flex h-9 w-full items-center justify-center px-4 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95 sm:w-max">
-                            <span class="relative text-sm font-semibold text-white"> Calculadora</span>
-                        </a>
+                    </div>              
+                        {
+                            botones.map((link) => (
+                                <div class="mt-12 mr-2 lg:mt-0"> 
+                                    <a href={link.to} class="relative flex h-9 w-full items-center justify-center px-4 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95 sm:w-max">
+                                        <span class="relative text-sm font-semibold text-white">{link.label}</span>
+                                    </a>
+                                </div>
+                            ))
+                        }
                     </div>
                 </div>
             </div>

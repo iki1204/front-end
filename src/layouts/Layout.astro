@@ -2,17 +2,18 @@
 import { AstroFont } from 'astro-font';
 import AppFooter from "../components/AppFooter.astro";
 import AppHeader from "../components/AppHeader.astro";
-import { getGlobalData } from "../lib/api.ts";
+import { getGlobalData } from "../lib/api";
 import "../css/tailus.css"
+import "../styles/global.css";
 
-const API_URL = import.meta.env.PUBLIC_STRAPI_URL;
+const API_URL = import.meta.env.VITE_STRAPI_URL;
 
 const response = await getGlobalData();
 const metaTitle = response.data.defaultSeo.metaTitle;
 const metaDescription = response.data.defaultSeo.metaDescription;
 const metaKeywords = response.data.defaultSeo.metaKeywords;
-const metaIcon = response.data.favicon ? API_URL + response.data.favicon.url : null;
-const metaImage = response.data.defaultSeo?.shareImage ? API_URL + response.data.defaultSeo.shareImage.url : null;
+const metaIcon = response.data.favicon?.url ? API_URL + response.data.favicon.url : null;
+const metaImage = response.data.defaultSeo?.shareImage?.url ? API_URL + response.data.defaultSeo.shareImage.url : null;
 const siteName = response.data.siteName;
 
 ---
@@ -34,11 +35,6 @@ const siteName = response.data.siteName;
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={siteName} />
 
-        <!-- Twitter -->
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={metaTitle} />
-        <meta name="twitter:description" content={metaDescription} />
-        <meta name="twitter:image" content={metaImage} />
         
         <title>{siteName}</title>
 

@@ -1,42 +1,138 @@
 ---
-import Container from "./Container.astro";
 import { getGlobalData } from "../lib/api";   
 
-const API_URL = import.meta.env.PUBLIC_STRAPI_URL;
-const responseGlobal = await getGlobalData();
-console.log(responseGlobal);
-const textoDerechos = responseGlobal.data.footer.texto_derechos;
-const links = responseGlobal.data.footer.Columna.map((link) => ({
+const API_URL = import.meta.env.VITE_STRAPI_URL;
+const response = await getGlobalData();
+const textoDerechos = response.data.footer.texto_derechos;
+const links = response.data.footer.Columna.map((link) => ({
     label: link.etiqueta,
     to: link.url,
     logoURL: Array.isArray(link.logo) && link.logo.length > 0
       ? API_URL + link.logo[0].url
       : null,
 }));
-console.log(links);
+const logoUrl = response.data.footer.logo ? API_URL + response.data.footer.logo.url : null;
 ---
 
-<footer>
-    <nav id="nav" class="absolute group z-10 w-full border-b border-black/5 dark:border-white/5 lg:border-transparent">
-        <Container>
-            <div class="relative flex flex-wrap items-center justify-between gap-1 py-3 md:gap-0 md:py-4">
-                <div class="relative z-20 flex w-full justify-between md:px-0 lg:w-fit">
-                    <div class="text-gray-600 dark:text-gray-300 text-sm">
-                      © {new Date().getFullYear()} {textoDerechos}. Todos los derechos reservados.
-                    </div>
-                </div>
-                <div id="links-group" class="flex flex-col gap-6 tracking-wide lg:flex-row lg:gap-0 lg:text-sm">
-                    {
-                        links.map((link) => (
-                            <a href={link.to} class="hover:text-primary block transition dark:hover:text-white md:px-4">
-                                <span>{link.label}</span>
-                                <img src={link.logoURL} alt={link.label} class="inline-block h-6 ml-2"/>
-                            </a>
-                        ))
-                    }
-                </div>
-            </div>
-        </Container>
-    </nav>
-</footer>
 
+<footer class="bg-[#111111] text-gray-300 border-t border-white/10">
+  <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-10 text-sm">
+
+    <!-- Dirección -->
+    <div class="space-y-2 text-center md:text-left">
+      <h4 class="font-semibold text-white mb-2 flex items-center justify-center md:justify-start gap-2">
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            class="w-7 h-7"
+            fill="none"
+            stroke="#3b82f6"
+            stroke-width="1.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            >
+            <path d="M12 21s-6-6.5-6-11a6 6 0 1 1 12 0c0 4.5-6 11-6 11z" />
+            <circle cx="12" cy="10" r="2.5" />
+        </svg>
+
+        Direccion
+      </h4>
+      <p class="leading-relaxed">
+        AV. De los Shyris 45-77 y 6 de Diciembre<br />
+        Quito, Ecuador<br />
+        <span class="font-semibold text-white">025123060</span>
+      </p>
+    </div>
+
+    <!-- WhatsApp -->
+    <div class="space-y-2 text-center md:text-left">
+      <h4 class="font-semibold text-white mb-2 flex items-center justify-center md:justify-start gap-2">
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            class="w-6 h-6"
+            fill="none"
+            stroke="#25D366"
+            stroke-width="2"
+            stroke-linejoin="round"
+            >
+            <!-- Cuerpo principal -->
+            <rect x="3" y="3" width="18" height="14" rx="4" ry="4" />
+            <!-- Cola de la burbuja -->
+            <polygon points="8,17 8,21 11,17" />
+        </svg>
+
+        Contactos
+      </h4>
+      <ul class="space-y-1 text-center md:text-left">
+        <li><span class="font-semibold text-white">Teléfono:</span> 0967302450</li>
+        <li><span class="font-semibold text-white">Teléfono:</span> 0989372276</li>
+        <li><span class="font-semibold text-white">Teléfono:</span> 0991046279</li>
+        <li><span class="font-semibold text-white">Teléfono:</span> 0989538349</li>
+      </ul>
+      <p class="pt-1"><span class="font-semibold text-white">Email:</span> telecom1@unicom.ec</p>
+    </div>
+
+    <!-- Horarios -->
+    <div class="space-y-2 text-center md:text-left">
+      <h4 class="font-semibold text-white mb-2 flex items-center justify-center md:justify-start gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M12 6v6h4.5M12 3a9 9 0 100 18 9 9 0 000-18z" />
+        </svg>
+        Horarios de Atención
+      </h4>
+      <p><span class="font-semibold text-white">Lunes-Viernes:</span> 9AM - 6PM<br />
+        <span class="font-semibold text-white">Sábado-Domingo:</span> Cerrado
+      </p>
+    </div>
+
+    <!-- Redes Sociales -->
+    <div class="space-y-3 text-center md:text-left">
+      <h4 class="font-semibold text-white mb-2 flex items-center justify-center md:justify-start gap-2">
+       <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            class="w-7 h-7"
+            fill="none"
+            stroke="#ef4444"
+            stroke-width="1.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            >
+            <path
+                d="M12 2C10 5 7 7 7 11c0 3.866 2.686 7 5 7s5-3.134 5-7c0-2.5-1-4-3-6 0 0 .5 1.5 0 2.5S11 10 11 11s1 3 1 3"
+            />
+        </svg>
+
+        Síguenos
+      </h4>
+      <div class="flex justify-center md:justify-start gap-5">
+        {links.map(link => (
+          <a href={link.to} target="_blank" rel="noopener noreferrer" class="p-2 rounded-full border border-gray-500 hover:border-primary hover:text-primary transition-all duration-300 hover:scale-110 grayscale opacity-70 hover:opacity-100 hover:grayscale-0 transition-all duration-300">
+            <img
+                src={link.logoURL}
+                alt={link.label}
+                class="h-auto w-auto"
+            />
+          </a>
+          
+        ))}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Divider -->
+  <div class="border-t border-white/10 my-6"></div>
+
+  <!-- Logo + derechos -->
+    <div class="max-w-7xl mx-auto px-6 pb-6 flex flex-col items-center justify-center gap-3 text-center">
+        <img src={logoUrl} alt="Unicom EC" class="h-20 brightness-110" />
+        <div class="text-sm text-gray-400">
+            © {new Date().getFullYear()} {textoDerechos}.  
+            <span class="block md:inline">Todos los derechos reservados.</span>
+        </div>
+    </div>
+</footer>
