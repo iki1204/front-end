@@ -2,11 +2,36 @@
 const { producto } = Astro.props;
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 
-const imagePath = producto?.imagen?.url ?? producto?.imagen?.data?.attributes?.url ?? null;
-var imgUrl = imagePath && API_URL ? `${API_URL}${imagePath}` : "/images/placeholder.svg";
+const medias: any[] = [
+  // imagen como array de media
+  ...(Array.isArray(producto?.imagen) ? producto.imagen : []),
+  // imagen como single media
+  ...(producto?.imagen?.data?.attributes ? [producto.imagen.data.attributes] : []),
+  // imagenes como relation multiple
+  ...(Array.isArray(producto?.imagenes?.data) ? producto.imagenes.data.map((m:any) => m.attributes) : []),
+].filter(Boolean);
+
+const path =
+  medias[0]?.formats?.medium?.url ??
+  medias[0]?.formats?.large?.url ??
+  medias[0]?.url ??
+  null;
+var imgUrl = path ? `${API_URL}${path}` : "/images/placeholder.svg";
+
 if (imgUrl == null) {
   imgUrl = "/images/placeholder.svg";
 }
+
+const srcset = medias[0]?.formats
+  ? [
+      medias[0].formats.thumbnail?.url && `${API_URL}${medias[0].formats.thumbnail.url} 156w`,
+      medias[0].formats.small?.url && `${API_URL}${medias[0].formats.small.url} 500w`,
+      medias[0].formats.medium?.url && `${API_URL}${medias[0].formats.medium.url} 750w`,
+      medias[0].formats.large?.url && `${API_URL}${medias[0].formats.large.url} 1000w`,
+      medias[0].url && `${API_URL}${medias[0].url} ${(medias[0].width ?? 1200)}w`,
+    ].filter(Boolean).join(', ')
+  : undefined;
+const sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw";
 
 const priceFormatter = new Intl.NumberFormat("es-PE", {
   style: "currency",
@@ -24,7 +49,9 @@ const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(
       <img
         src={imgUrl}
         alt={producto?.nombre ?? "Producto"}
+        sizes={srcset ? sizes : undefined}
         class="h-56 w-full object-cover transition duration-300 group-hover:scale-105"
+        decoding="async"
         loading="lazy"
       />
     </div>

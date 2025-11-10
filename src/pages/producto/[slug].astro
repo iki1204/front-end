@@ -69,17 +69,24 @@ if (!producto) {
 }
 
 const categorias = normalizeCollection(categoriasResponse?.data ?? []);
+console.log (categorias)
 const categoriaActual = categorias.find((categoria) =>
   categoria?.ID_Categoria === producto?.ID_Categoria || categoria?.id === producto?.ID_Categoria
 );
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
-const mainImagePath = producto?.imagen?.url ?? producto?.imagen?.data?.attributes?.url ?? null;
-var mainImage = mainImagePath && API_URL ? `${API_URL}${mainImagePath}` : "/images/placeholder.svg";
-if (mainImage == null) {
-  mainImage = "/images/placeholder.svg";
-}
 const galeriasPosibles = [producto?.imagen, producto?.imagenes?.data];
+
+const firstArray = galeriasPosibles.find(a => Array.isArray(a) && a.length);
+const firstItem = firstArray?.[0] ?? null;
+const mainPath =
+  firstItem?.formats?.medium?.url ??
+  firstItem?.formats?.large?.url ??
+  firstItem?.url ??
+  firstItem?.attributes?.formats?.medium?.url ??
+  firstItem?.attributes?.url ??
+  null;
+const mainImage = mainPath ? `${API_URL}${mainPath}` : "/images/placeholder.svg";
 const galleryItems = galeriasPosibles
   .flat()
   .filter(Boolean)
@@ -90,6 +97,8 @@ const galleryItems = galeriasPosibles
   .filter((value, index, array) => Boolean(value) && array.indexOf(value) === index)
   .filter((imageUrl) => imageUrl !== mainImage);
 
+
+
 const priceFormatter = new Intl.NumberFormat("es-PE", {
   style: "currency",
   currency: "USD",
@@ -99,6 +108,8 @@ const priceFormatter = new Intl.NumberFormat("es-PE", {
 const precio = typeof producto?.precio === "number" ? priceFormatter.format(producto.precio) : "Consultar";
 const descripcion = producto?.descripcion ?? "Este producto aún no tiene una descripción detallada disponible.";
 const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_stock : null;
+
+console.log (categoriaActual)
 ---
 
 <BaseLayout global={global}>
@@ -108,6 +119,7 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
       <section class="space-y-6">
         <div class="overflow-hidden rounded-3xl shadow-7xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
           <img
+            id="main-image"
             src={mainImage}
             alt={producto?.nombre ?? "Producto"}
             class="h-full w-full max-h-[480px] rounded-2xl object-contain bg-white p-4 dark:bg-zinc-900"
@@ -115,11 +127,21 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
           />
         </div>
         {galleryItems.length > 0 && (
-          <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div id="thumbs" class="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {galleryItems.map((imageUrl) => (
-              <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900">
-                <img src={imageUrl} alt={`Vista adicional de ${producto?.nombre}`} class="h-32 w-full object-cover" loading="lazy" />
-              </div>
+              <button
+              class="cursor-pointer thumb relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900"
+              data-src={imageUrl}
+              type="button"
+              aria-label="Cambiar imagen"
+            >
+              <img
+                src={imageUrl}
+                alt={`Vista adicional de ${producto?.nombre}`}
+                class="h-32 w-full object-cover pointer-events-none"
+                loading="lazy"
+              />
+            </button>
             ))}
           </div>
         )}
@@ -179,3 +201,55 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
     </div>
   </article>
 </BaseLayout>
+
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const mainImg = document.getElementById("main-image");
+    const thumbsRoot = document.getElementById("thumbs");
+    if (!mainImg || !thumbsRoot) return;
+
+    // Estado: URLs absolutas
+    const mainState = { src: mainImg.getAttribute("src") };
+    let thumbs = Array.from(thumbsRoot.querySelectorAll("[data-src]"))
+      .map((el) => el.getAttribute("data-src"))
+      .filter(Boolean);
+
+    // Delegación de eventos para clicks en las miniaturas
+    thumbsRoot.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest("[data-src]");
+      if (!btn) return;
+
+      const newMain = btn.getAttribute("data-src");
+      if (!newMain || newMain === mainState.src) return;
+
+      // 1) Cambia imagen principal
+      const prevMain = mainState.src;
+      mainState.src = newMain;
+      mainImg.setAttribute("src", newMain);
+
+      // 2) Reordena: quita clicada y agrega la anterior principal al final
+      thumbs = thumbs.filter((u) => u !== newMain);
+      thumbs.push(prevMain);
+
+      // 3) Re-renderiza miniaturas
+      renderThumbs();
+    });
+
+    function renderThumbs() {
+      // Limpia y vuelve a dibujar
+      thumbsRoot.innerHTML = thumbs
+        .map(
+          (src) => `
+          <button
+            class="cursor-pointer thumb relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900"
+            data-src="${src}"
+            type="button"
+            aria-label="Cambiar imagen"
+          >
+            <img src="${src}" alt="Vista adicional" class="h-32 w-full object-cover pointer-events-none" loading="lazy" />
+          </button>`
+        )
+        .join("");
+    }
+  });
+</script>
