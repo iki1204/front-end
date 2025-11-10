@@ -3,37 +3,62 @@ import Container from "./Container.astro"
 ---
 
 <Container>
-<div id="carousel1" class="flex mt-12 w-full h-30 overflow-hidden no-scrollbar gap-10">
-    <div id="carousel-track" class="flex  items-center justify-center gap-10 transition-transform duration-300">
-        <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
+
+<div class="relative w-full h-30 overflow-hidden">
+
+  <div id="carousel1" class="flex w-full h-30 overflow-hidden no-scrollbar gap-10">
+    <div id="carousel-track" class="flex items-center animate-scroll-x justify-center gap-10 transition-transform duration-300">
+      <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
         <img src="images/clients/Huawei.svg" alt="Huawei" class="h-12 mx-auto"/>
-        </div>
-        <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
+      </div>
+      <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
         <img src="images/clients/manyusolar.svg" alt="manyusolar" class="h-12 mx-auto"/>
-        </div>
-        <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
+      </div>
+      <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
         <img src="images/clients/mikrotik.svg" alt="mikrotik" class="h-12 mx-auto"/>
-        </div>
-        <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
+      </div>
+      <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
         <img src="images/clients/phyhome.svg" alt="phyhome" class="h-12 mx-auto"/>
-        </div>
+      </div>
     </div>
+    <div id="carousel-track" class="flex items-center animate-scroll-x justify-center gap-10 transition-transform duration-300">
+      <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
+        <img src="images/clients/Huawei.svg" alt="Huawei" class="h-12 mx-auto"/>
+      </div>
+      <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
+        <img src="images/clients/manyusolar.svg" alt="manyusolar" class="h-12 mx-auto"/>
+      </div>
+      <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
+        <img src="images/clients/mikrotik.svg" alt="mikrotik" class="h-12 mx-auto"/>
+      </div>
+      <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
+        <img src="images/clients/phyhome.svg" alt="phyhome" class="h-12 mx-auto"/>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-gray-900 dark:via-gray-900/80"></div>
+  <div class="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white via-white/80 to-transparent dark:from-gray-900 dark:via-gray-900/80"></div>
 </div>
 
+<!-- Alternate Version 
 <section class="flex items-center justify-center min-h-screen">
     <div class="flex max-w-7xl mx-auto overflow-x-hidden gap-10">
-        <div class="flex space-x-16 animate-scroll-x flex-shrink-0 gap-10">
-            <img src="images/clients/Huawei.svg" alt="Huawei" class="h-12 mx-auto flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110"/>
-            <img src="images/clients/manyusolar.svg" alt="Huawei" class="h-12 mx-auto flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110"/>
-            <img src="images/clients/mikrotik.svg" alt="Huawei" class="h-12 mx-auto flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110"/>
-            <img src="images/clients/phyhome.svg" alt="Huawei" class="h-12 mx-auto flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110"/>
+        <div class="flex animate-scroll-x shrink-0 gap-10">
+            <img src="images/clients/Huawei.svg" alt="Huawei" class="h-12 mx-auto shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 "/>
+            <img src="images/clients/manyusolar.svg" alt="Huawei" class="h-12 mx-auto shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 "/>
+            <img src="images/clients/mikrotik.svg" alt="Huawei" class="h-12 mx-auto shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 "/>
+            <img src="images/clients/phyhome.svg" alt="Huawei" class="h-12 mx-auto shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 "/>
         </div>
-        <div class="flex overflow-x-hidden space-x-16 animate-scroll-x flex-shrink-0 gap-10">
-            <img src="images/clients/Huawei.svg" alt="Huawei" class="h-12 mx-auto flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110"/>
-            <img src="images/clients/manyusolar.svg" alt="Huawei" class="h-12 mx-auto flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110"/>
-            <img src="images/clients/mikrotik.svg" alt="Huawei" class="h-12 mx-auto flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110"/>
-            <img src="images/clients/phyhome.svg" alt="Huawei" class="h-12 mx-auto flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110"/>
+        <div class="flex overflow-x-hidden animate-scroll-x shrink-0 gap-10">
+            <img src="images/clients/Huawei.svg" alt="Huawei" class="h-12 mx-auto shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 "/>
+            <img src="images/clients/manyusolar.svg" alt="Huawei" class="h-12 mx-auto shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 "/>
+            <img src="images/clients/mikrotik.svg" alt="Huawei" class="h-12 mx-auto shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 "/>
+            <img src="images/clients/phyhome.svg" alt="Huawei" class="h-12 mx-auto shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 "/>
         </div>
     </div>
 </section>
+-->
+
 </Container>

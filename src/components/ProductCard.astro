@@ -1,12 +1,43 @@
 ---
 const { producto } = Astro.props;
-const imgUrl = producto.imagen
-  ? `http://localhost:1337${producto.imagen.url}`
-  : "/placeholder.png";
+const API_URL = import.meta.env.VITE_STRAPI_URL;
+
+const imagePath = producto?.imagen?.url ?? producto?.imagen?.data?.attributes?.url ?? null;
+var imgUrl = imagePath && API_URL ? `${API_URL}${imagePath}` : "/images/placeholder.svg";
+if (imgUrl == null) {
+  imgUrl = "/images/placeholder.svg";
+}
+
+const priceFormatter = new Intl.NumberFormat("es-PE", {
+  style: "currency",
+  currency: "USD",
+  minimumFractionDigits: 2,
+});
+
+const slug = producto?.ID_Nombre ?? producto?.slug ?? producto?.id;
+const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(producto.precio) : "Consultar";
 ---
 
-<article class="bg-zinc-900 p-4 rounded-2xl hover:scale-105 transition">
-  <img src={imgUrl} alt={producto.nombre} class="rounded-xl w-full h-56 object-cover" />
-  <h3 class="text-lg font-semibold mt-2">{producto.nombre}</h3>
-  <p class="text-red-500 font-bold">${producto.precio}</p>
-</article>
+<a href={`/producto/${slug}`} class="group block h-full">
+  <article class="flex h-full flex-col rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+    <div class="relative overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+      <img
+        src={imgUrl}
+        alt={producto?.nombre ?? "Producto"}
+        class="h-56 w-full object-cover transition duration-300 group-hover:scale-105"
+        loading="lazy"
+      />
+    </div>
+    <div class="mt-4 flex flex-1 flex-col gap-2">
+      <h3 class="line-clamp-2 text-lg font-semibold text-zinc-900 dark:text-white">
+        {producto?.nombre}
+      </h3>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400">Código: {producto?.codigo ?? "N/A"}</p>
+      <div class="mt-auto flex items-center justify-between">
+        <p class="text-lg font-bold text-red-500">{priceLabel}</p>
+        <span class="text-sm font-medium text-primary transition group-hover:underline">Ver detalles →</span>
+      </div>
+    </div>
+    
+  </article>
+</a>

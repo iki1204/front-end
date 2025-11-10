@@ -15,52 +15,82 @@ const mainDescripcion = heroSection.Descripcion.slice(0, -7);
 const lastDescripcion = heroSection.Descripcion.slice(-7);
 
 const botones = heroSection?.boton_link ?? [];
-const img = heroSection.Imagen[0].url ? API_URL + heroSection.Imagen[0].url : null;
+const img = heroSection?.Imagen?.map((img) => `${API_URL}${img.url}`) ?? [];
 
-console.log(heroSection);
-
+console.log(img);
 ---
 
-<div class="relative" id="home">
-    <div aria-hidden="true" class="absolute inset-0 grid grid-cols-2 -space-x-52 opacity-40 dark:opacity-20">
-        <div class="blur-[106px] h-56 bg-gradient-to-br from-primary to-red-400 dark:from-orange-700"></div>
-        <div class="blur-[80px] h-32 bg-gradient-to-r from-orange-400 to-orange-300 dark:to-red-600"></div>
-    </div>
+<div class="relative" id="hero">
+  <div aria-hidden="true" class="absolute inset-0 grid grid-cols-2 -space-x-52 opacity-40 dark:opacity-20">
+      <div class="blur-[106px] h-56 bg-gradient-to-br from-primary to-red-400 dark:from-orange-700"></div>
+      <div class="blur-[80px] h-32 bg-gradient-to-r from-orange-400 to-orange-300 dark:to-red-600"></div>
+  </div>
 
-
-    <Container>
-      <header>
-        <div class="relative pt-36 ml-auto grid grid-cols-1 md:grid-cols-2 items-center gap-1">
-          <div class="lg:w-2/3 text-center mx-auto">
-              <h1 class="text-gray-900 text-balance dark:text-white font-bold text-5xl md:text-6xl xl:text-7xl">{mainTitulo}<span class="text-primary dark:text-white">{lastTitulo}</span></h1>
-              <p class="mt-8 text-gray-700 dark:text-gray-300">{mainDescripcion}<span class="text-primary dark:text-white">{lastDescripcion}</span></p>
-              <div class="mt-16 flex flex-wrap justify-center gap-y-4 gap-x-6">
-                {botones.map((btn, index) => {
-                  const isEven = index % 2 === 0;
-                  const baseClasses =
-                    'relative flex h-11 w-full items-center justify-center px-6 before:absolute before:inset-0 before:rounded-full before:transition before:duration-300 active:duration-75 sm:w-max';
-                  const colorClasses = isEven
-                    ? 'before:bg-primary hover:before:scale-105 active:before:scale-95'
-                    : 'before:border before:border-transparent before:bg-primary/10 before:bg-gradient-to-b hover:before:scale-105 active:before:scale-95 dark:before:border-gray-700 dark:before:bg-gray-800';
-                  const textClasses = isEven
-                    ? 'relative text-base font-semibold text-white'
-                    : 'relative text-base font-semibold text-primary dark:text-white';
-
-                  return (
-                    <>
-                      <a href={btn.url} class={`${baseClasses} ${colorClasses}`}>
-                        <span class={textClasses}>{btn.etiqueta}</span>
-                      </a>
-                    </>
-                  );
-                })}
-              </div>
-          </div>
-          <div class="lg:w-2/3 text-center mx-auto">
-            <img src={img} alt="">
+  <Container>
+    <header>
+      <div class="relative pt-28 ml-auto grid grid-cols-1 md:grid-cols-2 items-center gap-6">
+        <!-- 🧱 Columna izquierda -->
+        <div class="lg:w-2/3 text-center mx-auto">
+          <h1 class="text-gray-900 text-balance dark:text-white font-bold text-5xl md:text-6xl xl:text-7xl">
+            {mainTitulo}
+            <span class="text-primary dark:text-white">{lastTitulo}</span>
+          </h1>
+          <p class="mt-8 text-gray-700 dark:text-gray-300">
+            {mainDescripcion}
+            <span class="text-primary dark:text-white">{lastDescripcion}</span>
+          </p>
+          <div class="mt-16 flex flex-wrap justify-center gap-y-4 gap-x-6">
+            {botones.map((btn, index) => {
+              const isEven = index % 2 === 0;
+              const baseClasses =
+                'relative flex h-11 w-full items-center justify-center px-6 before:absolute before:inset-0 before:rounded-full before:transition before:duration-300 active:duration-75 sm:w-max';
+              const colorClasses = isEven
+                ? 'before:bg-primary hover:before:scale-105 active:before:scale-95'
+                : 'before:border before:border-transparent before:bg-primary/10 before:bg-gradient-to-b hover:before:scale-105 active:before:scale-95 dark:before:border-gray-700 dark:before:bg-gray-800';
+              const textClasses = isEven
+                ? 'relative text-base font-semibold text-white'
+                : 'relative text-base font-semibold text-primary dark:text-white';
+              return (
+                <a href={btn.url} class={`${baseClasses} ${colorClasses}`}>
+                  <span class={textClasses}>{btn.etiqueta}</span>
+                </a>
+              );
+            })}
           </div>
         </div>
-      </header>
-    </Container>
+
+
+        <div
+          class="slider relative flex justify-center items-center min-h-[350px] overflow-hidden rounded-3xl shadow-2xl"
+          data-hero-slider
+        >
+          {img.map((src, i) => (
+            <img
+              src={src}
+              alt={`Hero image ${i + 1}`}
+              class={`slide absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out ${
+                i === 0 ? "is-active" : ""
+              }`}
+              loading={i === 0 ? "eager" : "lazy"}
+            />
+          ))}
+        </div>
+      </div>
+    </header>
+  </Container>
 </div>
+<script>
+  const slider = document.querySelector("[data-hero-slider]");
+  if (slider) {
+    const slides = slider.querySelectorAll(".slide");
+    if (slides.length > 1) {
+      let index = 0;
+      setInterval(() => {
+        slides[index].classList.remove("is-active");
+        index = (index + 1) % slides.length;
+        slides[index].classList.add("is-active");
+      }, 5000); // 4s por slide
+    }
+  }
+</script>
 

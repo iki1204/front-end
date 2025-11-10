@@ -1,0 +1,14 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Imagen de producto no disponible">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d1d5db" />
+      <stop offset="100%" stop-color="#9ca3af" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#grad)" rx="24" />
+  <g fill="none" stroke="#f3f4f6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M120 220h160c17.7 0 32-14.3 32-32V110c0-17.7-14.3-32-32-32H120c-17.7 0-32 14.3-32 32v78c0 17.7 14.3 32 32 32z" />
+    <circle cx="200" cy="150" r="36" />
+  </g>
+  <text x="50%" y="260" fill="#374151" font-size="22" font-family="'Segoe UI', sans-serif" text-anchor="middle">Imagen no disponible</text>
+</svg>

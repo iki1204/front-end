@@ -4,13 +4,17 @@
 @tailwind utilities;
 
 @layer utilities {
- .no-scrollbar::-webkit-scrollbar {
-   display: none; /* Oculta scrollbar en Chrome, Safari y Opera */
- }
- .no-scrollbar {
-   -ms-overflow-style: none; /* Oculta scrollbar en IE y Edge */
-   scrollbar-width: none; /* Oculta scrollbar en Firefox */
- }
+  :root {
+    color-scheme: light; /* fuerza esquema claro */
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Oculta scrollbar en Chrome, Safari y Opera */
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none; /* Oculta scrollbar en IE y Edge */
+    scrollbar-width: none; /* Oculta scrollbar en Firefox */
+  }
 
   @keyframes scroll-x {
     0% {
@@ -21,9 +25,19 @@
     }
   }
 
+  @layer components {
+    .slider .slide {
+      opacity: 0;
+      transform: scale(1);
+    }
+
+    .slider .slide.is-active {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
   .animate-scroll-x {
     animation: scroll-x 10s linear infinite;
   }
-
-
 }
