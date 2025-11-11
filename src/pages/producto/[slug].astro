@@ -108,8 +108,6 @@ const priceFormatter = new Intl.NumberFormat("es-PE", {
 const precio = typeof producto?.precio === "number" ? priceFormatter.format(producto.precio) : "Consultar";
 const descripcion = producto?.descripcion ?? "Este producto aún no tiene una descripción detallada disponible.";
 const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_stock : null;
-
-console.log (categoriaActual)
 ---
 
 <BaseLayout global={global}>

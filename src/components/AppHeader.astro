@@ -16,10 +16,10 @@ const botones = response.data.header.Botones.map((boton) => ({
 }));
 ---
 
-<header>
-    <nav id="nav" class="absolute group z-10 w-full border-b border-black/5 dark:border-white/5 lg:border-transparent">
+<header id="site-header" class="sticky top-0 z-50 border-b border-black/5 dark:border-white/5 bg-transparent backdrop-blur-md transition-all duration-500 ease-in-out">
+    <nav id="nav" class="top-0 z-50 z-10 w-full border-b border-black/5 dark:border-white/5 lg:border-transparent">
         <Container>
-            <div class="relative flex flex-wrap items-center justify-between gap-6 py-3 md:gap-0 md:py-4">
+            <div class="relative flex flex-wrap items-center  justify-between gap-6 py-3 md:gap-0 md:py-4">
                 <div class="relative z-20 flex w-full justify-between md:px-0 lg:w-fit">
                     <a href="/#home" aria-label="logo" class="flex items-center space-x-2">
                         <div aria-hidden="true" class="flex space-x-1">
@@ -66,6 +66,20 @@ const botones = response.data.header.Botones.map((boton) => ({
         </Container>
     </nav>
 </header>
+
+<script>
+  const header = document.getElementById("site-header");
+
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 20) {
+      header.classList.add("bg-white", "dark:bg-gray-950", "shadow-md");
+      header.classList.remove("bg-transparent");
+    } else {
+      header.classList.remove("bg-white", "dark:bg-gray-950", "shadow-md");
+      header.classList.add("bg-transparent");
+    }
+  });
+</script>
 
 <script>
     let isToggled = false;

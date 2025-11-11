@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/Layout.astro";
 import ProductCard from "../components/ProductCard.astro";
+import Container from "../components/Container.astro";
 import { getProductos, getCategorias, getGlobalData } from "../lib/api";
 
 const url = new URL(Astro.request.url);
@@ -73,125 +74,161 @@ const categoryItems = [
 ];
 ---
 
-
-
 <BaseLayout global={global}>
-  <section class="mx-auto flex max-w-7xl flex-col gap-10 pt-20 px-0 py-10">
-    <header class="flex flex-col gap-6 rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-      <div class="flex flex-col gap-2">
-        <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Tienda</h1>
-        <p class="text-zinc-600 dark:text-zinc-300">
-          Explora nuestro catálogo y encuentra el equipo que necesitas. Utiliza la barra de búsqueda o filtra por categoría.
-        </p>
-        
-      </div>
-      <form method="get" class="flex flex-col gap-4 md:flex-row">
-        <div class="relative flex-1">
-          <input
-            type="search"
-            name="search"
-            placeholder="Buscar por nombre o código"
-            value={searchParam}
-            class="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-          />
-          <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400">⌕</span>
-        </div>
-        <input type="hidden" name="category" value={categoryParam} />
-        <input type="hidden" name="page" value="1" />
-        <button
-          type="submit"
-          class="rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110"
-        >
-          Buscar
-        </button>
-      </form>
-      <nav aria-label="Categorías" class="overflow-x-auto">
-        <ul class="flex min-w-full gap-3">
-          {categoryItems.map((item) => {
-            const isActive = item.value === categoryParam;
-            return (
-              <li>
-                <a
-                  href={buildQueryString({ category: item.value, page: 1 })}
-                  class={`whitespace-nowrap rounded-full border px-5 py-2 text-sm font-medium transition ${
-                    isActive
-                      ? "border-primary bg-primary text-white"
-                      : "border-zinc-200 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
-                  }`}
-                >
-                  {item.label}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-      <p class="text-sm text-zinc-500 dark:text-zinc-400">
-        Mostrando
-        <strong class="mx-1">{productos.length}</strong>
-        de
-        <strong class="ml-1">{totalItems}</strong>
-        productos disponibles.
-      </p>
-    </header>
 
-    {productos.length > 0 ? (
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {productos.map((producto) => (
-          <ProductCard producto={producto} />
-        ))}
-      </div>
-    ) : (
-      <div class="rounded-3xl border border-dashed border-zinc-300 bg-white p-12 text-center dark:border-zinc-700 dark:bg-zinc-900">
-        <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">No encontramos resultados</h2>
-        <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          Ajusta los filtros de búsqueda para ver otros productos.
-        </p>
-      </div>
-    )}
-
-    {totalPages > 1 && (
-      <nav aria-label="Paginación" class="flex items-center justify-center gap-2">
-        <a
-          href={buildQueryString({ page: Math.max(1, currentPage - 1) })}
-          class={`rounded-full px-4 py-2 text-sm font-medium transition ${
-            currentPage === 1
-              ? "cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
-              : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
-          }`}
-          aria-disabled={currentPage === 1}
+  <Container>
+    <article class="flex flex-col gap-8 py-10 w-full">
+      <!-- Filtro responsive -->
+      <div class="block md:hidden">
+        <label for="mobileCategory" class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+          Filtrar por categoría:
+        </label>
+        <select
+          id="mobileCategory"
+          class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+          onchange="const selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
         >
-          Anterior
-        </a>
-        {Array.from({ length: totalPages }).map((_, index) => {
-          const pageNumber = index + 1;
-          const isActive = pageNumber === currentPage;
-          return (
-            <a
-              href={buildQueryString({ page: pageNumber })}
-              class={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
-                isActive
-                  ? "bg-primary text-white"
-                  : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
-              }`}
-              aria-current={isActive ? "page" : undefined}
+          {categoryItems.map((item) => (
+            <option
+              value={Astro.url.pathname + buildQueryString({ category: item.value, page: 1 })}
+              selected={item.value === categoryParam}
             >
-              {pageNumber}
-            </a>
-          );
-        })}
-        <a
-          href={buildQueryString({ page: Math.min(totalPages, currentPage + 1) })}
-          class={`rounded-full px-4 py-2 text-sm font-medium transition ${
-            currentPage === totalPages
-              ? "cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
-              : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
-          }`}
-          aria-disabled={currentPage === totalPages}
+              {item.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="flex flex-col md:flex-row gap-8">
+        <!-- Aside de Navbar visible en escritorio -->
+        <aside
+          class="hidden md:block md:w-64 shrink-0 h-fit sticky top-24 rounded-3xl border border-zinc-200 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
         >
-          Siguiente
-        </a>
-      </nav>
-    )}
-  </section>
+          <h2 class="text-lg font-semibold mb-4 text-zinc-900 dark:text-white">Categorías</h2>
+          <ul class="flex flex-col gap-3">
+            {categoryItems.map((item) => {
+              const isActive = item.value === categoryParam;
+              return (
+                <li>
+                  <a
+                    href={buildQueryString({ category: item.value, page: 1 })}
+                    class={`block w-full rounded-lg border px-4 py-2 text-sm font-medium text-left transition ${
+                      isActive
+                        ? "border-primary bg-primary text-white"
+                        : "border-zinc-200 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                    }`}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </aside>
+
+        <!-- Grid de productos -->
+        <section class="flex-1 flex flex-col gap-8">
+          <header class="flex flex-col gap-6 rounded-3xl border border-zinc-200 p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <div class="flex items-center justify-between">
+              <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Tienda</h1>
+              <button class="bg-primary cursor-pointer rounded-full text-white px-5 py-2 hover:bg-red-300 hover:text-black transition">
+                🛒 Mi Carrito
+              </button>
+            </div>
+            <form method="get" class="flex flex-col gap-4 md:flex-row">
+              <input
+                type="search"
+                name="search"
+                placeholder="Buscar por nombre o código"
+                value={searchParam}
+                class="flex-1 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+              />
+              <input type="hidden" name="category" value={categoryParam} />
+              <input type="hidden" name="page" value="1" />
+              <button
+                type="submit"
+                class="rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110"
+              >
+                Buscar
+              </button>
+            </form>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">
+              Mostrando <strong>{productos.length}</strong> de <strong>{totalItems}</strong> productos disponibles.
+            </p>
+          </header>
+
+          {productos.length > 0 ? (
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 w-full">
+              {productos.map((producto) => (
+                <ProductCard producto={producto} />
+              ))}
+            </div>
+          ) : (
+            <div class="rounded-3xl border border-dashed border-zinc-300 bg-white p-12 text-center dark:border-zinc-700 dark:bg-zinc-900">
+              <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">No encontramos resultados</h2>
+              <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+                Ajusta los filtros o la búsqueda para ver otros productos.
+              </p>
+            </div>
+          )}
+
+            
+          <!-- Paginación -->
+          {totalPages > 1 && (
+            <nav
+              aria-label="Paginación"
+              class="flex flex-col items-center justify-center w-full mt-10 gap-4 sm:flex-row sm:gap-3 sm:justify-center"
+            >
+              <a
+                href={buildQueryString({ page: Math.max(1, currentPage - 1) })}
+                class={`rounded-full px-5 py-2 text-sm font-medium text-center transition ${
+                  currentPage === 1
+                    ? "cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
+                    : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
+                }`}
+                aria-disabled={currentPage === 1}
+              >
+                ←
+              </a>
+              <div
+                class="flex flex-wrap items-center justify-center gap-2 max-w-full px-2 sm:px-0"
+              >
+                {Array.from({ length: totalPages }).map((_, index) => {
+                  const pageNumber = index + 1;
+                  const isActive = pageNumber === currentPage;
+                  return (
+                    <a
+                      href={buildQueryString({ page: pageNumber })}
+                      class={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
+                        isActive
+                          ? "bg-primary text-white"
+                          : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
+                      }`}
+                      aria-current={isActive ? "page" : undefined}
+                    >
+                      {pageNumber}
+                    </a>
+                  );
+                })}
+              </div>
+              <a
+                href={buildQueryString({ page: Math.min(totalPages, currentPage + 1) })}
+                class={`rounded-full px-5 py-2 text-sm font-medium text-center transition ${
+                  currentPage === totalPages
+                    ? "cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
+                    : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
+                }`}
+                aria-disabled={currentPage === totalPages}
+              >
+                →
+              </a>
+            </nav>
+          )}
+
+        </section>
+      </div>
+    </article>
+  </Container>
+  
 </BaseLayout>

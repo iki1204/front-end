@@ -50,7 +50,7 @@ const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(
         src={imgUrl}
         alt={producto?.nombre ?? "Producto"}
         sizes={srcset ? sizes : undefined}
-        class="h-56 w-full object-cover transition duration-300 group-hover:scale-105"
+        class="h-56 w-full object-contain transition duration-300 group-hover:scale-105"
         decoding="async"
         loading="lazy"
       />

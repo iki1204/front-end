@@ -21,16 +21,10 @@ console.log(img);
 ---
 
 <div class="relative" id="hero">
-  <div aria-hidden="true" class="absolute inset-0 grid grid-cols-2 -space-x-52 opacity-40 dark:opacity-20">
-      <div class="blur-[106px] h-56 bg-gradient-to-br from-primary to-red-400 dark:from-orange-700"></div>
-      <div class="blur-[80px] h-32 bg-gradient-to-r from-orange-400 to-orange-300 dark:to-red-600"></div>
-  </div>
-
   <Container>
     <header>
-      <div class="relative pt-28 ml-auto grid grid-cols-1 md:grid-cols-2 items-center gap-6">
-        <!-- 🧱 Columna izquierda -->
-        <div class="lg:w-2/3 text-center mx-auto">
+      <div class="relative pt-28 ml-auto grid grid-cols-1 md:grid-cols-2 items-center gap-5">
+        <div class="lg:w-9/10 text-center mx-auto">
           <h1 class="text-gray-900 text-balance dark:text-white font-bold text-5xl md:text-6xl xl:text-7xl">
             {mainTitulo}
             <span class="text-primary dark:text-white">{lastTitulo}</span>
@@ -61,7 +55,7 @@ console.log(img);
 
 
         <div
-          class="slider relative flex justify-center items-center min-h-[350px] overflow-hidden rounded-3xl shadow-2xl"
+          class=" slider relative flex justify-center items-center min-h-[350px] overflow-hidden rounded-3xl shadow-2xl"
           data-hero-slider
         >
           {img.map((src, i) => (
