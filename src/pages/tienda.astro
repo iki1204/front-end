@@ -72,6 +72,26 @@ const categoryItems = [
     value: categoria?.ID_Categoria ?? categoria?.id,
   })),
 ];
+
+//Paginacion
+const maxVisible = 10;
+const half = Math.floor(maxVisible / 2);
+
+let startPage = Math.max(1, currentPage - half);
+let endPage = startPage + maxVisible - 1;
+if (endPage > totalPages) {
+  endPage = totalPages;
+  startPage = Math.max(1, endPage - maxVisible + 1);
+}
+
+const range = (a: number, b: number) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+const pages = range(startPage, endPage);
+
+const showLeftDots = startPage > 1;
+const showRightDots = endPage < totalPages;
+
+
+
 ---
 
 <BaseLayout global={global}>
@@ -128,13 +148,11 @@ const categoryItems = [
         </aside>
 
         <!-- Grid de productos -->
-        <section class="flex-1 flex flex-col gap-8">
-          <header class="flex flex-col gap-6 rounded-3xl border border-zinc-200 p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <section class="flex-1 flex flex-col gap-8 z-40">
+          <header class="flex flex-col gap-6 rounded-3xl border border-zinc-200 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <div class="flex items-center justify-between">
               <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Tienda</h1>
-              <button class="bg-primary cursor-pointer rounded-full text-white px-5 py-2 hover:bg-red-300 hover:text-black transition">
-                🛒 Mi Carrito
-              </button>
+
             </div>
             <form method="get" class="flex flex-col gap-4 md:flex-row">
               <input
@@ -175,56 +193,54 @@ const categoryItems = [
 
             
           <!-- Paginación -->
-          {totalPages > 1 && (
-            <nav
-              aria-label="Paginación"
-              class="flex flex-col items-center justify-center w-full mt-10 gap-4 sm:flex-row sm:gap-3 sm:justify-center"
-            >
-              <a
-                href={buildQueryString({ page: Math.max(1, currentPage - 1) })}
-                class={`rounded-full px-5 py-2 text-sm font-medium text-center transition ${
-                  currentPage === 1
-                    ? "cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
-                    : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
-                }`}
-                aria-disabled={currentPage === 1}
-              >
-                ←
-              </a>
-              <div
-                class="flex flex-wrap items-center justify-center gap-2 max-w-full px-2 sm:px-0"
-              >
-                {Array.from({ length: totalPages }).map((_, index) => {
-                  const pageNumber = index + 1;
-                  const isActive = pageNumber === currentPage;
-                  return (
-                    <a
-                      href={buildQueryString({ page: pageNumber })}
-                      class={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
-                        isActive
-                          ? "bg-primary text-white"
-                          : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
-                      }`}
-                      aria-current={isActive ? "page" : undefined}
-                    >
-                      {pageNumber}
-                    </a>
-                  );
-                })}
-              </div>
-              <a
-                href={buildQueryString({ page: Math.min(totalPages, currentPage + 1) })}
-                class={`rounded-full px-5 py-2 text-sm font-medium text-center transition ${
-                  currentPage === totalPages
-                    ? "cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
-                    : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
-                }`}
-                aria-disabled={currentPage === totalPages}
-              >
-                →
-              </a>
-            </nav>
-          )}
+         <div class="flex flex-wrap items-center justify-center gap-2 max-w-full px-2 sm:px-0">
+            {showLeftDots && (
+              <>
+                <a
+                  href={buildQueryString({ page: 1 })}
+                  class={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
+                    currentPage === 1
+                      ? "bg-primary text-white"
+                      : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
+                  }`}
+                  aria-label="Página 1"
+                >1</a>
+                <span class="px-1 text-zinc-400">…</span>
+              </>
+            )}
+
+            {pages.map((pageNumber) => {
+              const isActive = pageNumber === currentPage;
+              return (
+                <a
+                  href={buildQueryString({ page: pageNumber })}
+                  class={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
+                    isActive
+                      ? "bg-primary text-white"
+                      : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
+                  }`}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {pageNumber}
+                </a>
+              );
+            })}
+
+            {showRightDots && (
+              <>
+                <span class="px-1 text-zinc-400">…</span>
+                <a
+                  href={buildQueryString({ page: totalPages })}
+                  class={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
+                    currentPage === totalPages
+                      ? "bg-primary text-white"
+                      : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
+                  }`}
+                  aria-label={`Página ${totalPages}`}
+                >{totalPages}</a>
+              </>
+            )}
+          </div>
 
         </section>
       </div>

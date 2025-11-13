@@ -43,8 +43,8 @@ const slug = producto?.ID_Nombre ?? producto?.slug ?? producto?.id;
 const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(producto.precio) : "Consultar";
 ---
 
-<a href={`/producto/${slug}`} class="group block h-full">
-  <article class="flex h-full flex-col rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+<article class="group flex h-full flex-col rounded-2xl border border-zinc-200 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+  <a href={`/producto/${slug}`} class="flex flex-1 flex-col">
     <div class="relative overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
       <img
         src={imgUrl}
@@ -62,9 +62,27 @@ const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(
       <p class="text-sm text-zinc-500 dark:text-zinc-400">Código: {producto?.codigo ?? "N/A"}</p>
       <div class="mt-auto flex items-center justify-between">
         <p class="text-lg font-bold text-red-500">{priceLabel}</p>
-        <span class="text-sm font-medium text-primary transition group-hover:underline">Ver detalles →</span>
       </div>
     </div>
     
-  </article>
-</a>
+ </a>
+  <div class="mt-4 flex items-center justify-between gap-2">
+    <a
+      href={`/producto/${slug}`}
+      class="rounded-full border border-transparent px-4 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary/10"
+    >
+      Ver detalles
+    </a>
+    <button
+      type="button"
+      data-action="add-to-cart"
+      data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}
+      data-product-name={producto?.nombre ?? "Producto"}
+      data-product-price={typeof producto?.precio === "number" ? producto.precio : ""}
+      data-product-image={imgUrl}
+      data-product-url={`/producto/${slug}`}
+      class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-primary/60"
+    >
+      Añadir al carrito
+    </button>
+  </div>

@@ -1,6 +1,8 @@
 ---
 import Container from "./Container.astro";
-import { getGlobalData } from "../lib/api";   
+import Cart from "./Cart.astro";
+import { getGlobalData } from "../lib/api";  
+
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 const response = await getGlobalData();
@@ -17,9 +19,9 @@ const botones = response.data.header.Botones.map((boton) => ({
 ---
 
 <header id="site-header" class="sticky top-0 z-50 border-b border-black/5 dark:border-white/5 bg-transparent backdrop-blur-md transition-all duration-500 ease-in-out">
-    <nav id="nav" class="top-0 z-50 z-10 w-full border-b border-black/5 dark:border-white/5 lg:border-transparent">
+    <nav id="nav" class="group top-0 z-50 z-10 w-full border-b border-black/5 dark:border-white/5 lg:border-transparent">
         <Container>
-            <div class="relative flex flex-wrap items-center  justify-between gap-6 py-3 md:gap-0 md:py-4">
+            <div class="relative flex flex-wrap items-center items-center justify-between gap-6 py-3 md:gap-0 md:py-4">
                 <div class="relative z-20 flex w-full justify-between md:px-0 lg:w-fit">
                     <a href="/#home" aria-label="logo" class="flex items-center space-x-2">
                         <div aria-hidden="true" class="flex space-x-1">
@@ -31,11 +33,16 @@ const botones = response.data.header.Botones.map((boton) => ({
                         </div>
                     </a>
 
-                    <div class="relative flex max-h-10 items-center lg:hidden">
-                        <button aria-label="humburger" id="hamburger" class="relative -mr-6 p-6 active:scale-95 duration-300">
-                            <div aria-hidden="true" id="line" class="m-auto h-0.5 w-5 rounded bg-gray-950 transition duration-300 dark:bg-white origin-top group-data-[state=active]:rotate-45 group-data-[state=active]:translate-y-1.5"></div>
-                            <div aria-hidden="true" id="line2" class="m-auto mt-2 h-0.5 w-5 rounded bg-gray-950 transition duration-300 dark:bg-white origin-bottom group-data-[state=active]:-rotate-45 group-data-[state=active]:-translate-y-1"></div>
-                        </button>
+                    <div class="flex items-center gap-3">
+                      <div class="lg:hidden">
+                        <Cart buttonVariant="outline" />
+                        </div>
+                            <div class="relative flex max-h-10 items-center lg:hidden">
+                            <button aria-label="humburger" id="hamburger" class="relative -mr-6 p-6 active:scale-95 duration-300">
+                                <div aria-hidden="true" id="line" class="m-auto h-0.5 w-5 rounded bg-gray-950 transition duration-300 dark:bg-white origin-top group-data-[state=active]:rotate-45 group-data-[state=active]:translate-y-1.5"></div>
+                                <div aria-hidden="true" id="line2" class="m-auto mt-2 h-0.5 w-5 rounded bg-gray-950 transition duration-300 dark:bg-white origin-bottom group-data-[state=active]:-rotate-45 group-data-[state=active]:-translate-y-1"></div>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div id="navLayer" aria-hidden="true" class="fixed inset-0 z-10 h-screen w-screen origin-bottom scale-y-0 bg-white/70 backdrop-blur-2xl transition duration-500 group-data-[state=active]:origin-top group-data-[state=active]:scale-y-100 dark:bg-gray-950/70 lg:hidden"></div>
@@ -50,7 +57,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                                 ))
                             }
                         </div>
-                    </div>              
+                    </div>            
                         {
                             botones.map((link) => (
                                 <div class="mt-12 mr-2 lg:mt-0"> 
@@ -60,7 +67,11 @@ const botones = response.data.header.Botones.map((boton) => ({
                                 </div>
                             ))
                         }
+                        <div class="hidden lg:flex lg:items-center lg:gap-3 lg:pl-6">
+                            <Cart />
+                        </div>  
                     </div>
+
                 </div>
             </div>
         </Container>
@@ -79,6 +90,11 @@ const botones = response.data.header.Botones.map((boton) => ({
       header.classList.add("bg-transparent");
     }
   });
+</script>
+
+<script type="module">
+  import "@/lib/carritoTienda"; 
+  import "@/lib/carritoWidget"
 </script>
 
 <script>
