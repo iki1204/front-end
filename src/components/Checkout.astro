@@ -85,25 +85,3 @@ const global = await getGlobalData();
   </Container>
 </BaseLayout>
 
-<script type="module">
-  import { initCheckoutPage } from "@/lib/carritoTienda";
-
-  const setup = () => {
-    initCheckoutPage();
-  };
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", setup, { once: true });
-  } else {
-    setup();
-  }
-
-  document.addEventListener("astro:page-load", setup);
-  document.addEventListener(
-    "astro:before-swap",
-    () => {
-      document.removeEventListener("astro:page-load", setup);
-    },
-    { once: true },
-  );
-</script>

@@ -69,10 +69,10 @@ if (!producto) {
 }
 
 const categorias = normalizeCollection(categoriasResponse?.data ?? []);
-console.log (categorias)
 const categoriaActual = categorias.find((categoria) =>
   categoria?.ID_Categoria === producto?.ID_Categoria || categoria?.id === producto?.ID_Categoria
 );
+
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 const galeriasPosibles = [producto?.imagen, producto?.imagenes?.data];
@@ -184,13 +184,13 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
         <div class="flex flex-col gap-3 sm:flex-row">
            <button
                 type="button"
+                data-action="add-to-cart"
                 class="w-full cursor-pointer rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110"
-                data-add-quote
-                data-product-id={producto.id}
-                data-product-slug={slug}
-                data-product-name={producto.nombre}
-                data-product-code={producto.codigo}
+                data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}
+                data-product-name={producto?.nombre ?? "Producto"}
                 data-product-price={typeof producto?.precio === "number" ? producto.precio : ""}
+                data-product-image={mainImage}
+                data-product-url={`/producto/${slug}`}
                 >
                 Añadir al carrito
             </button>

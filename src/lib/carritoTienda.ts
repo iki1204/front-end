@@ -86,6 +86,10 @@ const loadCart = () => {
   loaded = true;
 };
 
+export const ensureCartInitialized = () => {
+  loadCart();
+};
+
 const persistCart = () => {
   if (typeof window === "undefined") return;
 
@@ -117,6 +121,10 @@ const withUpdate = (updater: () => void) => {
 export const formatMoney = (value: number | null | undefined): string => {
   if (typeof value !== "number" || !Number.isFinite(value)) return "Consultar";
   return currencyFormatter.format(Math.max(0, value));
+};
+
+export const formatPrice = (value: number | null | undefined): string => {
+  return formatMoney(value);
 };
 
 export const subscribeToCart = (callback: CartSubscriber): (() => void) => {
@@ -198,7 +206,7 @@ const renderMiniCartItem = (item: CartItem): HTMLLIElement => {
   image.loading = "lazy";
   image.width = 64;
   image.height = 64;
-  image.className = "h-16 w-16 shrink-0 rounded-xl object-cover bg-zinc-100 dark:bg-zinc-800";
+  image.className = "h-16 w-16 shrink-0 rounded-xl object-fit bg-zinc-100 dark:bg-zinc-800";
 
   const info = document.createElement("div");
   info.className = "flex-1";
@@ -258,7 +266,7 @@ const renderCheckoutItem = (item: CartItem): HTMLLIElement => {
   image.src = item.image;
   image.alt = item.name;
   image.loading = "lazy";
-  image.className = "h-full w-full object-cover";
+  image.className = "h-full w-full object-fit";
   imageWrapper.append(image);
 
   const info = document.createElement("div");
@@ -298,7 +306,7 @@ const renderCheckoutItem = (item: CartItem): HTMLLIElement => {
   remove.textContent = "Eliminar";
 
   const lineTotal = document.createElement("p");
-  lineTotal.className = "text-sm font-semibold text-zinc-900 dark:text-white";
+  lineTotal.className = "pt-2 text-sm font-semibold text-zinc-900 dark:text-white";
   const subtotal = typeof item.price === "number" ? item.price * item.quantity : null;
   lineTotal.textContent = `Subtotal: ${subtotal === null ? "--" : formatMoney(subtotal)}`;
 
@@ -323,6 +331,20 @@ const setupWidget = (widget: HTMLElement) => {
   const checkoutButton = widget.querySelector<HTMLAnchorElement>("[data-cart-checkout]");
 
   if (!panel || !toggle) return;
+
+
+  const hoverOpen = widget.hasAttribute("data-hover-open");
+
+  const isPointerInsideWidget = () => {
+    return widget.matches(":hover") || panel.matches(":hover");
+  };
+
+  const triggerButtonAnimation = () => {
+    toggle.classList.remove("cart-widget-bump");
+    // Force reflow to allow the animation to restart.
+    void toggle.offsetWidth;
+    toggle.classList.add("cart-widget-bump");
+  };
 
   let isOpen = false;
   const openPanel = () => {
@@ -350,8 +372,10 @@ const setupWidget = (widget: HTMLElement) => {
 
   const outsideHandler = (event: MouseEvent) => {
     if (!isOpen) return;
+    if (isPointerInsideWidget()) return;
     const target = event.target;
     if (!(target instanceof Element)) return;
+    const composedPath = typeof event.composedPath === "function" ? event.composedPath() : undefined;
     if (widget.contains(target)) return;
     closePanel();
   };
@@ -366,9 +390,49 @@ const setupWidget = (widget: HTMLElement) => {
   document.addEventListener("click", outsideHandler);
   document.addEventListener("keydown", escHandler);
   document.addEventListener("cart:open-request", openRequestHandler as EventListener);
+  let hoverCloseTimeout: number | null = null;
+  let hoverEnter: (() => void) | null = null;
+  let hoverLeave: (() => void) | null = null;
+  const clearHoverTimeout = () => {
+    if (hoverCloseTimeout !== null) {
+      window.clearTimeout(hoverCloseTimeout);
+      hoverCloseTimeout = null;
+    }
+  };
+  const scheduleHoverClose = () => {
+    clearHoverTimeout();
+    hoverCloseTimeout = window.setTimeout(() => {
+      hoverCloseTimeout = null;
+      if (isPointerInsideWidget()) {
+        scheduleHoverClose();
+        return;
+      }
+      closePanel();
+    }, 220);
+  };
+
+  if (hoverOpen) {
+    hoverEnter = () => {
+      clearHoverTimeout();
+      openPanel();
+    };
+    hoverLeave = () => {
+      scheduleHoverClose();
+    };
+    widget.addEventListener("mouseenter", hoverEnter);
+    widget.addEventListener("mouseleave", hoverLeave);
+    panel.addEventListener("mouseenter", hoverEnter);
+    panel.addEventListener("mouseleave", hoverLeave);
+  }
+
+  let previousCount = getCartItems().reduce((sum, item) => sum + item.quantity, 0);
 
   const unsubscribe = subscribeToCart((items) => {
     const count = items.reduce((sum, item) => sum + item.quantity, 0);
+    if (count > previousCount) {
+      triggerButtonAnimation();
+    }
+    previousCount = count;
     counts.forEach((node) => {
       node.textContent = String(count);
     });
@@ -419,6 +483,17 @@ const setupWidget = (widget: HTMLElement) => {
     document.removeEventListener("click", outsideHandler);
     document.removeEventListener("keydown", escHandler);
     document.removeEventListener("cart:open-request", openRequestHandler as EventListener);
+    if (hoverOpen) {
+      if (hoverEnter) {
+        widget.removeEventListener("mouseenter", hoverEnter);
+        panel.removeEventListener("mouseenter", hoverEnter);
+      }
+      if (hoverLeave) {
+        widget.removeEventListener("mouseleave", hoverLeave);
+        panel.removeEventListener("mouseleave", hoverLeave);
+      }
+      clearHoverTimeout();
+    }
     clearButton?.removeEventListener("click", clearHandler);
     closeButton?.removeEventListener("click", closeHandler);
   });
@@ -533,6 +608,11 @@ const bindGlobalActions = () => {
   });
 };
 
+export const initCartActions = () => {
+  bindGlobalActions();
+};
+
+
 export const initCartWidgets = (root: Document | HTMLElement = document) => {
   if (typeof window === "undefined") return;
   loadCart();
@@ -550,25 +630,10 @@ export const initCheckoutPage = (root: Document | HTMLElement = document) => {
   setupCheckout(root);
 };
 
-const bootstrap = () => {
-  bindGlobalActions();
-  initCartWidgets();
+export const destroyCartWidgets = () => {
+  destroyWidgets();
 };
 
-if (typeof window !== "undefined") {
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bootstrap, { once: true });
-  } else {
-    bootstrap();
-  }
-
-  document.addEventListener("astro:page-load", () => {
-    initCartWidgets();
-    initCheckoutPage();
-  });
-
-  document.addEventListener("astro:before-swap", () => {
-    destroyWidgets();
-    destroyCheckout();
-  });
-}
+export const destroyCheckoutPage = () => {
+  destroyCheckout();
+};

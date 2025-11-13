@@ -1,6 +1,5 @@
 ---
 import Container from "./Container.astro";
-import Cart from "./Cart.astro";
 import { getGlobalData } from "../lib/api";  
 
 
@@ -34,9 +33,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                     </a>
 
                     <div class="flex items-center gap-3">
-                      <div class="lg:hidden">
-                        <Cart buttonVariant="outline" />
-                        </div>
+
                             <div class="relative flex max-h-10 items-center lg:hidden">
                             <button aria-label="humburger" id="hamburger" class="relative -mr-6 p-6 active:scale-95 duration-300">
                                 <div aria-hidden="true" id="line" class="m-auto h-0.5 w-5 rounded bg-gray-950 transition duration-300 dark:bg-white origin-top group-data-[state=active]:rotate-45 group-data-[state=active]:translate-y-1.5"></div>
@@ -67,9 +64,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                                 </div>
                             ))
                         }
-                        <div class="hidden lg:flex lg:items-center lg:gap-3 lg:pl-6">
-                            <Cart />
-                        </div>  
+ 
                     </div>
 
                 </div>
@@ -92,10 +87,7 @@ const botones = response.data.header.Botones.map((boton) => ({
   });
 </script>
 
-<script type="module">
-  import "@/lib/carritoTienda"; 
-  import "@/lib/carritoWidget"
-</script>
+
 
 <script>
     let isToggled = false;

@@ -2,6 +2,8 @@
 import { AstroFont } from 'astro-font';
 import AppFooter from "../components/AppFooter.astro";
 import AppHeader from "../components/AppHeader.astro";
+import Cart from "../components/Cart.astro";
+import cartWidgetScript from "../lib/carritoWidget.ts?url";
 import { getGlobalData } from "../lib/api";
 import "../css/tailus.css"
 import "../styles/global.css";
@@ -70,6 +72,11 @@ const siteName = response.data.siteName;
             <slot />
         
         <AppFooter />
+
+
+        <Cart floating />
+
+        <script type="module" src={cartWidgetScript}></script>
         
     </body>
 </html>
