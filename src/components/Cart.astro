@@ -11,7 +11,7 @@ const badgeClasses = floating
   : `inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-2 text-xs font-bold ${
       isOutline ? "bg-white/10 text-white" : "bg-white/20 text-white"
     }`;
-const panelPositionClasses = floating ? "bottom-[calc(100%+1rem)] right-0" : "right-0 mt-4";
+const panelPositionClasses = floating ? "bottom-[calc(100%+0.35rem)] right-0" : "right-0 mt-4";
 ---
 
 <div
@@ -113,30 +113,3 @@ const panelPositionClasses = floating ? "bottom-[calc(100%+1rem)] right-0" : "ri
     </div>
   </div>
 </div>
-
-<style>
-  :global(.cart-widget-bump) {
-    animation: cart-widget-bounce 0.6s ease;
-  }
-
-  @keyframes cart-widget-bounce {
-    0% {
-      transform: scale(1);
-    }
-    15% {
-      transform: scale(1.12);
-    }
-    35% {
-      transform: scale(0.94);
-    }
-    55% {
-      transform: scale(1.05);
-    }
-    75% {
-      transform: scale(0.98);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
-</style>

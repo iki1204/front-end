@@ -82,7 +82,7 @@ const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(
       data-product-price={typeof producto?.precio === "number" ? producto.precio : ""}
       data-product-image={imgUrl}
       data-product-url={`/producto/${slug}`}
-      class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-primary/60"
+      class="cursor-pointer rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-primary/60"
     >
       Añadir al carrito
     </button>

@@ -284,7 +284,7 @@ const renderCheckoutItem = (item: CartItem): HTMLLIElement => {
   decrement.type = "button";
   decrement.dataset.cartDecrement = item.id;
   decrement.className =
-    "flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-lg text-zinc-600 transition hover:border-primary hover:text-primary dark:border-zinc-700 dark:text-zinc-300";
+    "cursor-pointer flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-lg text-zinc-600 transition hover:border-primary hover:text-primary dark:border-zinc-700 dark:text-zinc-300";
   decrement.textContent = "−";
 
   const quantity = document.createElement("span");
@@ -295,14 +295,14 @@ const renderCheckoutItem = (item: CartItem): HTMLLIElement => {
   increment.type = "button";
   increment.dataset.cartIncrement = item.id;
   increment.className =
-    "flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-lg text-zinc-600 transition hover:border-primary hover:text-primary dark:border-zinc-700 dark:text-zinc-300";
+    "cursor-pointer flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-lg text-zinc-600 transition hover:border-primary hover:text-primary dark:border-zinc-700 dark:text-zinc-300";
   increment.textContent = "+";
 
   const remove = document.createElement("button");
   remove.type = "button";
   remove.dataset.cartRemove = item.id;
   remove.className =
-    "ml-auto rounded-full border border-transparent px-4 py-2 text-sm font-semibold text-zinc-500 transition hover:text-red-500 dark:text-zinc-400";
+    "cursor-pointer ml-auto rounded-full border border-transparent px-4 py-2 text-sm font-semibold text-zinc-500 transition hover:text-red-500 dark:text-zinc-400";
   remove.textContent = "Eliminar";
 
   const lineTotal = document.createElement("p");
@@ -333,7 +333,12 @@ const setupWidget = (widget: HTMLElement) => {
   if (!panel || !toggle) return;
 
 
-  const hoverOpen = widget.hasAttribute("data-hover-open");
+  const hoverSupported =
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia("(hover: hover) and (pointer: fine)").matches
+      : true;
+
+  const hoverOpen = widget.hasAttribute("data-hover-open") && hoverSupported;
 
   const isPointerInsideWidget = () => {
     return widget.matches(":hover") || panel.matches(":hover");
@@ -347,6 +352,8 @@ const setupWidget = (widget: HTMLElement) => {
   };
 
   let isOpen = false;
+  let isPinnedOpen = false;
+
   const openPanel = () => {
     if (isOpen) return;
     panel.classList.remove("hidden");
@@ -360,13 +367,39 @@ const setupWidget = (widget: HTMLElement) => {
     toggle.setAttribute("aria-expanded", "false");
     widget.removeAttribute("data-open");
     isOpen = false;
+    isPinnedOpen = false;
+    isPinnedOpen = false;
   };
+  let hoverCloseTimeout: number | null = null;
+  let hoverEnter: (() => void) | null = null;
+  let hoverLeave: (() => void) | null = null;
+  const clearHoverTimeout = () => {
+    if (hoverCloseTimeout !== null) {
+      window.clearTimeout(hoverCloseTimeout);
+      hoverCloseTimeout = null;
+    }
+  };
+  const scheduleHoverClose = () => {
+    if (isPinnedOpen) return;
+    clearHoverTimeout();
+    hoverCloseTimeout = window.setTimeout(() => {
+      hoverCloseTimeout = null;
+      if (isPointerInsideWidget()) {
+        scheduleHoverClose();
+        return;
+      }
+      closePanel();
+    }, 220);
+  };
+  
   const togglePanel = (event?: Event) => {
     event?.preventDefault();
     if (isOpen) {
       closePanel();
     } else {
       openPanel();
+      isPinnedOpen = true;
+      clearHoverTimeout();
     }
   };
 
@@ -374,9 +407,9 @@ const setupWidget = (widget: HTMLElement) => {
     if (!isOpen) return;
     if (isPointerInsideWidget()) return;
     const target = event.target;
-    if (!(target instanceof Element)) return;
+    if (target instanceof Element && widget.contains(target)) return;
     const composedPath = typeof event.composedPath === "function" ? event.composedPath() : undefined;
-    if (widget.contains(target)) return;
+    if (composedPath && composedPath.includes(widget)) return;  
     closePanel();
   };
 
@@ -390,26 +423,6 @@ const setupWidget = (widget: HTMLElement) => {
   document.addEventListener("click", outsideHandler);
   document.addEventListener("keydown", escHandler);
   document.addEventListener("cart:open-request", openRequestHandler as EventListener);
-  let hoverCloseTimeout: number | null = null;
-  let hoverEnter: (() => void) | null = null;
-  let hoverLeave: (() => void) | null = null;
-  const clearHoverTimeout = () => {
-    if (hoverCloseTimeout !== null) {
-      window.clearTimeout(hoverCloseTimeout);
-      hoverCloseTimeout = null;
-    }
-  };
-  const scheduleHoverClose = () => {
-    clearHoverTimeout();
-    hoverCloseTimeout = window.setTimeout(() => {
-      hoverCloseTimeout = null;
-      if (isPointerInsideWidget()) {
-        scheduleHoverClose();
-        return;
-      }
-      closePanel();
-    }, 220);
-  };
 
   if (hoverOpen) {
     hoverEnter = () => {

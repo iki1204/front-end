@@ -5,7 +5,7 @@ import Container from "../components/Container.astro";
 import { getProductos, getCategorias, getGlobalData } from "../lib/api";
 
 const url = new URL(Astro.request.url);
-const rawSearchParam = url.searchParams.get("search") ?? "";
+
 const searchParam = url.searchParams.get("search")?.toLowerCase().trim() ?? "";
 const categoryParam = url.searchParams.get("category") ?? "all";
 const pageParam = Number.parseInt(url.searchParams.get("page") ?? "1", 10);
@@ -99,7 +99,7 @@ const showRightDots = endPage < totalPages;
   <Container>
     <article class="flex flex-col gap-8 py-10 w-full">
       <!-- Filtro responsive -->
-      <div class="block md:hidden">
+      <div class="group relative block md:hidden">
         <label for="mobileCategory" class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
           Filtrar por categoría:
         </label>
