@@ -4,9 +4,6 @@
 @tailwind utilities;
 
 @layer utilities {
-  :root {
-    color-scheme: light; /* fuerza esquema claro */
-  }
 
   .no-scrollbar::-webkit-scrollbar {
     display: none; /* Oculta scrollbar en Chrome, Safari y Opera */

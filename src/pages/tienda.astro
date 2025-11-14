@@ -10,7 +10,6 @@ const searchParam = url.searchParams.get("search")?.toLowerCase().trim() ?? "";
 const categoryParam = url.searchParams.get("category") ?? "all";
 const pageParam = Number.parseInt(url.searchParams.get("page") ?? "1", 10);
 const ITEMS_PER_PAGE = 24;
-
 const requestedPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
 
 const strapiParams = new URLSearchParams();
@@ -36,6 +35,16 @@ const [productosResponse, categoriasResponse, global] = await Promise.all([
 
 const normalizeCollection = (collection: any[] = []) =>
   collection.map((item) => (item?.attributes ? { id: item.id, ...item.attributes } : item));
+
+const getStrapiFileUrl = (file: any) => {
+  const data = file?.data ?? file;
+  const url = data?.attributes?.url ?? data?.url;
+
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+
+  return `${import.meta.env.VITE_STRAPI_URL ?? ""}${url}`;
+};
 
 const productos = normalizeCollection(productosResponse?.data ?? []);
 const categorias = normalizeCollection(categoriasResponse?.data ?? []);
@@ -65,13 +74,44 @@ const buildQueryString = (updates: Record<string, string | number | null>) => {
   return query ? `?${query}` : "";
 };
 
+const normalizeRelationEntry = (entry: any) =>
+  entry?.attributes ? { id: entry.id, ...entry.attributes } : entry;
+
+const getRelationArray = (relation: any) => {
+  if (!relation) return [];
+  if (Array.isArray(relation)) {
+    return relation.map(normalizeRelationEntry).filter(Boolean);
+  }
+  if (Array.isArray(relation?.data)) {
+    return relation.data.map(normalizeRelationEntry).filter(Boolean);
+  }
+  if (relation?.data) {
+    return [normalizeRelationEntry(relation.data)].filter(Boolean);
+  }
+  return [normalizeRelationEntry(relation)].filter(Boolean);
+};
+
+const getParentRelation = (categoria: any) => getRelationArray(categoria?.padre_id)[0] ?? null;
+const getChildrenRelations = (categoria: any) => getRelationArray(categoria?.hijo_id);
+
+const formatCategoryItem = (categoria: any) => ({
+  label: categoria?.nombre ?? "Sin nombre",
+  value: categoria?.ID_Categoria ?? categoria?.id,
+  image: getStrapiFileUrl(categoria?.cat_img),
+});
+
+
 const categoryItems = [
-  { label: "Todos", value: "all" },
-  ...categorias.map((categoria) => ({
-    label: categoria?.nombre ?? "Sin nombre",
-    value: categoria?.ID_Categoria ?? categoria?.id,
-  })),
+  { label: "TODOS", value: "all" },
+  ...categorias.map(formatCategoryItem),
 ];
+
+const parentCategoryItems = categorias
+  .filter((categoria) => !getParentRelation(categoria))
+  .map((categoria) => ({
+    ...formatCategoryItem(categoria),
+    children: getChildrenRelations(categoria).map(formatCategoryItem),
+  }));
 
 //Paginacion
 const maxVisible = 10;
@@ -108,13 +148,31 @@ const showRightDots = endPage < totalPages;
           class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
           onchange="const selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
         >
-          {categoryItems.map((item) => (
-            <option
-              value={Astro.url.pathname + buildQueryString({ category: item.value, page: 1 })}
-              selected={item.value === categoryParam}
-            >
-              {item.label}
-            </option>
+        <option
+            value={Astro.url.pathname + buildQueryString({ category: "all", page: 1 })}
+            selected={categoryParam === "all"}
+          >
+            Todos
+          </option>
+          {parentCategoryItems.map((parent) => (
+            parent.children.length > 0 ? (
+              <optgroup label={parent.label}>
+                {parent.children.map((child) => (
+                  <option
+                    value={Astro.url.pathname + buildQueryString({ category: child.value, page: 1 })}
+                    selected={child.value === categoryParam}
+                  >
+                    {child.label}
+                  </option>
+                ))}
+              </optgroup>
+            ) : (
+              <optgroup label={parent.label}>
+                <option value="" disabled>
+                  Sin subcategorías disponibles
+                </option>
+              </optgroup>
+            )
           ))}
         </select>
       </div>
@@ -123,40 +181,107 @@ const showRightDots = endPage < totalPages;
       <div class="flex flex-col md:flex-row gap-8">
         <!-- Aside de Navbar visible en escritorio -->
         <aside
-          class="hidden md:block md:w-64 shrink-0 h-fit sticky top-24 rounded-3xl border border-zinc-200 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+          class="hidden md:block md:w-64 shrink-0 h-fit sticky top-24 z-50 rounded-3xl border border-zinc-200 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
         >
           <h2 class="text-lg font-semibold mb-4 text-zinc-900 dark:text-white">Categorías</h2>
-          <ul class="flex flex-col gap-3">
-            {categoryItems.map((item) => {
-              const isActive = item.value === categoryParam;
-              return (
-                <li>
-                  <a
-                    href={buildQueryString({ category: item.value, page: 1 })}
-                    class={`block w-full rounded-lg border px-4 py-2 text-sm font-medium text-left transition ${
-                      isActive
-                        ? "border-primary bg-primary text-white"
-                        : "border-zinc-200 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
-                    }`}
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
+          <div class="flex-1 pr-2">
+            <ul class="flex flex-col gap-3 pb-2">
+            <li class="relative">
+              <a
+                href={buildQueryString({ category: "all", page: 1 })}
+                class={`block w-full rounded-lg border px-4 py-2 text-sm font-medium text-left transition ${
+                  categoryParam === "all"
+                    ? "border-primary bg-primary text-white"
+                    : "border-zinc-200 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                }`}
+                aria-current={categoryParam === "all" ? "true" : undefined}
+              >
+                Todos
+              </a>
+            </li>
+            {parentCategoryItems.length > 0 ? (
+              parentCategoryItems.map((parent) => {
+                const hasActiveChild = parent.children.some((child) => child.value === categoryParam);
+                const isParentActive = parent.value === categoryParam;
+                const isActive = isParentActive || hasActiveChild;
+
+                return (
+                  <li class="relative group">
+                    <div
+                      class={`block w-full rounded-lg border px-4 py-2 text-sm font-medium text-left transition ${
+                        isActive
+                          ? "border-primary bg-primary text-white"
+                          : "border-zinc-200 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                      }`}
+                      role="button"
+                      aria-haspopup="true"
+                      tabindex="0"
+                    >
+                      {parent.label}
+                    </div>
+
+                    {parent.children.length > 0 && (
+                      <div class="md:absolute md:left-full md:top-0 md:pl-5 md:pr-2 md:py-2">
+                        <div class="relative">
+                          <span
+                            class="pointer-events-auto absolute -left-5 top-0 hidden h-full w-5 md:block"
+                            aria-hidden="true"
+                          ></span>
+                          <ul
+                            class="hidden min-w-[18rem] max-w-lg flex-col gap-2 rounded-3xl border border-zinc-200 bg-white p-4 text-sm shadow-xl transition duration-200 ease-out group-hover:flex group-focus-within:flex md:translate-y-1 md:opacity-0 md:pointer-events-none md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-hover:pointer-events-auto md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100 md:group-focus-within:pointer-events-auto dark:border-zinc-800 dark:bg-zinc-900"
+                          >
+                          {parent.children.map((child) => {
+                            const isChildActive = child.value === categoryParam;
+                            return (
+                              <li>
+                                <a
+                                  href={buildQueryString({ category: child.value, page: 1 })}
+                                  class={`flex items-center gap-3 rounded-2xl border px-3 py-2 font-medium transition ${
+                                    isChildActive
+                                      ? "border-primary bg-primary/10 text-primary"
+                                      : "border-transparent text-zinc-700 hover:border-primary/40 hover:text-primary dark:text-zinc-200"
+                                  }`}
+                                >
+                                  {child.image ? (
+                                    <img
+                                      src={child.image}
+                                      alt={`Imagen de ${child.label}`}
+                                      class="h-12 w-12 shrink-0 rounded-xl object-cover"
+                                      loading="lazy"
+                                    />
+                                  ) : (
+                                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-xs font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300">
+                                      {child.label.slice(0, 2).toUpperCase()}
+                                    </span>
+                                  )}
+                                  <span class="flex-1 break-words text-left leading-snug">{child.label}</span>
+                                </a>
+                              </li>
+                            );
+                          })}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </li>
+                );
+              })
+            ) : (
+              <li class="text-sm text-zinc-500 dark:text-zinc-400">No hay categorías disponibles.</li>
+            )}
+            </ul>
+          </div>
         </aside>
 
         <!-- Grid de productos -->
         <section class="flex-1 flex flex-col gap-8 z-40">
-          <header class="flex flex-col gap-6 rounded-3xl border border-zinc-200 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          <header class="flex flex-col gap-6 rounded-3xl border  border-zinc-200 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <div class="flex items-center justify-between">
-              <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Tienda</h1>
+              <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Tienda 
+
+              </h1>
 
             </div>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400">
-              Revisa los productos que vayas agregando desde el botón flotante del carrito en la esquina inferior derecha.
-            </p>
             <form method="get" class="flex flex-col gap-4 md:flex-row">
               <input
                 type="search"
