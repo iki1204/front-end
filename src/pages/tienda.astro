@@ -11,6 +11,12 @@ const categoryParam = url.searchParams.get("category") ?? "all";
 const pageParam = Number.parseInt(url.searchParams.get("page") ?? "1", 10);
 const ITEMS_PER_PAGE = 24;
 const requestedPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+const MAX_PRICE = 5000;
+const MIN_PRICE = 0;
+const priceParamRaw = Number.parseInt(url.searchParams.get("price") ?? String(MAX_PRICE), 10);
+const priceFilterValue = Number.isFinite(priceParamRaw)
+  ? Math.min(Math.max(priceParamRaw, MIN_PRICE), MAX_PRICE)
+  : MAX_PRICE;
 
 const strapiParams = new URLSearchParams();
 strapiParams.set("pagination[page]", String(requestedPage));
@@ -26,6 +32,10 @@ if (searchParam.length > 0) {
 }
 
 strapiParams.set("sort", "nombre:asc");
+
+if (priceFilterValue < MAX_PRICE) {
+  strapiParams.set("filters[precio][$lte]", String(priceFilterValue));
+}
 
 const [productosResponse, categoriasResponse, global] = await Promise.all([
   getProductos(strapiParams),
@@ -94,6 +104,8 @@ const getRelationArray = (relation: any) => {
 const getParentRelation = (categoria: any) => getRelationArray(categoria?.padre_id)[0] ?? null;
 const getChildrenRelations = (categoria: any) => getRelationArray(categoria?.hijo_id);
 
+
+
 const formatCategoryItem = (categoria: any) => ({
   label: categoria?.nombre ?? "Sin nombre",
   value: categoria?.ID_Categoria ?? categoria?.id,
@@ -101,17 +113,22 @@ const formatCategoryItem = (categoria: any) => ({
 });
 
 
-const categoryItems = [
-  { label: "TODOS", value: "all" },
-  ...categorias.map(formatCategoryItem),
-];
 
 const parentCategoryItems = categorias
   .filter((categoria) => !getParentRelation(categoria))
   .map((categoria) => ({
     ...formatCategoryItem(categoria),
     children: getChildrenRelations(categoria).map(formatCategoryItem),
-  }));
+    }))
+  .filter((categoria) => categoria.children.length > 0);
+
+
+const priceFormatter = new Intl.NumberFormat("es-PE", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+  minimumFractionDigits: 0,
+});
 
 //Paginacion
 const maxVisible = 10;
@@ -145,7 +162,7 @@ const showRightDots = endPage < totalPages;
         </label>
         <select
           id="mobileCategory"
-          class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+          class="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
           onchange="const selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
         >
         <option
@@ -181,9 +198,9 @@ const showRightDots = endPage < totalPages;
       <div class="flex flex-col md:flex-row gap-8">
         <!-- Aside de Navbar visible en escritorio -->
         <aside
-          class="hidden md:block md:w-64 shrink-0 h-fit sticky top-24 z-50 rounded-3xl border border-zinc-200 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+          class="hidden md:block md:w-64 shrink-0 h-fit sticky top-24 z-50 rounded-3xl border border-zinc-300 p-6 shadow-sm dark:border-red-900 dark:bg-zinc-900  "
         >
-          <h2 class="text-lg font-semibold mb-4 text-zinc-900 dark:text-white">Categorías</h2>
+          <h2 class="sticky text-lg font-semibold mb-4 text-zinc-900 dark:text-white">Categorías</h2>
           <div class="flex-1 pr-2">
             <ul class="flex flex-col gap-3 pb-2">
             <li class="relative">
@@ -192,11 +209,11 @@ const showRightDots = endPage < totalPages;
                 class={`block w-full rounded-lg border px-4 py-2 text-sm font-medium text-left transition ${
                   categoryParam === "all"
                     ? "border-primary bg-primary text-white"
-                    : "border-zinc-200 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                    : "border-zinc-300 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-red-900 dark:bg-zinc-800 dark:text-zinc-200"
                 }`}
                 aria-current={categoryParam === "all" ? "true" : undefined}
               >
-                Todos
+                TODOS
               </a>
             </li>
             {parentCategoryItems.length > 0 ? (
@@ -211,7 +228,7 @@ const showRightDots = endPage < totalPages;
                       class={`block w-full rounded-lg border px-4 py-2 text-sm font-medium text-left transition ${
                         isActive
                           ? "border-primary bg-primary text-white"
-                          : "border-zinc-200 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+                          : "border-zinc-300 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-red-900 dark:bg-zinc-800 dark:text-zinc-200"
                       }`}
                       role="button"
                       aria-haspopup="true"
@@ -228,7 +245,7 @@ const showRightDots = endPage < totalPages;
                             aria-hidden="true"
                           ></span>
                           <ul
-                            class="hidden min-w-[18rem] max-w-lg flex-col gap-2 rounded-3xl border border-zinc-200 bg-white p-4 text-sm shadow-xl transition duration-200 ease-out group-hover:flex group-focus-within:flex md:translate-y-1 md:opacity-0 md:pointer-events-none md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-hover:pointer-events-auto md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100 md:group-focus-within:pointer-events-auto dark:border-zinc-800 dark:bg-zinc-900"
+                            class="hidden min-w-[18rem] max-w-lg flex-col gap-2 rounded-3xl border border-zinc-300 bg-white p-4 text-sm shadow-xl transition duration-200 ease-out group-hover:flex group-focus-within:flex md:translate-y-1 md:opacity-0 md:pointer-events-none md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-hover:pointer-events-auto md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100 md:group-focus-within:pointer-events-auto dark:border-zinc-800 dark:bg-zinc-900"
                           >
                           {parent.children.map((child) => {
                             const isChildActive = child.value === categoryParam;
@@ -271,11 +288,40 @@ const showRightDots = endPage < totalPages;
             )}
             </ul>
           </div>
+
+                    <div class="mt-6 border-t border-zinc-300 pt-6 dark:border-zinc-800">
+            <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-4">Precio máximo</h3>
+            <form method="get" class="flex flex-col gap-4">
+              <input type="hidden" name="search" value={searchParam} />
+              <input type="hidden" name="category" value={categoryParam} />
+              <input type="hidden" name="page" value="1" />
+              <label for="priceRange" class="text-sm text-zinc-600 dark:text-zinc-300">Ajusta el rango de precio:</label>
+              <div class="flex flex-col gap-3">
+                <input
+                  id="priceRange"
+                  type="range"
+                  min={MIN_PRICE}
+                  max={MAX_PRICE}
+                  step="50"
+                  name="price"
+                  value={priceFilterValue}
+                  class="w-full cursor-pointer accent-primary"
+                  oninput="document.getElementById('priceRangeOutput').textContent = new Intl.NumberFormat('es-PE',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(this.value)"
+                  onchange="this.form.requestSubmit()"
+                />
+                <div class="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300">
+                  <span>{priceFormatter.format(MIN_PRICE)}</span>
+                  <span id="priceRangeOutput">{priceFormatter.format(priceFilterValue)}</span>
+                </div>
+              </div>
+            </form>
+          </div>
+
         </aside>
 
         <!-- Grid de productos -->
         <section class="flex-1 flex flex-col gap-8 z-40">
-          <header class="flex flex-col gap-6 rounded-3xl border  border-zinc-200 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          <header class="flex flex-col gap-6 rounded-3xl border  border-zinc-300 p-6 shadow-sm dark:border-red-900 dark:bg-zinc-900">
             <div class="flex items-center justify-between">
               <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Tienda 
 
@@ -288,7 +334,7 @@ const showRightDots = endPage < totalPages;
                 name="search"
                 placeholder="Buscar por nombre o código"
                 value={searchParam}
-                class="flex-1 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                class="flex-1 rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-red-900 dark:bg-zinc-800 dark:text-white"
               />
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="page" value="1" />
@@ -311,7 +357,7 @@ const showRightDots = endPage < totalPages;
               ))}
             </div>
           ) : (
-            <div class="rounded-3xl border border-dashed border-zinc-300 bg-white p-12 text-center dark:border-zinc-700 dark:bg-zinc-900">
+            <div class="rounded-3xl border border-dashed border-zinc-300 bg-white p-12 text-center dark:border-red-900 dark:bg-zinc-900">
               <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">No encontramos resultados</h2>
               <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
                 Ajusta los filtros o la búsqueda para ver otros productos.
@@ -329,7 +375,7 @@ const showRightDots = endPage < totalPages;
                   class={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
                     currentPage === 1
                       ? "bg-primary text-white"
-                      : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
+                      : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-300"
                   }`}
                   aria-label="Página 1"
                 >1</a>

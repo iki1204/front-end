@@ -44,9 +44,9 @@ const slug = producto?.ID_Nombre ?? producto?.slug ?? producto?.id;
 const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(producto.precio) : "Consultar";
 ---
 
-<article class="group flex h-full flex-col rounded-2xl border border-zinc-200 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+<article class="group flex h-full flex-col rounded-2xl border border-zinc-300 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg  dark:border-red-900 dark:bg-zinc-900">
   <a href={`/producto/${slug}`} class="flex flex-1 flex-col">
-    <div class="relative overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+    <div class="relative overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-600 dark:border-red-900">
       <img
         src={imgUrl}
         alt={producto?.nombre ?? "Producto"}

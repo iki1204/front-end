@@ -1,46 +1,53 @@
 ---
 import Container from "./Container.astro"
 import { getPageData } from "../lib/api";
+
+const API_URL = import.meta.env.VITE_STRAPI_URL;
+const response = await getPageData("home-page");
+
+const sliderMarcasSection = response?.data?.[0]?.Secciones?.find(
+  (s) => s.__component === "shared.slider"
+);
+
+const img = sliderMarcasSection?.files?.map((img) => `${API_URL}${img.url}`) ?? [];
+
+
+
 ---
 
 <Container>
 
-  <div class="relative w-full overflow-visible">
-
-    <div aria-hidden="true" class="absolute inset-0 h-max w-full m-auto grid grid-cols-2 -space-x-1 opacity-40 dark:opacity-20">
-      <div class="blur-[80px] h-38 bg-gradient-to-r from-primary-950 to-red-600 dark:to-red-100"></div>
-      <div class="blur-[80px] h-38 bg-gradient-to-r from-red-600 to-primary-950 dark:from-red-100"></div>
-    </div>
+  <!--
 
     <div class="relative w-full h-30 overflow-hidden">
 
       <div id="carousel1" class="flex w-full h-30 overflow-hidden no-scrollbar gap-10">
         <div id="carousel-track" class="flex items-center animate-scroll-x justify-center gap-10 transition-transform duration-300">
-          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
-            <img src="images/clients/Huawei.svg" alt="Huawei" class="h-12 mx-auto"/>
+          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110 dark:grayscale-0">
+            <img src="images/clients/Huawei.svg" alt="Huawei" class="h-12 mx-auto overflow-visible"/>
           </div>
-          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
-            <img src="images/clients/manyusolar.svg" alt="manyusolar" class="h-12 mx-auto"/>
+          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110 dark:grayscale-0 dark:saturate-20 dark:hover:saturate-150 dark:hover:bg-gray-700">
+            <img src="images/clients/manyusolar.svg" alt="manyusolar" class="h-12 mx-auto overflow-visible"/>
           </div>
-          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
-            <img src="images/clients/mikrotik.svg" alt="mikrotik" class="h-12 mx-auto"/>
+          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110 dark:grayscale-0 dark:saturate-20 dark:hover:saturate-150 dark:hover:bg-gray-700">
+            <img src="images/clients/mikrotik.svg" alt="mikrotik" class="h-12 mx-auto overflow-visible"/>
           </div>
-          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
-            <img src="images/clients/phyhome.svg" alt="phyhome" class="h-12 mx-auto"/>
+          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110 dark:grayscale-0 dark:saturate-20 dark:hover:saturate-150 dark:hover:bg-gray-700">
+            <img src="images/clients/phyhome.svg" alt="phyhome" class="h-12 mx-auto overflow-visible"/>
           </div>
         </div>
         <div id="carousel-track" class="flex items-center animate-scroll-x justify-center gap-10 transition-transform duration-300">
-          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
-            <img src="images/clients/Huawei.svg" alt="Huawei" class="h-12 mx-auto"/>
+          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110 dark:grayscale-0 dark:saturate-20 dark:hover:saturate-150 dark:hover:bg-gray-700">
+            <img src="images/clients/Huawei.svg" alt="Huawei" class="h-12 mx-auto overflow-visible"/>
           </div>
-          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
-            <img src="images/clients/manyusolar.svg" alt="manyusolar" class="h-12 mx-auto"/>
+          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110 dark:grayscale-0 dark:saturate-20 dark:hover:saturate-150 dark:hover:bg-gray-700">
+            <img src="images/clients/manyusolar.svg" alt="manyusolar" class="h-12 mx-auto overflow-visible"/>
           </div>
-          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
-            <img src="images/clients/mikrotik.svg" alt="mikrotik" class="h-12 mx-auto"/>
+          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110 dark:grayscale-0 dark:saturate-20 dark:hover:saturate-150 dark:hover:bg-gray-700">
+            <img src="images/clients/mikrotik.svg" alt="mikrotik" class="h-12 mx-auto overflow-visible"/>
           </div>
-          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110">
-            <img src="images/clients/phyhome.svg" alt="phyhome" class="h-12 mx-auto"/>
+          <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110 dark:grayscale-0 dark:saturate-20 dark:hover:saturate-150 dark:hover:bg-gray-700">
+            <img src="images/clients/phyhome.svg" alt="phyhome" class="h-12 mx-auto overflow-visible"/>
           </div>
         </div>
       </div>
@@ -49,10 +56,36 @@ import { getPageData } from "../lib/api";
       <div class="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white via-white/80 to-transparent dark:from-gray-950 dark:via-gray-950/80"></div>
 
     </div>
+  -->
 
 
-  </div>
+ <div class="relative w-full h-30 overflow-hidden"></div>
+     <div class="flex w-full h-30 overflow-hidden no-scrollbar">
+        <div class="flex items-center animate-scroll-x justify-center gap-10 transition-transform duration-300">
+                {
+                    img.map((link) => (
+                        <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110 dark:grayscale-0 dark:saturate-20 dark:hover:saturate-150">
+                          <img src={link} alt="Carrusel Marcas" class="h-12 mx-auto overflow-visible" />
+                        </div>
+                    ))
+                }
+        </div>
+        <div class="flex items-center animate-scroll-x justify-center gap-10 transition-transform duration-300">
+                {
+                    img.map((link) => (
+                        <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110 dark:grayscale-0 dark:saturate-20 dark:hover:saturate-150">
+                          <img src={link} alt="Carrusel Marcas" class="h-12 mx-auto overflow-visible" />
+                        </div>
+                    ))
+                }
+        </div>
+        
+     </div>
+      <div class="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-gray-950 dark:via-gray-950/80"></div>
+      <div class="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white via-white/80 to-transparent dark:from-gray-950 dark:via-gray-950/80"></div>
 
+     
+</div>
 
 
 
