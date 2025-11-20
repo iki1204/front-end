@@ -17,7 +17,6 @@ const lastDescripcion = heroSection.Descripcion.slice(-7);
 const botones = heroSection?.boton_link ?? [];
 const img = heroSection?.Imagen?.map((img) => `${API_URL}${img.url}`) ?? [];
 
-console.log(img);
 ---
 
 <div class="relative" id="hero">
@@ -27,11 +26,11 @@ console.log(img);
         <div class="lg:w-9/10 text-center mx-auto">
           <h1 class="text-gray-900 text-balance dark:text-white font-bold text-5xl md:text-6xl xl:text-7xl">
             {mainTitulo}
-            <span class="text-primary dark:text-white">{lastTitulo}</span>
+            <span class="text-primary">{lastTitulo}</span>
           </h1>
           <p class="mt-8 text-gray-700 dark:text-gray-300">
             {mainDescripcion}
-            <span class="text-primary dark:text-white">{lastDescripcion}</span>
+            <span class="text-primary ">{lastDescripcion}</span>
           </p>
           <div class="mt-16 flex flex-wrap justify-center gap-y-4 gap-x-6">
             {botones.map((btn, index) => {

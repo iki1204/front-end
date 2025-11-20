@@ -6,7 +6,7 @@ import { getGlobalData } from "../lib/api";
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 const response = await getGlobalData();
 const siteName = response.data.header.Etiqueta;
-const logoUrl = response.data.header.Logo ? API_URL + response.data.header.Logo.url : null;
+const logoUrl = response.data.header.Logo.map((img) => `${API_URL}${img.url}`) ?? [];
 const links = response.data.header.subitem.map((link) => ({
     label: link.etiqueta,
     to: link.url,
@@ -22,13 +22,22 @@ const botones = response.data.header.Botones.map((boton) => ({
         <Container>
             <div class="relative flex flex-wrap items-center items-center justify-between gap-6 py-3 md:gap-0 md:py-4">
                 <div class="relative z-20 flex w-full justify-between md:px-0 lg:w-fit">
-                    <a href="/#home" aria-label="logo" class="flex items-center space-x-2">
+                    <a href="/#home" aria-label="logo" class="flex dark:hidden items-center space-x-2">
                         <div aria-hidden="true" class="flex space-x-1">
                             <div class="size-4 rounded-full bg-gray-900 dark:bg-white"></div>
                             <div class="h-6 w-2 bg-primary"></div>
                         </div>
                         <div>
-                            {logoUrl ? <img src={logoUrl} alt={siteName} class="h-8 w-auto" /> : null}
+                            {logoUrl ? <img src={logoUrl[0]} alt={siteName} class="h-8 w-auto object-contain" /> : null}
+                        </div>
+                    </a>
+                    <a href="/#home" aria-label="logo" class="hidden dark:flex items-center space-x-2">
+                        <div aria-hidden="true" class="flex space-x-1">
+                            <div class="size-4 rounded-full bg-gray-900 dark:bg-white"></div>
+                            <div class="h-6 w-2 bg-primary"></div>
+                        </div>
+                        <div>
+                            {logoUrl ? <img src={logoUrl[1]} alt={siteName} class="h-8 w-auto object-contain" /> : null}
                         </div>
                     </a>
 

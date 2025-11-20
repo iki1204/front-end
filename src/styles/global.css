@@ -56,8 +56,9 @@
   }
 
   .animate-scroll-x {
-    animation: scroll-x 10s linear infinite;
+    animation: scroll-x 14s linear infinite;
   }
+
 
   .cart-widget-bump{
     animation: cart-widget-bounce 0.6s ease;

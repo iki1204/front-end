@@ -74,6 +74,10 @@ export async function getCategorias() {
   return fetchAPI("categorias");
 }
 
+export async function getMarcas() {
+  return fetchAPI("marcas");
+}
+
 export async function getProductoBySlug(slug: string) {
   const params = new URLSearchParams({
     "filters[ID_Nombre][$eq]": slug,
