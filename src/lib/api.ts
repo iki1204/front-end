@@ -58,6 +58,39 @@ async function fetchAPI(endpoint: string, params: QueryParams = "") {
   return data;
 }
 
+
+async function postAPI(endpoint: string, body: unknown = {}, params: QueryParams = "") {
+  const query = buildQuery(params);
+
+  const res = await fetch(`http://192.168.5.52:1337/api/auth/${endpoint}${query}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body ?? {}),
+    cache: "no-store",
+  });
+
+  let payload: any = null;
+  try {
+    payload = await res.json();
+  } catch (error) {
+    payload = null;
+  }
+
+  if (!res.ok) {
+    const message =
+      payload?.error?.message ||
+      payload?.message ||
+      (typeof payload === "string" ? payload : null) ||
+      res.statusText;
+    throw new Error(message || `Error posting to ${endpoint}`);
+  }
+
+  return payload;
+}
+
+
 export async function getGlobalData() {
   return fetchAPI("global");
 }
@@ -86,3 +119,17 @@ export async function getProductoBySlug(slug: string) {
 
   return fetchAPI("productos", `?${params.toString()}`);
 }
+
+export async function getUsuarios(params?: QueryParams) {
+  return fetchAPI("users", params);
+}
+
+export async function postUsuarioLogin(data: Record<string, string>) {
+  return postAPI("local", data);
+}
+
+export async function postUsuarioRegister(data: Record<string, string>) {
+  return postAPI("local/register", data);
+}
+
+

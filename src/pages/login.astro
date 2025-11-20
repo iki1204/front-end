@@ -1,0 +1,88 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Container from "../components/Container.astro";
+import { getUsuarios } from "../lib/api";
+import loginWidgetScript from "../lib/loginWidget.ts?url";
+
+const strapiDisponible = Boolean(import.meta.env.VITE_STRAPI_URL);
+let usuariosRegistrados = 0;
+
+if (strapiDisponible) {
+  try {
+    const usuariosResponse = await getUsuarios();
+    usuariosRegistrados =
+      usuariosResponse?.meta?.pagination?.total ?? usuariosResponse?.data?.length ?? 0;
+  } catch (error) {
+    console.warn("No se pudieron obtener los usuarios desde Strapi", error);
+  }
+}
+---
+
+<Layout title="Inicia sesión">
+  <section class="py-16 lg:py-24">
+    <Container>
+      <div class="mx-auto max-w-2xl rounded-3xl border border-zinc-200 bg-white/80 p-8 shadow-xl backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Acceso seguro</p>
+        <h1 class="mt-3 text-3xl font-bold text-zinc-900 dark:text-white">Inicia sesión</h1>
+        <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-300">
+          Ingresa con tu cuenta administrada para revisar tus pedidos y configuraciones.
+        </p>
+
+
+        <form data-login-form class="mt-8 space-y-6">
+          <div>
+            <label for="identifier" class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+              Correo o usuario
+            </label>
+            <input
+              type="text"
+              id="identifier"
+              name="identifier"
+              required
+              placeholder="tu_correo@ejemplo.com"
+              class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+            />
+          </div>
+          <div>
+            <label for="password" class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              placeholder="••••••••"
+              class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+            />
+          </div>
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="submit"
+              data-login-submit
+              class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              Iniciar sesión
+              <span class="hidden" data-loading-label>Conectando...</span>
+            </button>
+            <button
+              type="button"
+              data-login-reset
+              class="inline-flex w-full items-center justify-center rounded-full border border-zinc-200 px-5 py-3 text-sm font-semibold text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-100 dark:hover:border-zinc-600"
+            >
+              Registrarse
+            </button>
+          </div>
+          <p
+            data-login-feedback
+            class="text-xs font-medium text-zinc-500 transition dark:text-zinc-300"
+            data-variant="neutral"
+          >
+            Ingresa tus credenciales para continuar.
+          </p>
+        </form>
+      </div>
+    </Container>
+  </section>
+  <script type="module" src={loginWidgetScript}></script>
+</Layout>
