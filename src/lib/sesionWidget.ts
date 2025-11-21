@@ -1,4 +1,4 @@
-import { postUsuarioLogin } from "./api";
+import { postUsuarioLogin, postUsuarioRegister } from "./api";
 
 type FeedbackVariant = "neutral" | "success" | "error";
 
@@ -68,17 +68,18 @@ const handleLoginSubmit = async (event: SubmitEvent) => {
   }
 
   toggleLoadingState(submitButton, true);
-  setFeedbackMessage(feedback, "Conectando con Strapi...", "neutral");
+  setFeedbackMessage(feedback, "Verificando Usuario...", "neutral");
 
   try {
     const response = await postUsuarioLogin({ identifier, password });
     const user = (response as any)?.user ?? {};
     const displayName = user?.nombre ?? user?.username ?? identifier;
 
-
     saveSession(response as Record<string, unknown>);
     setStatusMessage(status, `Sesión iniciada como ${displayName}`);
-    setFeedbackMessage(feedback, "Inicio de sesión exitoso.", "success");
+    setFeedbackMessage(feedback, "Inicio de sesión exitoso. Redirigiendo...", "success");
+
+    window.location.assign("/tienda");
   } catch (error) {
     const message = error instanceof Error ? error.message : "No se pudo iniciar sesión.";
     setFeedbackMessage(feedback, message, "error");
@@ -88,14 +89,47 @@ const handleLoginSubmit = async (event: SubmitEvent) => {
   }
 };
 
-const handleResetClick = (form: HTMLFormElement, feedback: HTMLElement | null, status: HTMLElement | null) => {
-  form.reset();
-  clearSession();
-  setFeedbackMessage(feedback, "Ingresa tus credenciales para continuar.", "neutral");
-  setStatusMessage(status, "Aún no has iniciado sesión.");
+const handleRegisterSubmit = async (event: SubmitEvent) => {
+  event.preventDefault();
+  
+  const form = event.target as HTMLFormElement | null;
+  if (!form) return;
+  
+  const registerButton = form.querySelector<HTMLButtonElement>("[data-register-submit]");
+  const feedback = form.querySelector<HTMLButtonElement>("[data-register-feedback]");
+
+  const formData = new FormData(form);
+  const username = String(formData.get("username") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "").trim();
+
+
+  if (!username || !password || !email) {
+    setFeedbackMessage(feedback, "Completa los campos para registrarte.", "error");
+    return;
+  }
+
+  if (!email.includes("@")) {
+    setFeedbackMessage(feedback, "Ingresa un correo válido para crear tu cuenta.", "error");
+    return;
+  }
+
+  toggleLoadingState(registerButton, true);
+  setFeedbackMessage(feedback, "Creando tu cuenta...", "neutral");
+
+  try {
+    const response = await postUsuarioRegister({username, email, password });
+    saveSession(response as Record<string, unknown>);
+    setFeedbackMessage(feedback, "Registro exitoso.", "success");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "No se pudo completar el registro.";
+    setFeedbackMessage(feedback, message, "error");
+  } finally {
+    toggleLoadingState(registerButton, false);
+  }
 };
 
-const initLoginWidget = () => {
+const initLogin = () => {
   if (typeof window === "undefined") return;
 
   const form = document.querySelector<HTMLFormElement>("[data-login-form]");
@@ -105,14 +139,11 @@ const initLoginWidget = () => {
 
   const feedback = form.querySelector<HTMLElement>("[data-login-feedback]");
   const status = document.querySelector<HTMLElement>("[data-login-status]");
-  const resetButton = form.querySelector<HTMLButtonElement>("[data-login-reset]");
 
   if (feedback) {
     const initialVariant = (feedback.dataset.variant as FeedbackVariant) ?? "neutral";
     setFeedbackMessage(feedback, feedback.textContent ?? "", initialVariant);
   }
-
-  resetButton?.addEventListener("click", () => handleResetClick(form, feedback, status));
 
   const storedSessionRaw = typeof window !== "undefined" ? localStorage.getItem("usuarioSesion") : null;
   if (storedSessionRaw) {
@@ -122,7 +153,7 @@ const initLoginWidget = () => {
       const displayName = user?.nombre ?? user?.username ?? user?.email;
       if (displayName) {
         setStatusMessage(status, `Sesión restaurada para ${displayName}`);
-        setFeedbackMessage(feedback, "Tienes una sesión activa almacenada.", "success");
+        setFeedbackMessage(feedback, "Tienes una sesión activa.", "success");
       }
     } catch (error) {
       clearSession();
@@ -130,8 +161,31 @@ const initLoginWidget = () => {
   }
 };
 
+const initRegister = () => {
+  if (typeof window === "undefined") return;
+
+  const form = document.querySelector<HTMLFormElement>("[data-register-form]");
+  if (!form) return;
+
+  form.addEventListener("submit", handleRegisterSubmit);
+
+  const feedback = form.querySelector<HTMLElement>("[data-register-feedback]");
+
+  if (feedback) {
+    const initialVariant = (feedback.dataset.variant as FeedbackVariant) ?? "neutral";
+    setFeedbackMessage(feedback, feedback.textContent ?? "", initialVariant);
+  }
+};
+
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initLoginWidget, { once: true });
+  document.addEventListener("DOMContentLoaded", initLogin, { once: true });
 } else {
-  initLoginWidget();
+  initLogin();
 }
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initRegister, { once: true });
+} else {
+  initRegister();
+}
+

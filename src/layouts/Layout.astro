@@ -4,6 +4,7 @@ import AppFooter from "../components/AppFooter.astro";
 import AppHeader from "../components/AppHeader.astro";
 import Cart from "../components/Cart.astro";
 import cartWidgetScript from "../lib/carritoWidget.ts?url";
+import loginWidgetScript from "../lib/sesionWidget.ts?url";
 import { getGlobalData } from "../lib/api";
 import "../css/tailus.css"
 import "../styles/global.css";
@@ -76,7 +77,7 @@ const siteName = response.data.siteName;
 
         <Cart floating />
         
-
+        <script type="module" src={loginWidgetScript}></script>
         <script type="module" src={cartWidgetScript}></script>
         
     </body>

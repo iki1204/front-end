@@ -276,8 +276,10 @@ const showRightDots = endPage < totalPages;
       <div class="flex flex-col md:flex-row gap-8">
         <!-- Aside de Navbar visible en escritorio -->
         <aside
-          class="hidden md:block md:w-64 shrink-0 h-fit sticky top-24 z-50 rounded-3xl border border-zinc-300 p-6 shadow-sm dark:border-red-900 dark:bg-zinc-900  "
+          class="hidden md:block md:w-64 shrink-0 sticky top-24 z-50 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-3xl border border-zinc-300 p-6 shadow-sm no-scrollbar dark:border-red-900 dark:bg-zinc-900"
         >
+
+        <!-- Categorías -->
           <h2 class="sticky text-lg font-semibold mb-4 text-zinc-900 dark:text-white">Categorías</h2>
           <div class="flex-1 pr-2">
             <ul class="flex flex-col gap-3 pb-2">
@@ -301,63 +303,81 @@ const showRightDots = endPage < totalPages;
                   const isActive = isParentActive || hasActiveChild;
 
                   return (
-                    <li class="relative group">
-                      <div
-                        class={`block w-full rounded-lg border px-4 py-2 text-sm font-medium text-left transition ${
+                    <li class="relative">
+                      <details
+                        class={`group rounded-2xl border px-1 py-1 transition ${
                           isActive
-                            ? "border-primary bg-primary text-white"
-                            : "border-zinc-300 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-red-900 dark:bg-zinc-800 dark:text-zinc-200"
+                            ? "border-primary bg-primary/5 shadow-sm dark:border-red-700 dark:bg-red-950/40"
+                            : "border-zinc-300 bg-white hover:border-primary/60 dark:border-red-900 dark:bg-zinc-900"
                         }`}
-                        role="button"
-                        aria-haspopup="true"
-                        tabindex="0"
+                        open={isActive}
                       >
-                        {parent.label}
-                      </div>
+                        <summary
+                          class={`flex w-full cursor-pointer select-none items-center justify-between rounded-xl px-3 py-2 text-sm font-medium list-none ${
+                            isActive
+                              ? "text-primary"
+                              : "text-zinc-700 hover:text-primary dark:text-zinc-200"
+                          }`}
+                          aria-expanded={isActive ? "true" : "false"}
+                        >
+                          <span class="flex-1 text-left">{parent.label}</span>
+                          <svg
+                            class="h-4 w-4 text-current transition-transform duration-200 group-open:rotate-180"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M5 7.5L10 12.5L15 7.5"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </summary>
 
-                      {parent.children.length > 0 && (
-                        <div class="md:absolute md:left-full md:top-0 md:pl-5 md:pr-2 md:py-2">
-                          <div class="relative">
-                            <span
-                              class="pointer-events-auto absolute -left-5 top-0 hidden h-full w-5 md:block"
-                              aria-hidden="true"
-                            ></span>
-                            <ul
-                              class="hidden min-w-[18rem] max-w-lg flex-col gap-2 rounded-3xl border border-zinc-300 bg-white p-4 text-sm shadow-xl transition duration-200 ease-out group-hover:flex group-focus-within:flex md:translate-y-1 md:opacity-0 md:pointer-events-none md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-hover:pointer-events-auto md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100 md:group-focus-within:pointer-events-auto dark:border-zinc-800 dark:bg-zinc-900"
-                            >
-                            {parent.children.map((child) => {
-                              const isChildActive = child.value === categoryParam;
-                              return (
-                                <li>
-                                  <a
-                                    href={buildQueryString({ category: child.value, page: 1 })}
-                                    class={`flex items-center gap-3 rounded-2xl border px-3 py-2 font-medium transition ${
-                                      isChildActive
-                                        ? "border-primary bg-primary/10 text-primary"
-                                        : "border-transparent text-zinc-700 hover:border-primary/40 hover:text-primary dark:text-zinc-200"
-                                    }`}
-                                  >
-                                    {child.image ? (
-                                      <img
-                                        src={child.image}
-                                        alt={`Imagen de ${child.label}`}
-                                        class="h-12 w-12 shrink-0 rounded-xl object-cover"
-                                        loading="lazy"
-                                      />
-                                    ) : (
-                                      <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-xs font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300">
-                                        {child.label.slice(0, 2).toUpperCase()}
-                                      </span>
-                                    )}
-                                    <span class="flex-1 break-words text-left leading-snug">{child.label}</span>
-                                  </a>
-                                </li>
-                              );
-                            })}
-                            </ul>
+                        <div class="grid grid-rows-[0fr] overflow-hidden transition-[grid-template-rows] duration-3000 ease-out group-open:grid-rows-[1fr]">
+                          <div class="opacity-0 transition-opacity duration-1000 ease-out group-open:opacity-100">
+                            {parent.children.length > 0 ? (
+                              <ul class="flex flex-col gap-2 rounded-xl bg-transparent p-3 text-sm shadow-inner">
+                                {parent.children.map((child) => {
+                                  const isChildActive = child.value === categoryParam;
+                                  return (
+                                    <li>
+                                      <a
+                                        href={buildQueryString({ category: child.value, page: 1 })}
+                                        class={`flex items-center gap-3 rounded-2xl border px-3 py-2 font-medium transition ${
+                                          isChildActive
+                                            ? "border-primary bg-primary/10 text-primary"
+                                            : "border-transparent text-zinc-700 hover:border-primary/40 hover:text-primary dark:text-zinc-200"
+                                        }`}
+                                      >
+                                        {child.image ? (
+                                          <img
+                                            src={child.image}
+                                            alt={`Imagen de ${child.label}`}
+                                            class="h-8 w-8 shrink-0 rounded-xl object-cover"
+                                            loading="lazy"
+                                          />
+                                        ) : (
+                                          <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-xs font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300">
+                                            {child.label.slice(0, 2).toUpperCase()}
+                                          </span>
+                                        )}
+                                        <span class="flex-1 wrap-break-word text-left inline-flex">{child.label}</span>
+                                      </a>
+                                    </li>
+                                  );
+                                })}
+                                </ul>
+                            ) : (
+                              <p class="px-3 pb-3 text-sm text-zinc-500 dark:text-zinc-400">Sin subcategorías disponibles</p>
+                            )}
                           </div>
                         </div>
-                      )}
+                      </details>
                     </li>
                   );
                 })
@@ -368,62 +388,99 @@ const showRightDots = endPage < totalPages;
           </div>
 
 
+          <!-- Marcas -->
           <div class="mt-6 border-t border-zinc-300 pt-6 dark:border-zinc-800 ">
-            <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-4">Marcas</h3>
-            <div class="space-y-3 ">
-              <div class="relative ">
-                <select
-                  id="desktopBrandFilter"
-                  class="w-full no-scrollbar appearance-none rounded-2xl border border-zinc-300 bg-white px-4 py-3 pr-12 text-sm font-medium text-zinc-700 transition focus:border-primary focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-                  onchange="const selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
+            <h2 class="sticky text-lg font-semibold mb-4 text-zinc-900 dark:text-white">Marcas</h2>
+             <details
+              class={`group rounded-2xl border px-2 py-1 transition ${
+                brandParam !== "all"
+                  ? "border-primary bg-primary/5 shadow-sm dark:border-red-700 dark:bg-red-950/40"
+                  : "border-zinc-300 bg-white hover:border-primary/60 dark:border-red-900 dark:bg-zinc-900"
+              }`}
+              open={brandParam !== "all"}
+            >
+              <summary
+                class={`flex w-full cursor-pointer select-none items-center justify-between rounded-xl px-3 py-2 text-sm font-medium list-none ${
+                  brandParam !== "all"
+                    ? "text-primary"
+                    : "text-zinc-700 hover:text-primary dark:text-zinc-200"
+                }`}
+                aria-expanded={brandParam !== "all" ? "true" : "false"}
+              >
+                <span class="flex-1 text-left">Selecciona una marca</span>
+                <svg
+                  class="h-4 w-4 text-current transition-transform duration-200 group-open:rotate-180"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
                 >
-                  <option
-                    value={Astro.url.pathname + buildQueryString({ brand: "all", page: 1 })}
-                    selected={brandParam === "all"}
-                  >
-                    TODAS
-                  </option>
-                  {brandItems.length > 0 ? (
-                    brandItems.map((brand) => (
-                      <option
-                        value={Astro.url.pathname + buildQueryString({ brand: brand.value, page: 1 })}
-                        selected={brand.value === brandParam}
-                        class="group/option relative block cursor-default py-2 pr-9 pl-3 text-gray-900 select-none focus:bg-red-600 focus:text-white focus:outline-hidden dark:text-white"
+                  <path
+                    d="M5 7.5L10 12.5L15 7.5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </summary>
+
+              <div class="max-h-0 overflow-hidden transition-[max-height] duration-3000 ease-out group-open:max-h-[999px]">
+                <div class="opacity-0 transition-opacity duration-1000 ease-out group-open:opacity-100">
+                  <ul class="mt-3 flex flex-col gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-sm shadow-inner dark:border-zinc-800 dark:bg-zinc-900/60">
+                    <li>
+                      <a
+                        href={Astro.url.pathname + buildQueryString({ brand: "all", page: 1 })}
+                        class={`flex items-center gap-3 rounded-2xl border px-3 py-2 font-medium transition ${
+                          brandParam === "all"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-transparent text-zinc-700 hover:border-primary/40 hover:text-primary dark:text-zinc-200"
+                        }`}
+                        aria-current={brandParam === "all" ? "true" : undefined}
                       >
-                        {brand.label}
-                      </option>
-                    ))
-                  ) : (
-                    <option value="" disabled>
-                      No hay marcas disponibles
-                    </option>
-                  )}
-                </select>
-                <span class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-zinc-500 dark:text-zinc-400">
-                  <svg
-                    class="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M5 7.5L10 12.5L15 7.5"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </span>
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xs font-semibold text-primary dark:bg-red-900/40 dark:text-red-200">
+                          TODAS
+                        </span>
+                        <span class="flex-1 wrap-break-word text-left leading-snug">Todas las marcas</span>
+                      </a>
+                    </li>
+
+                    {brandItems.length > 0 ? (
+                      brandItems.map((brand) => {
+                        const isActive = brand.value === brandParam;
+
+                        return (
+                          <li>
+                            <a
+                              href={Astro.url.pathname + buildQueryString({ brand: brand.value, page: 1 })}
+                              class={`flex items-center gap-3 rounded-2xl border px-3 py-2 font-medium transition ${
+                                isActive
+                                  ? "border-primary bg-primary/10 text-primary"
+                                  : "border-transparent text-zinc-700 hover:border-primary/40 hover:text-primary dark:text-zinc-200"
+                              }`}
+                              aria-current={isActive ? "true" : undefined}
+                            >
+                              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-xs font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                                {brand.label.slice(0, 2).toUpperCase()}
+                              </span>
+                              <span class="flex-1 wrap-break-word text-left leading-snug">{brand.label}</span>
+                            </a>
+                          </li>
+                        );
+                      })
+                    ) : (
+                      <li class="px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400">No hay marcas disponibles</li>
+                    )}
+                  </ul>
+                </div>
               </div>
-            </div>
+            </details>
           </div>
 
 
-
+          <!-- Filtro de precio -->
           <div class="mt-6 border-t border-zinc-300 pt-6 dark:border-zinc-800">
-            <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-4">Precio máximo</h3>
+            <h2 class="sticky text-lg font-semibold mb-4 text-zinc-900 dark:text-white">Precio</h2>
             <form method="get" class="flex flex-col gap-4">
               <input type="hidden" name="search" value={searchParam} />
               <input type="hidden" name="category" value={categoryParam} />
