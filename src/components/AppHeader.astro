@@ -76,6 +76,7 @@ const botones = response.data.header.Botones.map((boton) => ({
 
                                     
                     <a
+                        data-login-cta
                         id="loginbtn"
                         href="/login"
                         class="mt-12 flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary hover:bg-red-600 lg:mt-0"
@@ -92,6 +93,52 @@ const botones = response.data.header.Botones.map((boton) => ({
 
                         </svg>
                     </a>
+                     <button
+                        type="button"
+                        data-logout-cta
+                        class="mt-12 hidden items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary hover:bg-red-600 lg:mt-0"
+                        aria-label="Cerrar sesión"
+                    >
+                        <svg
+                          aria-hidden="true"
+                          class="size-4"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6A2.25 2.25 0 0 0 5.25 5.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9l3-3m0 0 3 3m-3-3v12" />
+                        </svg>
+                        <span>Salir</span>
+                    </button>
+
+                    <div
+                      data-logout-confirmation
+                      class="hidden absolute right-4 top-20 z-50 w-full max-w-xs rounded-lg border border-amber-200 bg-white p-4 text-sm shadow-lg shadow-amber-100/60 dark:border-amber-700 dark:bg-gray-900 dark:text-amber-100"
+                      role="alert"
+                      aria-live="assertive"
+                    >
+                      <p class="font-semibold text-amber-800 dark:text-amber-200">¿Cerrar sesión?</p>
+                      <p class="mt-1 text-amber-700 dark:text-amber-300">Confirma si deseas salir de tu cuenta activa.</p>
+                      <div class="mt-3 flex items-center gap-2">
+                        <button
+                          type="button"
+                          data-logout-confirm="yes"
+                          class="flex-1 rounded-md bg-amber-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-amber-700"
+                        >
+                          Sí, cerrar
+                        </button>
+                        <button
+                          type="button"
+                          data-logout-confirm="no"
+                          class="flex-1 rounded-md border border-amber-300 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-50 dark:border-amber-600 dark:text-amber-200 dark:hover:bg-amber-800/30"
+                        >
+                          No
+                        </button>
+                      </div>
+                    </div>
                 </div>
 
                 
@@ -123,6 +170,10 @@ const botones = response.data.header.Botones.map((boton) => ({
   const SESSION_STORAGE_KEY = "usuarioSesion";
   const SESSION_EVENT = "usuarioSesion:cambio";
   const loginCta = document.querySelector("[data-login-cta]");
+  const logoutCta = document.querySelector<HTMLButtonElement>("[data-logout-cta]");
+  const logoutAlert = document.querySelector<HTMLElement>("[data-logout-confirmation]");
+  const logoutConfirmYes = logoutAlert?.querySelector<HTMLButtonElement>("[data-logout-confirm='yes']");
+  const logoutConfirmNo = logoutAlert?.querySelector<HTMLButtonElement>("[data-logout-confirm='no']");
 
   const hasActiveSession = () => {
     try {
@@ -130,10 +181,8 @@ const botones = response.data.header.Botones.map((boton) => ({
       if (!raw) return false;
 
       const session = JSON.parse(raw);
-      const user = session?.user;
-      console.log("Verificando sesión activa:", session, user);
 
-      return Boolean(session?.jwt && user && (user.confirmed !== false));
+      return Boolean(session?.jwt || session?.user);
     } catch (error) {
       return false;
     }
@@ -141,12 +190,48 @@ const botones = response.data.header.Botones.map((boton) => ({
 
   const refreshLoginCta = () => {
     if (!loginCta) return;
-    if (hasActiveSession()) {
-      loginCta.classList.add("hidden");
-    } else {
-      loginCta.classList.remove("hidden");
-    }
+    const isLoggedIn = hasActiveSession();
+    const shouldShowLogout = isLoggedIn;
+
+    loginCta.classList.toggle("hidden", shouldShowLogout);
+    logoutCta?.classList.toggle("hidden", !shouldShowLogout);
   };
+
+  const clearSession = () => {
+    try {
+      localStorage.removeItem(SESSION_STORAGE_KEY);
+    } catch (error) {
+      console.warn("No se pudo limpiar la sesión", error);
+    }
+    window.dispatchEvent(new CustomEvent(SESSION_EVENT));
+  };
+
+  const hideLogoutAlert = () => {
+    logoutAlert?.classList.add("hidden");
+  };
+
+  const showLogoutAlert = () => {
+    if (!logoutAlert) return;
+    logoutAlert.classList.remove("hidden");
+  };
+
+  logoutCta?.addEventListener("click", (event) => {
+    event.preventDefault();
+    showLogoutAlert();
+  });
+
+  logoutConfirmYes?.addEventListener("click", () => {
+    clearSession();
+    hideLogoutAlert();
+    refreshLoginCta();
+    window.location.assign("/");
+  });
+
+  logoutConfirmNo?.addEventListener("click", () => {
+    hideLogoutAlert();
+  });
+
+
 
   window.addEventListener("storage", (event) => {
     if (event.key === SESSION_STORAGE_KEY) {
@@ -168,7 +253,7 @@ const botones = response.data.header.Botones.map((boton) => ({
     let isToggled = false;
     const navbar = document.querySelector("#nav") as HTMLElement;
     const menuBtn = document.querySelector("#hamburger") as HTMLButtonElement;
-    const links = [...navbar.querySelector("#links-group").children] as HTMLAnchorElement[];
+    const links = navbar ? [...navbar.querySelector("#links-group").children] : [];
 
     function toggleNavlinks() {
         if (isToggled) {
@@ -178,7 +263,7 @@ const botones = response.data.header.Botones.map((boton) => ({
         }
     }
 
-    menuBtn.addEventListener("click", () => {
+    menuBtn?.addEventListener("click", () => {
         isToggled = !isToggled;
         toggleNavlinks();
     });

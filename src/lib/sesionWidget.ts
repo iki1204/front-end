@@ -1,5 +1,8 @@
 import { postUsuarioLogin, postUsuarioRegister } from "./api";
 
+const SESSION_STORAGE_KEY = "usuarioSesion";
+const SESSION_EVENT = "usuarioSesion:cambio";
+
 type FeedbackVariant = "neutral" | "success" | "error";
 
 const VARIANT_CLASS_MAP: Record<FeedbackVariant, string[]> = {
@@ -32,19 +35,51 @@ const toggleLoadingState = (button: HTMLButtonElement | null, isLoading: boolean
   button.dataset.loading = isLoading ? "true" : "false";
 };
 
+const toggleLoginFormAvailability = (
+  form: HTMLFormElement | null,
+  isDisabled: boolean,
+  lockedBanner?: HTMLElement | null,
+) => {
+  if (!form) return;
+  form.querySelectorAll<HTMLInputElement | HTMLButtonElement>("input, button").forEach((element) => {
+    element.disabled = isDisabled;
+  });
+
+  if (lockedBanner) {
+    lockedBanner.classList.toggle("hidden", !isDisabled);
+  }
+};
+
+
 const saveSession = (data: Record<string, unknown>) => {
   try {
-    localStorage.setItem("usuarioSesion", JSON.stringify(data));
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data));
   } catch (error) {
     console.warn("No se pudo guardar la sesión del usuario", error);
   }
+  window.dispatchEvent(new CustomEvent(SESSION_EVENT));
 };
 
 const clearSession = () => {
   try {
-    localStorage.removeItem("usuarioSesion");
+    localStorage.removeItem(SESSION_STORAGE_KEY);
   } catch (error) {
     console.warn("No se pudo limpiar la sesión del usuario", error);
+  }
+  
+  window.dispatchEvent(new CustomEvent(SESSION_EVENT));
+};
+const hasActiveSession = () => {
+  try {
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return false;
+
+    const session = JSON.parse(raw);
+    const user = session?.user;
+
+    return Boolean(session?.jwt && user && user?.confirmed !== false);
+  } catch (error) {
+    return false;
   }
 };
 
@@ -57,6 +92,15 @@ const handleLoginSubmit = async (event: SubmitEvent) => {
   const submitButton = form.querySelector<HTMLButtonElement>("[data-login-submit]");
   const feedback = form.querySelector<HTMLElement>("[data-login-feedback]");
   const status = document.querySelector<HTMLElement>("[data-login-status]");
+  const lockedBanner = document.querySelector<HTMLElement>("[data-login-locked]");
+
+  if (hasActiveSession()) {
+    toggleLoginFormAvailability(form, true, lockedBanner);
+    setFeedbackMessage(feedback, "Ya tienes una sesión activa.", "success");
+    setStatusMessage(status, "Sesión existente detectada");
+    window.location.assign("/tienda");
+    return;
+  }
 
   const formData = new FormData(form);
   const identifier = String(formData.get("identifier") ?? "").trim();
@@ -96,7 +140,9 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
   if (!form) return;
   
   const registerButton = form.querySelector<HTMLButtonElement>("[data-register-submit]");
-  const feedback = form.querySelector<HTMLButtonElement>("[data-register-feedback]");
+  const feedback = form.querySelector<HTMLElement>("[data-register-feedback]");
+  const formContainer = document.querySelector<HTMLElement>("[data-register-form-container]");
+  const successPanel = document.querySelector<HTMLElement>("[data-register-success]");
 
   const formData = new FormData(form);
   const username = String(formData.get("username") ?? "").trim();
@@ -118,9 +164,9 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
   setFeedbackMessage(feedback, "Creando tu cuenta...", "neutral");
 
   try {
-    const response = await postUsuarioRegister({username, email, password });
-    saveSession(response as Record<string, unknown>);
-    setFeedbackMessage(feedback, "Registro exitoso.", "success");
+    const response = await postUsuarioRegister({ username, email, password });
+    setFeedbackMessage(feedback, "Registro exitoso. redirigiendo ...", "success");
+    window.location.assign("/success-register");
   } catch (error) {
     const message = error instanceof Error ? error.message : "No se pudo completar el registro.";
     setFeedbackMessage(feedback, message, "error");
@@ -139,13 +185,14 @@ const initLogin = () => {
 
   const feedback = form.querySelector<HTMLElement>("[data-login-feedback]");
   const status = document.querySelector<HTMLElement>("[data-login-status]");
+  const lockedBanner = document.querySelector<HTMLElement>("[data-login-locked]");
 
   if (feedback) {
     const initialVariant = (feedback.dataset.variant as FeedbackVariant) ?? "neutral";
     setFeedbackMessage(feedback, feedback.textContent ?? "", initialVariant);
   }
 
-  const storedSessionRaw = typeof window !== "undefined" ? localStorage.getItem("usuarioSesion") : null;
+  const storedSessionRaw = typeof window !== "undefined" ? localStorage.getItem("SESSION_STORAGE_KEY") : null;
   if (storedSessionRaw) {
     try {
       const session = JSON.parse(storedSessionRaw);
@@ -154,6 +201,7 @@ const initLogin = () => {
       if (displayName) {
         setStatusMessage(status, `Sesión restaurada para ${displayName}`);
         setFeedbackMessage(feedback, "Tienes una sesión activa.", "success");
+        toggleLoginFormAvailability(form, true, lockedBanner);
       }
     } catch (error) {
       clearSession();
