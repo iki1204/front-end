@@ -74,66 +74,59 @@ const botones = response.data.header.Botones.map((boton) => ({
                             ))
                         }
 
-                                    
-                    <a
-                        data-login-cta
-                        id="loginbtn"
-                        href="/login"
-                        class="mt-12 flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary hover:bg-red-600 lg:mt-0"
-                        aria-label="Iniciar sesión"
-                    >
-                        <span class="sr-only">Iniciar sesión</span>
-                        <svg width="256px" height="256px" viewBox="-1.6 -1.6 19.20 19.20" fill="none" xmlns="http://www.w3.org/2000/svg"  transform="matrix(1, 0, 0, 1, 0, 0)" >
-
-                        <g id="SVGRepo_bgCarrier" stroke-width="0"/>
-
-                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
-
-                        <g id="SVGRepo_iconCarrier"> <path d="M8 7C9.65685 7 11 5.65685 11 4C11 2.34315 9.65685 1 8 1C6.34315 1 5 2.34315 5 4C5 5.65685 6.34315 7 8 7Z" fill="#db0000" /> <path d="M14 12C14 10.3431 12.6569 9 11 9H5C3.34315 9 2 10.3431 2 12V15H14V12Z" fill="#db0000"/> </g>
-
-                        </svg>
-                    </a>
-                     <button
-                        type="button"
-                        data-logout-cta
-                        class="mt-12 hidden items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary hover:bg-red-600 lg:mt-0"
-                        aria-label="Cerrar sesión"
-                    >
-                        <svg
-                          aria-hidden="true"
+                    <div class="ml-4 flex items-center gap-2">  
+                      <a
+                          data-login-cta
+                          id="loginbtn"
+                          href="/login"
+                          type="button"
+                          class="mt-12 group flex h-10 w-10 items-center justify-center rounded-full   transition duration-200 hover:bg-red-200 lg:mt-0 hover:border-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary dark:hover:bg-red-900"
+                          aria-label="Iniciar sesión"
+                      >
+                          <span class="sr-only">Iniciar sesión</span>
+                          <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="9" r="3" stroke="#1C274C" stroke-width="1.5"/>
+                            <path d="M17.9691 20C17.81 17.1085 16.9247 15 11.9999 15C7.07521 15 6.18991 17.1085 6.03076 20" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M7 3.33782C8.47087 2.48697 10.1786 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 10.1786 2.48697 8.47087 3.33782 7" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
+                          </svg>
+                      </a>
+                      <a
+                          type="button"
+                          data-logout-cta
+                          class="mt-12 hidden group flex cursor-pointer h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary hover:bg-red-600 lg:mt-0"
+                          aria-label="Cerrar sesión"
+                      >
+                        <span class="sr-only">Cerrar sesión</span>
+                        <svg aria-hidden="true"
                           class="size-4"
                           fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
                           viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6A2.25 2.25 0 0 0 5.25 5.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9l3-3m0 0 3 3m-3-3v12" />
+                          xmlns="http://www.w3.org/2000/svg">
+                          <path d="M17.2929 14.2929C16.9024 14.6834 16.9024 15.3166 17.2929 15.7071C17.6834 16.0976 18.3166 16.0976 18.7071 15.7071L21.6201 12.7941C21.6351 12.7791 21.6497 12.7637 21.6637 12.748C21.87 12.5648 22 12.2976 22 12C22 11.7024 21.87 11.4352 21.6637 11.252C21.6497 11.2363 21.6351 11.2209 21.6201 11.2059L18.7071 8.29289C18.3166 7.90237 17.6834 7.90237 17.2929 8.29289C16.9024 8.68342 16.9024 9.31658 17.2929 9.70711L18.5858 11H13C12.4477 11 12 11.4477 12 12C12 12.5523 12.4477 13 13 13H18.5858L17.2929 14.2929Z" fill="#323232"/>
+                          <path d="M5 2C3.34315 2 2 3.34315 2 5V19C2 20.6569 3.34315 22 5 22H14.5C15.8807 22 17 20.8807 17 19.5V16.7326C16.8519 16.647 16.7125 16.5409 16.5858 16.4142C15.9314 15.7598 15.8253 14.7649 16.2674 14H13C11.8954 14 11 13.1046 11 12C11 10.8954 11.8954 10 13 10H16.2674C15.8253 9.23514 15.9314 8.24015 16.5858 7.58579C16.7125 7.4591 16.8519 7.35296 17 7.26738V4.5C17 3.11929 15.8807 2 14.5 2H5Z" fill="#323232"/>
                         </svg>
-                        <span>Salir</span>
-                    </button>
-
+                      </a>
+                    </div>
                     <div
                       data-logout-confirmation
-                      class="hidden absolute right-4 top-20 z-50 w-full max-w-xs rounded-lg border border-amber-200 bg-white p-4 text-sm shadow-lg shadow-amber-100/60 dark:border-amber-700 dark:bg-gray-900 dark:text-amber-100"
+                      class="hidden absolute right-4 top-20 z-50 w-full max-w-xs rounded-lg border border-red-200 bg-white p-4 text-sm shadow-lg shadow-red-100/60 dark:border-red-700 dark:bg-gray-900 dark:text-red-100"
                       role="alert"
                       aria-live="assertive"
                     >
-                      <p class="font-semibold text-amber-800 dark:text-amber-200">¿Cerrar sesión?</p>
-                      <p class="mt-1 text-amber-700 dark:text-amber-300">Confirma si deseas salir de tu cuenta activa.</p>
+                      <p class="font-semibold text-red-800 dark:text-red-200">¿Cerrar sesión?</p>
+                      <p class="mt-1 text-red-700 dark:text-red-300">Confirma si deseas salir de tu cuenta activa.</p>
                       <div class="mt-3 flex items-center gap-2">
                         <button
                           type="button"
                           data-logout-confirm="yes"
-                          class="flex-1 rounded-md bg-amber-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-amber-700"
+                          class="flex-1 rounded-md cursor-pointer bg-red-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-red-900"
                         >
                           Sí, cerrar
                         </button>
                         <button
                           type="button"
                           data-logout-confirm="no"
-                          class="flex-1 rounded-md border border-amber-300 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-50 dark:border-amber-600 dark:text-amber-200 dark:hover:bg-amber-800/30"
+                          class="flex-1 rounded-md cursor-pointer border border-red-300 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-50 dark:border-red-600 dark:text-red-200 dark:hover:bg-red-800/30"
                         >
                           No
                         </button>
@@ -170,32 +163,24 @@ const botones = response.data.header.Botones.map((boton) => ({
   const SESSION_STORAGE_KEY = "usuarioSesion";
   const SESSION_EVENT = "usuarioSesion:cambio";
   const loginCta = document.querySelector("[data-login-cta]");
-  const logoutCta = document.querySelector<HTMLButtonElement>("[data-logout-cta]");
-  const logoutAlert = document.querySelector<HTMLElement>("[data-logout-confirmation]");
-  const logoutConfirmYes = logoutAlert?.querySelector<HTMLButtonElement>("[data-logout-confirm='yes']");
-  const logoutConfirmNo = logoutAlert?.querySelector<HTMLButtonElement>("[data-logout-confirm='no']");
+  const logoutCta = document.querySelector("[data-logout-cta]");
+  const logoutAlert = document.querySelector("[data-logout-confirmation]");
+  const logoutConfirmYes = logoutAlert?.querySelector("[data-logout-confirm='yes']");
+  const logoutConfirmNo = logoutAlert?.querySelector("[data-logout-confirm='no']");
 
-  const hasActiveSession = () => {
-    try {
-      const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-      if (!raw) return false;
+  /**
+   * @typedef {Object} SessionUser
+   * @property {boolean} [confirmed]
+   */
 
-      const session = JSON.parse(raw);
+  /**
+   * @typedef {Object} SessionPayload
+   * @property {string} [jwt]
+   * @property {SessionUser|null} [user]
+   */
 
-      return Boolean(session?.jwt || session?.user);
-    } catch (error) {
-      return false;
-    }
-  };
-
-  const refreshLoginCta = () => {
-    if (!loginCta) return;
-    const isLoggedIn = hasActiveSession();
-    const shouldShowLogout = isLoggedIn;
-
-    loginCta.classList.toggle("hidden", shouldShowLogout);
-    logoutCta?.classList.toggle("hidden", !shouldShowLogout);
-  };
+  const isValidSession = (session) =>
+    Boolean(session?.jwt && session.user && session.user.confirmed !== false);
 
   const clearSession = () => {
     try {
@@ -204,6 +189,27 @@ const botones = response.data.header.Botones.map((boton) => ({
       console.warn("No se pudo limpiar la sesión", error);
     }
     window.dispatchEvent(new CustomEvent(SESSION_EVENT));
+  };
+
+  const getStoredSession = () => {
+    try {
+      const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+      if (!raw) return null;
+
+      return JSON.parse(raw);
+    } catch (error) {
+      clearSession();
+      return null;
+    }
+  };
+
+  const refreshLoginCta = () => {
+    if (!loginCta) return;
+    const isLoggedIn = isValidSession(getStoredSession());
+    const shouldShowLogout = isLoggedIn;
+
+    loginCta.classList.toggle("hidden", shouldShowLogout);
+    logoutCta?.classList.toggle("hidden", !shouldShowLogout);
   };
 
   const hideLogoutAlert = () => {
@@ -231,8 +237,6 @@ const botones = response.data.header.Botones.map((boton) => ({
     hideLogoutAlert();
   });
 
-
-
   window.addEventListener("storage", (event) => {
     if (event.key === SESSION_STORAGE_KEY) {
       refreshLoginCta();
@@ -251,11 +255,12 @@ const botones = response.data.header.Botones.map((boton) => ({
 
 <script>
     let isToggled = false;
-    const navbar = document.querySelector("#nav") as HTMLElement;
-    const menuBtn = document.querySelector("#hamburger") as HTMLButtonElement;
-    const links = navbar ? [...navbar.querySelector("#links-group").children] : [];
+    const navbar = document.getElementById("nav");
+    const menuBtn = document.getElementById("hamburger");
+    const links = navbar ? Array.from(navbar.querySelector("#links-group")?.children ?? []) : [];
 
     function toggleNavlinks() {
+        if (!navbar) return;
         if (isToggled) {
             navbar.dataset.state = "active";
         } else {

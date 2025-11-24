@@ -5,6 +5,18 @@ const SESSION_EVENT = "usuarioSesion:cambio";
 
 type FeedbackVariant = "neutral" | "success" | "error";
 
+type SessionUser = {
+  confirmed?: boolean;
+  nombre?: string;
+  username?: string;
+  email?: string;
+};
+
+type SessionPayload = {
+  jwt?: string;
+  user?: SessionUser | null;
+};
+
 const VARIANT_CLASS_MAP: Record<FeedbackVariant, string[]> = {
   neutral: ["text-zinc-500", "dark:text-zinc-300"],
   success: ["text-emerald-600", "dark:text-emerald-400"],
@@ -69,19 +81,25 @@ const clearSession = () => {
   
   window.dispatchEvent(new CustomEvent(SESSION_EVENT));
 };
-const hasActiveSession = () => {
+const getStoredSession = (): SessionPayload | null => {
   try {
     const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-    if (!raw) return false;
+    if (!raw) return null;
 
     const session = JSON.parse(raw);
     const user = session?.user;
 
-    return Boolean(session?.jwt && user && user?.confirmed !== false);
+    return JSON.parse(raw) as SessionPayload;
   } catch (error) {
-    return false;
+    return null;
   }
 };
+
+const hasActiveSession = (session: SessionPayload | null = getStoredSession()) => {
+  const user = session?.user;
+  return Boolean(session?.jwt && user && user.confirmed !== false);
+};
+
 
 const handleLoginSubmit = async (event: SubmitEvent) => {
   event.preventDefault();
@@ -192,20 +210,20 @@ const initLogin = () => {
     setFeedbackMessage(feedback, feedback.textContent ?? "", initialVariant);
   }
 
-  const storedSessionRaw = typeof window !== "undefined" ? localStorage.getItem("SESSION_STORAGE_KEY") : null;
-  if (storedSessionRaw) {
-    try {
-      const session = JSON.parse(storedSessionRaw);
-      const user = session?.user ?? {};
-      const displayName = user?.nombre ?? user?.username ?? user?.email;
-      if (displayName) {
-        setStatusMessage(status, `Sesión restaurada para ${displayName}`);
-        setFeedbackMessage(feedback, "Tienes una sesión activa.", "success");
-        toggleLoginFormAvailability(form, true, lockedBanner);
-      }
-    } catch (error) {
-      clearSession();
-    }
+  const storedSession = getStoredSession();
+  if (hasActiveSession(storedSession)) {
+    const user = storedSession?.user ?? {};
+    const displayName = user?.nombre ?? user?.username ?? user?.email ?? "tu cuenta";
+
+    setStatusMessage(status, `Sesión restaurada para ${displayName}`);
+    setFeedbackMessage(feedback, "Tienes una sesión activa, redirigiendo...", "success");
+    toggleLoginFormAvailability(form, true, lockedBanner);
+    window.location.assign("/tienda");
+    return;
+  }
+
+  if (storedSession) {
+    clearSession();
   }
 };
 
