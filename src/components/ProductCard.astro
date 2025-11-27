@@ -62,7 +62,7 @@ const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(
       </h3>
       <p class="text-sm text-zinc-500 dark:text-zinc-400">Código: {producto?.codigo ?? "N/A"}</p>
       <div class="mt-auto flex items-center justify-between">
-        <p class="text-lg font-bold text-red-500">{priceLabel}</p>
+        <p class="text-lg font-bold text-red-500" data-auth-visible="authenticated">{priceLabel}</p>
       </div>
     </div>
     

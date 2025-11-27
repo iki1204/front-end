@@ -5,6 +5,7 @@ import AppHeader from "../components/AppHeader.astro";
 import Cart from "../components/Cart.astro";
 import cartWidgetScript from "../lib/carritoWidget.ts?url";
 import loginWidgetScript from "../lib/sesionWidget.ts?url";
+import authVisibilityScript from "../lib/authVisibility.ts?url";
 import { getGlobalData } from "../lib/api";
 import "../css/tailus.css"
 import "../styles/global.css";
@@ -59,26 +60,28 @@ const siteName = response.data.siteName;
         />
     </head>
     
-    <body class="bg-white dark:bg-gray-950">
+    <body class="bg-white dark:bg-gray-950 overflow-x-hidden">
 
-        <div aria-hidden="true" class="-z-1 flex items-center justify-center pointer-events-none">
-            <div class=" border border-transparent border-zinc-200 p-8 shadow-sm dark:border-zinc-800  p-6 shadow-sm border-0 absolute inset-0 opacity-50 [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)]">
-                <div class="blur-[106px] h-56 w-full bg-gradient-to-br from-primary to-red-400 dark:from-red-700"></div>
-                <div class="blur-[80px] h-32 w-full bg-gradient-to-r from-red-400 to-orange-300 dark:to-red-600"></div>
+        <div aria-hidden="true" class="flex items-center justify-center pointer-events-none">
+            <div class="  border-zinc-200 p-8 shadow-sm dark:border-zinc-80 border-0 absolute inset-0 opacity-50 [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)]">
+                <div class="blur-[106px] h-56 w-full bg-linear-to-br from-primary to-red-400 dark:from-red-700"></div>
+                <div class="blur-[80px] h-32 w-full bg-linear-to-r from-red-400 to-orange-300 dark:to-red-600"></div>
             </div>
         </div>
 
-        <AppHeader />
+        <div class="relative z-10">
+            <AppHeader />
 
             <slot />
         
-        <AppFooter />
-
+            <AppFooter />
+        </div>
 
         <Cart floating />
         
         <script type="module" src={loginWidgetScript}></script>
         <script type="module" src={cartWidgetScript}></script>
+        <script type="module" src={authVisibilityScript}></script>
         
     </body>
 </html>

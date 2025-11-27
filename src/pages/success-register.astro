@@ -1,0 +1,17 @@
+---
+import AppHeader from '../components/AppHeader.astro';
+import AppFooter from '../components/AppFooter.astro';
+import Layout from '../layouts/Layout.astro';
+import Container from '../components/Container.astro';
+---
+<Layout title="Registro Exitoso">
+    <Container layout="layout">
+        <main class="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">
+            <h1 class="mb-4 text-4xl font-bold text-green-600">¡Registro Exitoso!</h1>
+            <p class="mb-8 text-lg text-gray-900 dark:text-gray-50">Gracias por registrarte. necesitamos revisar tu solicitid para aprobar tu cuenta, por favor tenga paciencia y siga viendo nuestros productos!</p>
+            <a href="/tienda" class="rounded bg-green-600 px-6 py-3 text-white hover:bg-green-700 transition">Regresar a tienda</a>
+        </main>
+
+    </Container>
+
+</Layout>

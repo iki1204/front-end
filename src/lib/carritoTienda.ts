@@ -227,7 +227,7 @@ const renderMiniCartItem = (item: CartItem): HTMLLIElement => {
   decrement.type = "button";
   decrement.dataset.cartDecrement = item.id;
   decrement.className =
-    "flex h-7 w-7 items-center justify-center rounded-full border border-zinc-200 text-sm text-zinc-600 transition hover:border-primary hover:text-primary dark:border-zinc-700 dark:text-zinc-300";
+    "flex h-7 w-7 items-center justify-center rounded-full border border-zinc-200 text-sm text-zinc-600 transition hover:border-primary hover:text-primary dark:border-red-700 dark:text-zinc-300";
   decrement.textContent = "−";
 
   const quantity = document.createElement("span");
@@ -239,7 +239,7 @@ const renderMiniCartItem = (item: CartItem): HTMLLIElement => {
   increment.type = "button";
   increment.dataset.cartIncrement = item.id;
   increment.className =
-    "flex h-7 w-7 items-center justify-center rounded-full border border-zinc-200 text-sm text-zinc-600 transition hover:border-primary hover:text-primary dark:border-zinc-700 dark:text-zinc-300";
+    "flex h-7 w-7 items-center justify-center rounded-full border border-zinc-200 text-sm text-zinc-600 transition hover:border-primary hover:text-primary dark:border-red-700 dark:text-zinc-300";
   increment.textContent = "+";
 
   const remove = document.createElement("button");
@@ -258,7 +258,7 @@ const renderMiniCartItem = (item: CartItem): HTMLLIElement => {
 const renderCheckoutItem = (item: CartItem): HTMLLIElement => {
   const li = document.createElement("li");
   li.className =
-    "flex flex-col gap-4 rounded-3xl border border-zinc-200 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/40 sm:flex-row sm:items-start";
+    "flex flex-col gap-4 rounded-3xl border border-zinc-200 p-6 shadow-sm dark:border-red-800 dark:bg-zinc-900/40 sm:flex-row sm:items-start";
 
   const imageWrapper = document.createElement("div");
   imageWrapper.className = "h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800";
