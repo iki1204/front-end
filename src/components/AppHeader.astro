@@ -1,11 +1,12 @@
 ---
 import Container from "./Container.astro";
-import { getGlobalData } from "../lib/api";   
+import { getGlobalData } from "../lib/api";  
+
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 const response = await getGlobalData();
 const siteName = response.data.header.Etiqueta;
-const logoUrl = response.data.header.Logo ? API_URL + response.data.header.Logo.url : null;
+const logoUrl = response.data.header.Logo.map((img) => `${API_URL}${img.url}`) ?? [];
 const links = response.data.header.subitem.map((link) => ({
     label: link.etiqueta,
     to: link.url,
@@ -16,30 +17,42 @@ const botones = response.data.header.Botones.map((boton) => ({
 }));
 ---
 
-<header id="site-header" class="sticky top-0 z-50 border-b border-black/5 dark:border-white/5 bg-transparent backdrop-blur-md transition-all duration-500 ease-in-out">
-    <nav id="nav" class="top-0 z-50 z-10 w-full border-b border-black/5 dark:border-white/5 lg:border-transparent">
+<header id="site-header" class="sticky top-0 z-60 border-b border-black/5 dark:border-white/5 bg-transparent backdrop-blur-md transition-all duration-500 ease-in-out">
+    <nav id="nav" class="group top-0 z-50 z-10 w-full border-b border-black/5 dark:border-white/5 lg:border-transparent">
         <Container>
-            <div class="relative flex flex-wrap items-center  justify-between gap-6 py-3 md:gap-0 md:py-4">
+            <div class="relative flex flex-wrap items-center justify-between gap-6 py-3 md:gap-0 md:py-4">
                 <div class="relative z-20 flex w-full justify-between md:px-0 lg:w-fit">
-                    <a href="/#home" aria-label="logo" class="flex items-center space-x-2">
+                    <a href="/#home" aria-label="logo" class="flex dark:hidden items-center space-x-2">
                         <div aria-hidden="true" class="flex space-x-1">
                             <div class="size-4 rounded-full bg-gray-900 dark:bg-white"></div>
                             <div class="h-6 w-2 bg-primary"></div>
                         </div>
                         <div>
-                            {logoUrl ? <img src={logoUrl} alt={siteName} class="h-8 w-auto" /> : null}
+                            {logoUrl ? <img src={logoUrl[0]} alt={siteName} class="h-8 w-auto object-contain" /> : null}
+                        </div>
+                    </a>
+                    <a href="/#home" aria-label="logo" class="hidden dark:flex items-center space-x-2">
+                        <div aria-hidden="true" class="flex space-x-1">
+                            <div class="size-4 rounded-full bg-gray-900 dark:bg-white"></div>
+                            <div class="h-6 w-2 bg-primary"></div>
+                        </div>
+                        <div>
+                            {logoUrl ? <img src={logoUrl[1]} alt={siteName} class="h-8 w-auto object-contain" /> : null}
                         </div>
                     </a>
 
-                    <div class="relative flex max-h-10 items-center lg:hidden">
-                        <button aria-label="humburger" id="hamburger" class="relative -mr-6 p-6 active:scale-95 duration-300">
-                            <div aria-hidden="true" id="line" class="m-auto h-0.5 w-5 rounded bg-gray-950 transition duration-300 dark:bg-white origin-top group-data-[state=active]:rotate-45 group-data-[state=active]:translate-y-1.5"></div>
-                            <div aria-hidden="true" id="line2" class="m-auto mt-2 h-0.5 w-5 rounded bg-gray-950 transition duration-300 dark:bg-white origin-bottom group-data-[state=active]:-rotate-45 group-data-[state=active]:-translate-y-1"></div>
-                        </button>
+                    <div class="flex items-center gap-3">
+
+                            <div class="relative flex max-h-10 items-center lg:hidden">
+                            <button aria-label="humburger" id="hamburger" class="relative -mr-6 p-6 active:scale-95 duration-300">
+                                <div aria-hidden="true" id="line" class="m-auto h-0.5 w-5 rounded bg-gray-950 transition duration-300 dark:bg-white origin-top group-data-[state=active]:rotate-45 group-data-[state=active]:translate-y-1.5"></div>
+                                <div aria-hidden="true" id="line2" class="m-auto mt-2 h-0.5 w-5 rounded bg-gray-950 transition duration-300 dark:bg-white origin-bottom group-data-[state=active]:-rotate-45 group-data-[state=active]:-translate-y-1"></div>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div id="navLayer" aria-hidden="true" class="fixed inset-0 z-10 h-screen w-screen origin-bottom scale-y-0 bg-white/70 backdrop-blur-2xl transition duration-500 group-data-[state=active]:origin-top group-data-[state=active]:scale-y-100 dark:bg-gray-950/70 lg:hidden"></div>
-                <div id="navlinks" class="invisible absolute top-full left-0 z-20 w-full origin-top-right translate-y-1 scale-90 flex-col flex-wrap justify-end gap-6 rounded-3xl border border-gray-100 bg-white p-8 opacity-0 shadow-2xl shadow-gray-600/10 transition-all duration-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none lg:visible lg:relative lg:flex lg:w-fit lg:translate-y-0 lg:scale-100 lg:flex-row lg:items-center lg:gap-0 lg:border-none lg:bg-transparent lg:p-0 lg:opacity-100 lg:shadow-none lg:dark:bg-transparent group-data-[state=active]:visible group-data-[state=active]:scale-100 group-data-[state=active]:opacity-100 lg:group-data-[state=active]:translate-y-0">
+                <div id="navlinks" class="invisible absolute top-full  justify-center left-0 z-20 w-full origin-top-right translate-y-1 scale-90 flex-col flex-wrap gap-6 rounded-3xl border border-gray-100 bg-white p-8 opacity-0 shadow-2xl shadow-gray-600/10 transition-all duration-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none lg:visible lg:relative lg:flex lg:w-fit lg:translate-y-0 lg:scale-100 lg:flex-row lg:items-center lg:gap-0 lg:border-none lg:bg-transparent lg:p-0 lg:opacity-100 lg:shadow-none lg:dark:bg-transparent group-data-[state=active]:visible group-data-[state=active]:scale-100 group-data-[state=active]:opacity-100 lg:group-data-[state=active]:translate-y-0">
                     <div class="w-full text-gray-600 dark:text-gray-200 lg:w-auto lg:pr-4 lg:pt-0">
                         <div id="links-group" class="flex flex-col gap-6 tracking-wide lg:flex-row lg:gap-0 lg:text-sm">
                             {
@@ -50,7 +63,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                                 ))
                             }
                         </div>
-                    </div>              
+                    </div>            
                         {
                             botones.map((link) => (
                                 <div class="mt-12 mr-2 lg:mt-0"> 
@@ -60,8 +73,71 @@ const botones = response.data.header.Botones.map((boton) => ({
                                 </div>
                             ))
                         }
+
+                    <div class="ml-4 flex items-center gap-2">  
+                      <a
+                          data-login-cta
+                          id="loginbtn"
+                          href="/login"
+                          type="button"
+                          class="mt-12 group flex h-10 w-10 items-center justify-center rounded-full   transition duration-200 hover:bg-red-200 lg:mt-0 hover:border-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary dark:hover:bg-red-900"
+                          aria-label="Iniciar sesión"
+                      >
+                          <span class="sr-only">Iniciar sesión</span>
+                          <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="9" r="3" stroke="#1C274C" stroke-width="1.5"/>
+                            <path d="M17.9691 20C17.81 17.1085 16.9247 15 11.9999 15C7.07521 15 6.18991 17.1085 6.03076 20" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M7 3.33782C8.47087 2.48697 10.1786 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 10.1786 2.48697 8.47087 3.33782 7" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
+                          </svg>
+                      </a>
+                      <a
+                          type="button"
+                          data-logout-cta
+                          class="mt-12 hidden group flex cursor-pointer h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary hover:bg-red-600 lg:mt-0"
+                          aria-label="Cerrar sesión"
+                      >
+                        <span class="sr-only">Cerrar sesión</span>
+                        <svg aria-hidden="true"
+                          class="size-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg">
+                          <path d="M17.2929 14.2929C16.9024 14.6834 16.9024 15.3166 17.2929 15.7071C17.6834 16.0976 18.3166 16.0976 18.7071 15.7071L21.6201 12.7941C21.6351 12.7791 21.6497 12.7637 21.6637 12.748C21.87 12.5648 22 12.2976 22 12C22 11.7024 21.87 11.4352 21.6637 11.252C21.6497 11.2363 21.6351 11.2209 21.6201 11.2059L18.7071 8.29289C18.3166 7.90237 17.6834 7.90237 17.2929 8.29289C16.9024 8.68342 16.9024 9.31658 17.2929 9.70711L18.5858 11H13C12.4477 11 12 11.4477 12 12C12 12.5523 12.4477 13 13 13H18.5858L17.2929 14.2929Z" fill="#323232"/>
+                          <path d="M5 2C3.34315 2 2 3.34315 2 5V19C2 20.6569 3.34315 22 5 22H14.5C15.8807 22 17 20.8807 17 19.5V16.7326C16.8519 16.647 16.7125 16.5409 16.5858 16.4142C15.9314 15.7598 15.8253 14.7649 16.2674 14H13C11.8954 14 11 13.1046 11 12C11 10.8954 11.8954 10 13 10H16.2674C15.8253 9.23514 15.9314 8.24015 16.5858 7.58579C16.7125 7.4591 16.8519 7.35296 17 7.26738V4.5C17 3.11929 15.8807 2 14.5 2H5Z" fill="#323232"/>
+                        </svg>
+                      </a>
+                    </div>
+                    <div
+                      data-logout-confirmation
+                      class="hidden absolute right-4 top-20 z-50 w-full max-w-xs rounded-lg border border-red-200 bg-white p-4 text-sm shadow-lg shadow-red-100/60 dark:border-red-700 dark:bg-gray-900 dark:text-red-100"
+                      role="alert"
+                      aria-live="assertive"
+                    >
+                      <p class="font-semibold text-red-800 dark:text-red-200">¿Cerrar sesión?</p>
+                      <p class="mt-1 text-red-700 dark:text-red-300">Confirma si deseas salir de tu cuenta activa.</p>
+                      <div class="mt-3 flex items-center gap-2">
+                        <button
+                          type="button"
+                          data-logout-confirm="yes"
+                          class="flex-1 rounded-md cursor-pointer bg-red-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-red-900"
+                        >
+                          Sí, cerrar
+                        </button>
+                        <button
+                          type="button"
+                          data-logout-confirm="no"
+                          class="flex-1 rounded-md cursor-pointer border border-red-300 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-50 dark:border-red-600 dark:text-red-200 dark:hover:bg-red-800/30"
+                        >
+                          No
+                        </button>
+                      </div>
                     </div>
                 </div>
+
+                
+            </div>
+
+                
             </div>
         </Container>
     </nav>
@@ -81,13 +157,110 @@ const botones = response.data.header.Botones.map((boton) => ({
   });
 </script>
 
+
+
+<script type="module">
+  const SESSION_STORAGE_KEY = "usuarioSesion";
+  const SESSION_EVENT = "usuarioSesion:cambio";
+  const loginCta = document.querySelector("[data-login-cta]");
+  const logoutCta = document.querySelector("[data-logout-cta]");
+  const logoutAlert = document.querySelector("[data-logout-confirmation]");
+  const logoutConfirmYes = logoutAlert?.querySelector("[data-logout-confirm='yes']");
+  const logoutConfirmNo = logoutAlert?.querySelector("[data-logout-confirm='no']");
+
+  /**
+   * @typedef {Object} SessionUser
+   * @property {boolean} [confirmed]
+   */
+
+  /**
+   * @typedef {Object} SessionPayload
+   * @property {string} [jwt]
+   * @property {SessionUser|null} [user]
+   */
+
+  const isValidSession = (session) =>
+    Boolean(session?.jwt && session.user && session.user.confirmed !== false);
+
+  const clearSession = () => {
+    try {
+      localStorage.removeItem(SESSION_STORAGE_KEY);
+    } catch (error) {
+      console.warn("No se pudo limpiar la sesión", error);
+    }
+    window.dispatchEvent(new CustomEvent(SESSION_EVENT));
+  };
+
+  const getStoredSession = () => {
+    try {
+      const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+      if (!raw) return null;
+
+      return JSON.parse(raw);
+    } catch (error) {
+      clearSession();
+      return null;
+    }
+  };
+
+  const refreshLoginCta = () => {
+    if (!loginCta) return;
+    const isLoggedIn = isValidSession(getStoredSession());
+    const shouldShowLogout = isLoggedIn;
+
+    loginCta.classList.toggle("hidden", shouldShowLogout);
+    logoutCta?.classList.toggle("hidden", !shouldShowLogout);
+  };
+
+  const hideLogoutAlert = () => {
+    logoutAlert?.classList.add("hidden");
+  };
+
+  const showLogoutAlert = () => {
+    if (!logoutAlert) return;
+    logoutAlert.classList.remove("hidden");
+  };
+
+  logoutCta?.addEventListener("click", (event) => {
+    event.preventDefault();
+    showLogoutAlert();
+  });
+
+  logoutConfirmYes?.addEventListener("click", () => {
+    clearSession();
+    hideLogoutAlert();
+    refreshLoginCta();
+    window.location.assign("/");
+  });
+
+  logoutConfirmNo?.addEventListener("click", () => {
+    hideLogoutAlert();
+  });
+
+  window.addEventListener("storage", (event) => {
+    if (event.key === SESSION_STORAGE_KEY) {
+      refreshLoginCta();
+    }
+  });
+
+  window.addEventListener(SESSION_EVENT, refreshLoginCta);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", refreshLoginCta, { once: true });
+  } else {
+    refreshLoginCta();
+  }
+</script>
+
+
 <script>
     let isToggled = false;
-    const navbar = document.querySelector("#nav") as HTMLElement;
-    const menuBtn = document.querySelector("#hamburger") as HTMLButtonElement;
-    const links = [...navbar.querySelector("#links-group").children] as HTMLAnchorElement[];
+    const navbar = document.getElementById("nav");
+    const menuBtn = document.getElementById("hamburger");
+    const links = navbar ? Array.from(navbar.querySelector("#links-group")?.children ?? []) : [];
 
     function toggleNavlinks() {
+        if (!navbar) return;
         if (isToggled) {
             navbar.dataset.state = "active";
         } else {
@@ -95,7 +268,7 @@ const botones = response.data.header.Botones.map((boton) => ({
         }
     }
 
-    menuBtn.addEventListener("click", () => {
+    menuBtn?.addEventListener("click", () => {
         isToggled = !isToggled;
         toggleNavlinks();
     });

@@ -4,9 +4,6 @@
 @tailwind utilities;
 
 @layer utilities {
-  :root {
-    color-scheme: light; /* fuerza esquema claro */
-  }
 
   .no-scrollbar::-webkit-scrollbar {
     display: none; /* Oculta scrollbar en Chrome, Safari y Opera */
@@ -25,6 +22,27 @@
     }
   }
 
+  @keyframes cart-widget-bounce {
+    0% {
+      transform: scale(1);
+    }
+    15% {
+      transform: scale(1.12);
+    }
+    35% {
+      transform: scale(0.94);
+    }
+    55% {
+      transform: scale(1.05);
+    }
+    75% {
+      transform: scale(0.98);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
   @layer components {
     .slider .slide {
       opacity: 0;
@@ -38,6 +56,11 @@
   }
 
   .animate-scroll-x {
-    animation: scroll-x 10s linear infinite;
+    animation: scroll-x 14s linear infinite;
+  }
+
+
+  .cart-widget-bump{
+    animation: cart-widget-bounce 0.6s ease;
   }
 }

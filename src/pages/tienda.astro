@@ -2,16 +2,22 @@
 import BaseLayout from "../layouts/Layout.astro";
 import ProductCard from "../components/ProductCard.astro";
 import Container from "../components/Container.astro";
-import { getProductos, getCategorias, getGlobalData } from "../lib/api";
+import { getProductos, getCategorias, getMarcas, getGlobalData } from "../lib/api";
 
 const url = new URL(Astro.request.url);
-const rawSearchParam = url.searchParams.get("search") ?? "";
+
 const searchParam = url.searchParams.get("search")?.toLowerCase().trim() ?? "";
 const categoryParam = url.searchParams.get("category") ?? "all";
+const brandParam = url.searchParams.get("brand") ?? "all";
 const pageParam = Number.parseInt(url.searchParams.get("page") ?? "1", 10);
 const ITEMS_PER_PAGE = 24;
-
 const requestedPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+const MAX_PRICE = 5000;
+const MIN_PRICE = 0;
+const priceParamRaw = Number.parseInt(url.searchParams.get("price") ?? String(MAX_PRICE), 10);
+const priceFilterValue = Number.isFinite(priceParamRaw)
+  ? Math.min(Math.max(priceParamRaw, MIN_PRICE), MAX_PRICE)
+  : MAX_PRICE;
 
 const strapiParams = new URLSearchParams();
 strapiParams.set("pagination[page]", String(requestedPage));
@@ -21,6 +27,10 @@ if (categoryParam !== "all") {
   strapiParams.set("filters[ID_Categoria][$eq]", categoryParam);
 }
 
+if (brandParam !== "all") {
+  strapiParams.set("filters[ID_Marca][$eq]", brandParam);
+}
+
 if (searchParam.length > 0) {
   strapiParams.set("filters[$or][0][nombre][$containsi]", searchParam);
   strapiParams.set("filters[$or][1][codigo][$containsi]", searchParam);
@@ -28,17 +38,33 @@ if (searchParam.length > 0) {
 
 strapiParams.set("sort", "nombre:asc");
 
-const [productosResponse, categoriasResponse, global] = await Promise.all([
+if (priceFilterValue < MAX_PRICE) {
+  strapiParams.set("filters[precio][$lte]", String(priceFilterValue));
+}
+
+const [productosResponse, categoriasResponse, marcasResponse, global] = await Promise.all([
   getProductos(strapiParams),
   getCategorias(),
+  getMarcas(),
   getGlobalData(),
 ]);
 
 const normalizeCollection = (collection: any[] = []) =>
   collection.map((item) => (item?.attributes ? { id: item.id, ...item.attributes } : item));
 
+const getStrapiFileUrl = (file: any) => {
+  const data = file?.data ?? file;
+  const url = data?.attributes?.url ?? data?.url;
+
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+
+  return `${import.meta.env.VITE_STRAPI_URL ?? ""}${url}`;
+};
+
 const productos = normalizeCollection(productosResponse?.data ?? []);
 const categorias = normalizeCollection(categoriasResponse?.data ?? []);
+const marcas = normalizeCollection(marcasResponse?.data ?? []);
 const paginationMeta = productosResponse?.meta?.pagination ?? {};
 const totalPages = Math.max(1, paginationMeta.pageCount ?? 1);
 const currentPage = Math.min(Math.max(paginationMeta.page ?? requestedPage, 1), totalPages);
@@ -65,13 +91,80 @@ const buildQueryString = (updates: Record<string, string | number | null>) => {
   return query ? `?${query}` : "";
 };
 
-const categoryItems = [
-  { label: "Todos", value: "all" },
-  ...categorias.map((categoria) => ({
-    label: categoria?.nombre ?? "Sin nombre",
-    value: categoria?.ID_Categoria ?? categoria?.id,
-  })),
-];
+const normalizeRelationEntry = (entry: any) =>
+  entry?.attributes ? { id: entry.id, ...entry.attributes } : entry;
+
+const getRelationArray = (relation: any) => {
+  if (!relation) return [];
+  if (Array.isArray(relation)) {
+    return relation.map(normalizeRelationEntry).filter(Boolean);
+  }
+  if (Array.isArray(relation?.data)) {
+    return relation.data.map(normalizeRelationEntry).filter(Boolean);
+  }
+  if (relation?.data) {
+    return [normalizeRelationEntry(relation.data)].filter(Boolean);
+  }
+  return [normalizeRelationEntry(relation)].filter(Boolean);
+};
+
+const getParentRelation = (categoria: any) => getRelationArray(categoria?.padre_id)[0] ?? null;
+const getChildrenRelations = (categoria: any) => getRelationArray(categoria?.hijo_id);
+
+
+
+const formatCategoryItem = (categoria: any) => ({
+  label: categoria?.nombre ?? "Sin nombre",
+  value: categoria?.ID_Categoria ?? categoria?.id,
+  image: getStrapiFileUrl(categoria?.cat_img),
+});
+
+
+
+const parentCategoryItems = categorias
+  .filter((categoria) => !getParentRelation(categoria))
+  .map((categoria) => ({
+    ...formatCategoryItem(categoria),
+    children: getChildrenRelations(categoria).map(formatCategoryItem),
+    }))
+  .filter((categoria) => categoria.children.length > 0);
+
+
+const brandItems = marcas
+  .map((marca) => ({
+    label: marca?.nombre ?? "Sin nombre",
+    value: marca?.ID_Marca ?? marca?.id,
+    image: getStrapiFileUrl(marca?.logo ?? marca?.imagen),
+  }))
+  .filter((marca) => Boolean(marca.value));
+
+
+const priceFormatter = new Intl.NumberFormat("es-PE", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+  minimumFractionDigits: 0,
+});
+
+//Paginacion
+const maxVisible = 10;
+const half = Math.floor(maxVisible / 2);
+
+let startPage = Math.max(1, currentPage - half);
+let endPage = startPage + maxVisible - 1;
+if (endPage > totalPages) {
+  endPage = totalPages;
+  startPage = Math.max(1, endPage - maxVisible + 1);
+}
+
+const range = (a: number, b: number) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+const pages = range(startPage, endPage);
+
+const showLeftDots = startPage > 1;
+const showRightDots = endPage < totalPages;
+
+
+
 ---
 
 <BaseLayout global={global}>
@@ -79,62 +172,352 @@ const categoryItems = [
   <Container>
     <article class="flex flex-col gap-8 py-10 w-full">
       <!-- Filtro responsive -->
-      <div class="block md:hidden">
-        <label for="mobileCategory" class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          Filtrar por categoría:
-        </label>
-        <select
-          id="mobileCategory"
-          class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-          onchange="const selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
-        >
-          {categoryItems.map((item) => (
+      <div class="flex flex-col gap-6 md:hidden">
+        <div class="group relative block">
+          <label for="mobileCategory" class="text-base font-semibold text-zinc-900 dark:text-white mb-4">
+            Filtrar por categoría:
+          </label>
+          <select
+            id="mobileCategory"
+            class="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+            onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
+          >
             <option
-              value={Astro.url.pathname + buildQueryString({ category: item.value, page: 1 })}
-              selected={item.value === categoryParam}
+              value={Astro.url.pathname + buildQueryString({ category: "all", page: 1 })}
+              selected={categoryParam === "all"}
             >
-              {item.label}
+              TODAS
             </option>
-          ))}
-        </select>
+            {parentCategoryItems.map((parent) => (
+              parent.children.length > 0 ? (
+                <optgroup label={parent.label}>
+                  {parent.children.map((child) => (
+                    <option
+                      value={Astro.url.pathname + buildQueryString({ category: child.value, page: 1 })}
+                      selected={child.value === categoryParam}
+                    >
+                      {child.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ) : (
+                <optgroup label={parent.label}>
+                  <option value="" disabled>
+                    Sin subcategorías disponibles
+                  </option>
+               </optgroup>
+              )
+            ))}
+          </select>
+        </div>
+
+        <div class="group relative block">
+          <label for="mobileBrand" class="text-base font-semibold text-zinc-900 dark:text-white mb-4">
+            Filtrar por marca:
+          </label>
+          <select
+            id="mobileBrand"
+            class="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+            onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
+          >
+            <option
+              value={Astro.url.pathname + buildQueryString({ brand: "all", page: 1 })}
+              selected={brandParam === "all"}
+            >
+              TODAS
+            </option>
+            {brandItems.length > 0 ? (
+              brandItems.map((brand) => (
+                <option
+                  value={Astro.url.pathname + buildQueryString({ brand: brand.value, page: 1 })}
+                  selected={brand.value === brandParam}
+                >
+                  {brand.label}
+                </option>
+              ))
+            ) : (
+              <option value="" disabled>
+                No hay marcas disponibles
+              </option>
+            )}
+          </select>
+        </div>
+        <div class="group relative block">
+            <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-4">Precio máximo</h3>
+            <form method="get" class="flex flex-col gap-4">
+              <input type="hidden" name="search" value={searchParam} />
+              <input type="hidden" name="category" value={categoryParam} />
+              <input type="hidden" name="brand" value={brandParam} />
+              <input type="hidden" name="page" value="1" />
+              <label for="priceRange" class="text-sm text-zinc-600 dark:text-zinc-300">Ajusta el rango de precio:</label>
+              <div class="flex flex-col gap-3">
+                <input
+                  id="priceRange"
+                  type="range"
+                  min={MIN_PRICE}
+                  max={MAX_PRICE}
+                  step="50"
+                  name="price"
+                  value={priceFilterValue}
+                  class="w-full cursor-pointer accent-primary"
+                  oninput="document.getElementById('priceRangeOutput').textContent = new Intl.NumberFormat('es-PE',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(this.value)"
+                  onchange="this.form.requestSubmit()"
+                />
+                <div class="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300">
+                  <span>{priceFormatter.format(MIN_PRICE)}</span>
+                  <span id="priceRangeOutput">{priceFormatter.format(priceFilterValue)}</span>
+                </div>
+              </div>
+            </form>
+        </div>
       </div>
 
       <!-- Contenido principal -->
       <div class="flex flex-col md:flex-row gap-8">
         <!-- Aside de Navbar visible en escritorio -->
         <aside
-          class="hidden md:block md:w-64 shrink-0 h-fit sticky top-24 rounded-3xl border border-zinc-200 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+          class="hidden md:block md:w-64 shrink-0 sticky top-24 z-50 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-3xl border border-zinc-300 p-6 shadow-sm no-scrollbar dark:border-red-900 dark:bg-zinc-900"
         >
-          <h2 class="text-lg font-semibold mb-4 text-zinc-900 dark:text-white">Categorías</h2>
-          <ul class="flex flex-col gap-3">
-            {categoryItems.map((item) => {
-              const isActive = item.value === categoryParam;
-              return (
-                <li>
-                  <a
-                    href={buildQueryString({ category: item.value, page: 1 })}
-                    class={`block w-full rounded-lg border px-4 py-2 text-sm font-medium text-left transition ${
-                      isActive
-                        ? "border-primary bg-primary text-white"
-                        : "border-zinc-200 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
-                    }`}
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
+
+        <!-- Categorías -->
+          <h2 class="sticky text-lg font-semibold mb-4 text-zinc-900 dark:text-white">Categorías</h2>
+          <div class="flex-1 pr-2">
+            <ul class="flex flex-col gap-3 pb-2">
+              <li class="relative">
+                <a
+                  href={buildQueryString({ category: "all", page: 1 })}
+                  class={`block w-full rounded-lg border px-4 py-2 text-sm font-medium text-left transition ${
+                    categoryParam === "all"
+                      ? "border-primary bg-primary text-white"
+                      : "border-zinc-300 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-red-900 dark:bg-zinc-800 dark:text-zinc-200"
+                  }`}
+                  aria-current={categoryParam === "all" ? "true" : undefined}
+                >
+                  TODAS
+                </a>
+              </li>
+              {parentCategoryItems.length > 0 ? (
+                parentCategoryItems.map((parent) => {
+                  const hasActiveChild = parent.children.some((child) => child.value === categoryParam);
+                  const isParentActive = parent.value === categoryParam;
+                  const isActive = isParentActive || hasActiveChild;
+
+                  return (
+                    <li class="relative">
+                      <details
+                        class={`group rounded-2xl border px-1 py-1 transition ${
+                          isActive
+                            ? "border-primary bg-primary/5 shadow-sm dark:border-red-700 dark:bg-red-950/40"
+                            : "border-zinc-300 bg-white hover:border-primary/60 dark:border-red-900 dark:bg-zinc-900"
+                        }`}
+                        open={isActive}
+                      >
+                        <summary
+                          class={`flex w-full cursor-pointer select-none items-center justify-between rounded-xl px-3 py-2 text-sm font-medium list-none ${
+                            isActive
+                              ? "text-primary"
+                              : "text-zinc-700 hover:text-primary dark:text-zinc-200"
+                          }`}
+                          aria-expanded={isActive ? "true" : "false"}
+                        >
+                          <span class="flex-1 text-left">{parent.label}</span>
+                          <svg
+                            class="h-4 w-4 text-current transition-transform duration-200 group-open:rotate-180"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M5 7.5L10 12.5L15 7.5"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </summary>
+
+                        <div class="grid grid-rows-[0fr] overflow-hidden transition-[grid-template-rows] duration-3000 ease-out group-open:grid-rows-[1fr]">
+                          <div class="opacity-0 transition-opacity duration-1000 ease-out group-open:opacity-100">
+                            {parent.children.length > 0 ? (
+                              <ul class="flex flex-col gap-2 rounded-xl bg-transparent p-3 text-sm shadow-inner">
+                                {parent.children.map((child) => {
+                                  const isChildActive = child.value === categoryParam;
+                                  return (
+                                    <li>
+                                      <a
+                                        href={buildQueryString({ category: child.value, page: 1 })}
+                                        class={`flex items-center gap-3 rounded-2xl border px-3 py-2 font-medium transition ${
+                                          isChildActive
+                                            ? "border-primary bg-primary/10 text-primary"
+                                            : "border-transparent text-zinc-700 hover:border-primary/40 hover:text-primary dark:text-zinc-200"
+                                        }`}
+                                      >
+                                        {child.image ? (
+                                          <img
+                                            src={child.image}
+                                            alt={`Imagen de ${child.label}`}
+                                            class="h-8 w-8 shrink-0 rounded-xl object-cover"
+                                            loading="lazy"
+                                          />
+                                        ) : (
+                                          <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-xs font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300">
+                                            {child.label.slice(0, 2).toUpperCase()}
+                                          </span>
+                                        )}
+                                        <span class="flex-1 wrap-break-word text-left inline-flex">{child.label}</span>
+                                      </a>
+                                    </li>
+                                  );
+                                })}
+                                </ul>
+                            ) : (
+                              <p class="px-3 pb-3 text-sm text-zinc-500 dark:text-zinc-400">Sin subcategorías disponibles</p>
+                            )}
+                          </div>
+                        </div>
+                      </details>
+                    </li>
+                  );
+                })
+              ) : (
+                <li class="text-sm text-zinc-500 dark:text-zinc-400">No hay categorías disponibles.</li>
+              )}
+            </ul>
+          </div>
+
+
+          <!-- Marcas -->
+          <div class="mt-6 border-t border-zinc-300 pt-6 dark:border-zinc-800 ">
+            <h2 class="sticky text-lg font-semibold mb-4 text-zinc-900 dark:text-white">Marcas</h2>
+             <details
+              class={`group rounded-2xl border px-2 py-1 transition ${
+                brandParam !== "all"
+                  ? "border-primary bg-primary/5 shadow-sm dark:border-red-700 dark:bg-red-950/40"
+                  : "border-zinc-300 bg-white hover:border-primary/60 dark:border-red-900 dark:bg-zinc-900"
+              }`}
+              open={brandParam !== "all"}
+            >
+              <summary
+                class={`flex w-full cursor-pointer select-none items-center justify-between rounded-xl px-3 py-2 text-sm font-medium list-none ${
+                  brandParam !== "all"
+                    ? "text-primary"
+                    : "text-zinc-700 hover:text-primary dark:text-zinc-200"
+                }`}
+                aria-expanded={brandParam !== "all" ? "true" : "false"}
+              >
+                <span class="flex-1 text-left">Selecciona una marca</span>
+                <svg
+                  class="h-4 w-4 text-current transition-transform duration-200 group-open:rotate-180"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M5 7.5L10 12.5L15 7.5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </summary>
+
+              <div class="max-h-0 overflow-hidden transition-[max-height] duration-3000 ease-out group-open:max-h-[999px]">
+                <div class="opacity-0 transition-opacity duration-1000 ease-out group-open:opacity-100">
+                  <ul class="mt-3 flex flex-col gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-sm shadow-inner dark:border-zinc-800 dark:bg-zinc-900/60">
+                    <li>
+                      <a
+                        href={Astro.url.pathname + buildQueryString({ brand: "all", page: 1 })}
+                        class={`flex items-center gap-3 rounded-2xl border px-3 py-2 font-medium transition ${
+                          brandParam === "all"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-transparent text-zinc-700 hover:border-primary/40 hover:text-primary dark:text-zinc-200"
+                        }`}
+                        aria-current={brandParam === "all" ? "true" : undefined}
+                      >
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xs font-semibold text-primary dark:bg-red-900/40 dark:text-red-200">
+                          TODAS
+                        </span>
+                        <span class="flex-1 wrap-break-word text-left leading-snug">Todas las marcas</span>
+                      </a>
+                    </li>
+
+                    {brandItems.length > 0 ? (
+                      brandItems.map((brand) => {
+                        const isActive = brand.value === brandParam;
+
+                        return (
+                          <li>
+                            <a
+                              href={Astro.url.pathname + buildQueryString({ brand: brand.value, page: 1 })}
+                              class={`flex items-center gap-3 rounded-2xl border px-3 py-2 font-medium transition ${
+                                isActive
+                                  ? "border-primary bg-primary/10 text-primary"
+                                  : "border-transparent text-zinc-700 hover:border-primary/40 hover:text-primary dark:text-zinc-200"
+                              }`}
+                              aria-current={isActive ? "true" : undefined}
+                            >
+                              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-xs font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                                {brand.label.slice(0, 2).toUpperCase()}
+                              </span>
+                              <span class="flex-1 wrap-break-word text-left leading-snug">{brand.label}</span>
+                            </a>
+                          </li>
+                        );
+                      })
+                    ) : (
+                      <li class="px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400">No hay marcas disponibles</li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            </details>
+          </div>
+
+
+          <!-- Filtro de precio -->
+          <div class="mt-6 border-t border-zinc-300 pt-6 dark:border-zinc-800">
+            <h2 class="sticky text-lg font-semibold mb-4 text-zinc-900 dark:text-white">Precio</h2>
+            <form method="get" class="flex flex-col gap-4">
+              <input type="hidden" name="search" value={searchParam} />
+              <input type="hidden" name="category" value={categoryParam} />
+              <input type="hidden" name="brand" value={brandParam} />
+              <input type="hidden" name="page" value="1" />
+              <label for="priceRange" class="text-sm text-zinc-600 dark:text-zinc-300">Ajusta el rango de precio:</label>
+              <div class="flex flex-col gap-3">
+                <input
+                  id="priceRange"
+                  type="range"
+                  min={MIN_PRICE}
+                  max={MAX_PRICE}
+                  step="50"
+                  name="price"
+                  value={priceFilterValue}
+                  class="w-full cursor-pointer accent-primary"
+                  oninput="document.getElementById('priceRangeOutput').textContent = new Intl.NumberFormat('es-PE',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(this.value)"
+                  onchange="this.form.requestSubmit()"
+                />
+                <div class="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300">
+                  <span>{priceFormatter.format(MIN_PRICE)}</span>
+                  <span id="priceRangeOutput">{priceFormatter.format(priceFilterValue)}</span>
+                </div>
+              </div>
+            </form>
+          </div>
+
         </aside>
 
         <!-- Grid de productos -->
-        <section class="flex-1 flex flex-col gap-8">
-          <header class="flex flex-col gap-6 rounded-3xl border border-zinc-200 p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <section class="flex-1 flex flex-col gap-8 z-40">
+          <header class="flex flex-col gap-6 rounded-3xl border  border-zinc-300 p-6 shadow-sm dark:border-red-900 dark:bg-zinc-900">
             <div class="flex items-center justify-between">
-              <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Tienda</h1>
-              <button class="bg-primary cursor-pointer rounded-full text-white px-5 py-2 hover:bg-red-300 hover:text-black transition">
-                🛒 Mi Carrito
-              </button>
+              <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Tienda 
+
+              </h1>
+
             </div>
             <form method="get" class="flex flex-col gap-4 md:flex-row">
               <input
@@ -142,7 +525,7 @@ const categoryItems = [
                 name="search"
                 placeholder="Buscar por nombre o código"
                 value={searchParam}
-                class="flex-1 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                class="flex-1 rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-red-900 dark:bg-zinc-800 dark:text-white"
               />
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="page" value="1" />
@@ -165,7 +548,7 @@ const categoryItems = [
               ))}
             </div>
           ) : (
-            <div class="rounded-3xl border border-dashed border-zinc-300 bg-white p-12 text-center dark:border-zinc-700 dark:bg-zinc-900">
+            <div class="rounded-3xl border border-dashed border-zinc-300 bg-white p-12 text-center dark:border-red-900 dark:bg-zinc-900">
               <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">No encontramos resultados</h2>
               <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
                 Ajusta los filtros o la búsqueda para ver otros productos.
@@ -175,56 +558,54 @@ const categoryItems = [
 
             
           <!-- Paginación -->
-          {totalPages > 1 && (
-            <nav
-              aria-label="Paginación"
-              class="flex flex-col items-center justify-center w-full mt-10 gap-4 sm:flex-row sm:gap-3 sm:justify-center"
-            >
-              <a
-                href={buildQueryString({ page: Math.max(1, currentPage - 1) })}
-                class={`rounded-full px-5 py-2 text-sm font-medium text-center transition ${
-                  currentPage === 1
-                    ? "cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
-                    : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
-                }`}
-                aria-disabled={currentPage === 1}
-              >
-                ←
-              </a>
-              <div
-                class="flex flex-wrap items-center justify-center gap-2 max-w-full px-2 sm:px-0"
-              >
-                {Array.from({ length: totalPages }).map((_, index) => {
-                  const pageNumber = index + 1;
-                  const isActive = pageNumber === currentPage;
-                  return (
-                    <a
-                      href={buildQueryString({ page: pageNumber })}
-                      class={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
-                        isActive
-                          ? "bg-primary text-white"
-                          : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
-                      }`}
-                      aria-current={isActive ? "page" : undefined}
-                    >
-                      {pageNumber}
-                    </a>
-                  );
-                })}
-              </div>
-              <a
-                href={buildQueryString({ page: Math.min(totalPages, currentPage + 1) })}
-                class={`rounded-full px-5 py-2 text-sm font-medium text-center transition ${
-                  currentPage === totalPages
-                    ? "cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
-                    : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
-                }`}
-                aria-disabled={currentPage === totalPages}
-              >
-                →
-              </a>
-            </nav>
-          )}
+         <div class="flex flex-wrap items-center justify-center gap-2 max-w-full px-2 sm:px-0">
+            {showLeftDots && (
+              <>
+                <a
+                  href={buildQueryString({ page: 1 })}
+                  class={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
+                    currentPage === 1
+                      ? "bg-primary text-white"
+                      : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-300"
+                  }`}
+                  aria-label="Página 1"
+                >1</a>
+                <span class="px-1 text-zinc-400">…</span>
+              </>
+            )}
+
+            {pages.map((pageNumber) => {
+              const isActive = pageNumber === currentPage;
+              return (
+                <a
+                  href={buildQueryString({ page: pageNumber })}
+                  class={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
+                    isActive
+                      ? "bg-primary text-white"
+                      : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
+                  }`}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {pageNumber}
+                </a>
+              );
+            })}
+
+            {showRightDots && (
+              <>
+                <span class="px-1 text-zinc-400">…</span>
+                <a
+                  href={buildQueryString({ page: totalPages })}
+                  class={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${
+                    currentPage === totalPages
+                      ? "bg-primary text-white"
+                      : "bg-white text-zinc-700 hover:border-primary hover:text-primary dark:bg-zinc-900 dark:text-zinc-200"
+                  }`}
+                  aria-label={`Página ${totalPages}`}
+                >{totalPages}</a>
+              </>
+            )}
+          </div>
 
         </section>
       </div>
