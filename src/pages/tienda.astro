@@ -502,7 +502,7 @@ const showRightDots = endPage < totalPages;
           <header class="flex flex-col gap-6 rounded-3xl border  border-zinc-300 p-6 shadow-sm dark:border-red-900 dark:bg-zinc-900">
             <div class="flex items-center justify-between">
               <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Tienda 
-
+                <svg fill="#000000" class="h-8 w-8 mx-2 inline-flex" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>store</title> <path d="M0 10.016l4-10.016h24l4 10.016q0 1.664-1.184 2.816t-2.816 1.184-2.816-1.184-1.184-2.816q0 1.664-1.184 2.816t-2.816 1.184-2.816-1.184-1.184-2.816q0 1.664-1.184 2.816t-2.816 1.184-2.816-1.184-1.184-2.816q0 1.664-1.184 2.816t-2.816 1.184-2.816-1.184-1.184-2.816zM2.016 30.016h28v1.984h-28v-1.984zM4 28v-12q2.272 0 4-1.536v9.536h16v-9.536q1.728 1.536 4 1.536v12h-24z"></path> </g></svg>
               </h1>
 
             </div>
@@ -510,7 +510,7 @@ const showRightDots = endPage < totalPages;
               <input
                 type="search"
                 name="search"
-                placeholder="Buscar por nombre o código"
+                placeholder="Buscar por nombre o código" 
                 value={searchParam}
                 class="flex-1 rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-red-900 dark:bg-zinc-800 dark:text-white"
               />
@@ -521,6 +521,7 @@ const showRightDots = endPage < totalPages;
                 class="rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110"
               >
                 Buscar
+                <svg viewBox="0 0 24 24" class="h-6 w-6 mx-2 inline-flex" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11 6C13.7614 6 16 8.23858 16 11M16.6588 16.6549L21 21M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
               </button>
             </form>
             <p class="text-sm text-zinc-500 dark:text-zinc-400">

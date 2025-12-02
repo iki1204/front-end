@@ -62,17 +62,22 @@ const siteName = response.data.siteName;
     
     <body class="bg-white dark:bg-gray-950 overflow-x-hidden">
 
+        
         <div aria-hidden="true" class="flex items-center justify-center pointer-events-none">
             <div class="  border-zinc-200 p-8 shadow-sm dark:border-zinc-80 border-0 absolute inset-0 opacity-50 [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)]">
                 <div class="blur-[106px] h-56 w-full bg-linear-to-br from-primary to-red-400 dark:from-red-700"></div>
                 <div class="blur-[80px] h-32 w-full bg-linear-to-r from-red-400 to-orange-300 dark:to-red-600"></div>
             </div>
         </div>
+        
+
+        
 
         <div class="relative z-10">
             <AppHeader />
 
             <slot />
+            
         
             <AppFooter />
         </div>
