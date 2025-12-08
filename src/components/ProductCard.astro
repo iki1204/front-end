@@ -75,6 +75,7 @@ const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(
       Ver detalles
     </a>
     <button
+      data-auth-visible="authenticated"
       type="button"
       data-action="add-to-cart"
       data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}

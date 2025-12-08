@@ -134,7 +134,45 @@ const priceFormatter = new Intl.NumberFormat("es-PE", {
   minimumFractionDigits: 2,
 });
 
-const precio = typeof producto?.precio === "number" ? priceFormatter.format(producto.precio) : "Consultar";
+const findPriceByType = (tipo: number) => {
+  const keyCandidates: Record<number, string[]> = {
+    1: ["precio"],
+    2: ["Precio2"],
+    3: ["Precio3"],
+  };
+
+  const candidates = keyCandidates[tipo] ?? [];
+
+  for (const key of candidates) {
+    const value = producto?.[key as keyof typeof producto];
+    if (typeof value === "number") {
+      return value;
+    }
+  }
+
+  return null;
+};
+
+const rawPrices: Record<string, number | null> = {
+  default: null,
+  1: findPriceByType(1),
+  2: findPriceByType(2),
+  3: findPriceByType(3),
+};
+
+rawPrices.default = rawPrices[1] ?? (typeof producto?.precio === "number" ? producto.precio : null);
+
+const formattedPrices: Record<string, string> = Object.fromEntries(
+  Object.entries(rawPrices).map(([key, value]) => [
+    key,
+    typeof value === "number" ? priceFormatter.format(value) : "Consultar",
+  ]),
+);
+
+
+
+const precio = formattedPrices.default;
+
 var descripcion = producto?.descripcion;
 
 const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_stock : null;
@@ -206,7 +244,7 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
         </header>
 
         <div class="space-y-2">
-          <p class="hidden text-3xl font-bold text-red-500" data-auth-visible="authenticated">{precio}</p>
+          <p class="hidden text-3xl font-bold text-red-500" data-auth-visible="authenticated" data-precio-display>{precio}</p>
           <p class="text-sm text-red-500 dark:text-red-300" data-auth-visible="guest">
             Inicia sesión para ver mas de este producto.
           </p>
