@@ -10,6 +10,7 @@ type SessionUser = {
   nombre?: string;
   username?: string;
   email?: string;
+  tipoUsuario?: number | string | null;
 };
 
 type SessionPayload = {

@@ -202,7 +202,6 @@ const renderMiniCartItem = (item: CartItem): HTMLLIElement => {
 
   const image = document.createElement("img");
   image.src = item.image;
-  console.log(item.image);
   image.alt = item.name;
   image.loading = "lazy";
   image.width = 64;
