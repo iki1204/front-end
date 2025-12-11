@@ -73,7 +73,6 @@ if (!producto) {
 
 const categorias = normalizeCollection(categoriasResponse?.data ?? []);
 const marcas = normalizeCollection(marcasResponse?.data ?? []);
-console.log(producto.ID_marca)
 const categoriaActual = categorias.find((categoria) =>
   categoria?.ID_Categoria === producto?.ID_Categoria || categoria?.id === producto?.ID_Categoria
 );
@@ -179,140 +178,183 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
 ---
 
 <BaseLayout global={global}>
-  <Container> 
-  <article class="z-40 mx-auto flex max-w-6xl flex-col gap-12 px-6 py-12 ">
-    <button
-      type="button"
-      onclick="window.history.back()"
-      class="inline-flex items-center gap-2 w-auto cursor-pointer self-start text-sm font-bold text-primary hover:underline"
-    >
-      ← Volver a la tienda
-    </button>
-    <div class="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-      <section class="space-y-6">
-        <div class="overflow-hidden rounded-3xl shadow-7xl border border-zinc-300 dark:bg-zinc-900 dark:border-red-800 p-6 shadow-sm  ">
-          <img
-            id="main-image"
-            src={mainImage}
-            alt={producto?.nombre ?? "Producto"}
-            class="h-full w-full max-h-[480px] rounded-2xl object-contain border-0 "
-            loading="lazy"
-          />
-        </div>
-        {galleryItems.length > 0 && (
-          <div id="thumbs" class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {galleryItems.map((imageUrl) => (
-              <button
-              class="cursor-pointer thumb relative overflow-hidden rounded-2xl border border-zinc-300 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900"
-              data-src={imageUrl}
-              type="button"
-              aria-label="Cambiar imagen"
-            >
+  <Container>
+    <article class="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-10">
+      <div class="pointer-events-none absolute inset-x-0 top-10 hidden h-64 rounded-[40px] bg-gradient-to-r from-primary/15 via-transparent to-primary/10 blur-3xl lg:block"></div>
+
+      <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <button
+          type="button"
+          onclick="window.history.back()"
+          class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary shadow-sm transition hover:border-primary/40 hover:bg-primary/15"
+        >
+          <span aria-hidden>←</span> Volver a la tienda
+        </button>
+        <p class="text-xs font-medium uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-400">Ficha de producto</p>
+      </div>
+
+      <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] xl:grid-cols-[1.15fr_0.85fr]">
+        <section class="relative space-y-5 rounded-3xl border border-zinc-200 bg-white/90 p-5 shadow-xl shadow-primary/5 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80 sm:p-7 lg:p-8">
+          <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary/80 dark:bg-primary/15">
+                <span class="h-2 w-2 rounded-full bg-primary"></span>
+                {categoriaActual?.nombre ?? "Sin categoría"}
+              </span>
+              <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-100">
+                <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                {marcaActual?.nombre ?? "Sin marca"}
+              </span>
+            </div>
+            <p class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Código: {producto?.codigo ?? "N/A"}</p>
+          </header>
+
+          <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-gradient-to-br from-zinc-50 via-white to-zinc-100 shadow-inner dark:border-zinc-800 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
+            <div class="relative aspect-square sm:aspect-[4/3]">
               <img
-                src={imageUrl}
-                alt={`Vista adicional de ${producto?.nombre}`}
-                class="h-32 w-full object-cover pointer-events-none"
+                id="main-image"
+                src={mainImage}
+                alt={producto?.nombre ?? "Producto"}
+                class="h-full w-full object-contain"
                 loading="lazy"
               />
-            </button>
-            ))}
+            </div>
           </div>
-        )}
-      </section>
 
-      <section class="flex flex-col gap-6 rounded-3xl border border-zinc-300 p-8 shadow-sm dark:border-red-800 dark:bg-zinc-900">
-        <header class="space-y-5">
-          <span class="inline-flex  items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary/70 dark:bg-white/70">
-            <svg viewBox="0 0 24 24" class="h-5 w-5 mx-2  " fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-              <g id="SVGRepo_iconCarrier"> 
-                <path opacity="0.4" d="M18.6695 2H16.7695C14.5895 2 13.4395 3.15 13.4395 5.33V7.23C13.4395 9.41 14.5895 10.56 16.7695 10.56H18.6695C20.8495 10.56 21.9995 9.41 21.9995 7.23V5.33C21.9995 3.15 20.8495 2 18.6695 2Z" fill="#B32000"></path> 
-                <path opacity="0.4" d="M7.24 13.4302H5.34C3.15 13.4302 2 14.5802 2 16.7602V18.6602C2 20.8502 3.15 22.0002 5.33 22.0002H7.23C9.41 22.0002 10.56 20.8502 10.56 18.6702V16.7702C10.57 14.5802 9.42 13.4302 7.24 13.4302Z" fill="#F54927"></path> 
-                <path d="M6.29 10.58C8.6593 10.58 10.58 8.6593 10.58 6.29C10.58 3.9207 8.6593 2 6.29 2C3.9207 2 2 3.9207 2 6.29C2 8.6593 3.9207 10.58 6.29 10.58Z" fill="#F54927"></path> 
-                <path d="M17.7099 21.9999C20.0792 21.9999 21.9999 20.0792 21.9999 17.7099C21.9999 15.3406 20.0792 13.4199 17.7099 13.4199C15.3406 13.4199 13.4199 15.3406 13.4199 17.7099C13.4199 20.0792 15.3406 21.9999 17.7099 21.9999Z" fill="#B32000"></path> 
-              </g>
-            </svg>
-            {categoriaActual?.nombre  ?? "Sin categoría"}
-          </span>
-          <span class="inline-flex items-center rounded-full bg-red-800 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
-            <svg class="h-5 w-5 mx-2" viewBox="0 0 48.00 48.00" xmlns="http://www.w3.org/2000/svg" fill="#ffadad" stroke="#ffadad" stroke-width="0.00048000000000000007"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.576"></g><g id="SVGRepo_iconCarrier"> <title>category-solid</title> <g id="Layer_2" data-name="Layer 2"> <g id="invisible_box" data-name="invisible box"> <rect width="48" height="48" fill="none"></rect> </g> <g id="icons_Q2" data-name="icons Q2"> <path d="M24,2a2.1,2.1,0,0,0-1.7,1L13.2,17a2.3,2.3,0,0,0,0,2,1.9,1.9,0,0,0,1.7,1H33a2.1,2.1,0,0,0,1.7-1,1.8,1.8,0,0,0,0-2l-9-14A1.9,1.9,0,0,0,24,2Z"></path> <path d="M43,43H29a2,2,0,0,1-2-2V27a2,2,0,0,1,2-2H43a2,2,0,0,1,2,2V41A2,2,0,0,1,43,43Z"></path> <path d="M13,24A10,10,0,1,0,23,34,10,10,0,0,0,13,24Z"></path> </g> </g> </g></svg>
-            {marcaActual?.nombre  ?? "Sin marca"}
-          </span>
-          <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">{producto?.nombre}</h1>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400">Código: {producto?.codigo ?? "N/A"}</p>
-        </header>
-
-        <div class="space-y-2">
-          <p class="hidden text-3xl font-bold text-red-500" data-auth-visible="authenticated" data-precio-display>{precio}</p>
-          <p class="text-sm text-red-500 dark:text-red-300" data-auth-visible="guest">
-            Inicia sesión para ver mas de este producto.
-          </p>
-          {stock !== null ? (
-            <p class="text-sm text-zinc-500 dark:text-zinc-400">Stock disponible: {stock} unidades</p>
-          ) : null}
-        </div>
-
-        <section class="prose space-y-4">
-          <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">Descripción</h2>
-          <div class="prose dark:prose-invert mx-auto">
-             {Array.isArray(descripcion) && descripcion.length > 0 && descripcion.some(block => Array.isArray(block.children) && block.children.length > 0)
-              ? <BlocksRenderer content={descripcion} />
-              : <p class="text-sm text-zinc-900 dark:text-zinc-200">No hay descripción para este producto.</p>
-            }
-          </div>
+          {galleryItems.length > 0 && (
+            <div class="space-y-3">
+              <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Galería</p>
+              <div
+                id="thumbs"
+                class="grid grid-flow-col auto-cols-[minmax(110px,1fr)] gap-3 overflow-x-auto rounded-2xl border border-dashed border-zinc-200 bg-white/80 p-2 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60 sm:grid-flow-row sm:grid-cols-4 sm:overflow-visible"
+              >
+                {galleryItems.map((imageUrl) => (
+                  <button
+                    class="thumb relative h-24 w-full cursor-pointer overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 p-2 transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 sm:h-28"
+                    data-src={imageUrl}
+                    type="button"
+                    aria-label="Cambiar imagen"
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={`Vista adicional de ${producto?.nombre}`}
+                      class="h-full w-full object-cover pointer-events-none"
+                      loading="lazy"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
-          {datasheetLinks.length > 0 ? (
-          <section class="space-y-3" data-auth-visible="authenticated">
-            <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">Fichas técnicas</h2>
-            <ul class="space-y-2 text-sm text-zinc-700 dark:text-zinc-200">
-              {datasheetLinks.map((file) => (
-                <li class="flex items-center gap-3 rounded-xl border border-zinc-200 px-4 py-3 dark:border-zinc-800">
-                  <svg viewBox="0 0 24 24" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" transform="matrix(1, 0, 0, 1, 0, 0)rotate(0)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M12.25 2.83422C11.7896 2.75598 11.162 2.75005 10.0298 2.75005C8.11311 2.75005 6.75075 2.75163 5.71785 2.88987C4.70596 3.0253 4.12453 3.27933 3.7019 3.70195C3.27869 4.12516 3.02502 4.70481 2.88976 5.7109C2.75159 6.73856 2.75 8.09323 2.75 10.0001V14.0001C2.75 15.9069 2.75159 17.2615 2.88976 18.2892C3.02502 19.2953 3.27869 19.8749 3.7019 20.2981C4.12511 20.7214 4.70476 20.975 5.71085 21.1103C6.73851 21.2485 8.09318 21.2501 10 21.2501H14C15.9068 21.2501 17.2615 21.2485 18.2892 21.1103C19.2952 20.975 19.8749 20.7214 20.2981 20.2981C20.7213 19.8749 20.975 19.2953 21.1102 18.2892C21.2484 17.2615 21.25 15.9069 21.25 14.0001V13.5629C21.25 12.0269 21.2392 11.2988 21.0762 10.7501H17.9463C16.8135 10.7501 15.8877 10.7501 15.1569 10.6518C14.3929 10.5491 13.7306 10.3268 13.2019 9.79815C12.6732 9.26945 12.4509 8.60712 12.3482 7.84317C12.25 7.1123 12.25 6.18657 12.25 5.05374V2.83422ZM13.75 3.6095V5.00005C13.75 6.19976 13.7516 7.0241 13.8348 7.64329C13.9152 8.24091 14.059 8.53395 14.2626 8.73749C14.4661 8.94103 14.7591 9.08486 15.3568 9.16521C15.976 9.24846 16.8003 9.25005 18 9.25005H20.0195C19.723 8.9625 19.3432 8.61797 18.85 8.17407L14.8912 4.61117C14.4058 4.17433 14.0446 3.85187 13.75 3.6095ZM10.1755 1.25002C11.5601 1.24965 12.4546 1.24942 13.2779 1.56535C14.1012 1.88129 14.7632 2.47735 15.7873 3.39955C15.8226 3.43139 15.8584 3.46361 15.8947 3.49623L19.8534 7.05912C19.8956 7.09705 19.9372 7.1345 19.9783 7.17149C21.162 8.23614 21.9274 8.92458 22.3391 9.84902C22.7508 10.7734 22.7505 11.8029 22.75 13.3949C22.75 13.4502 22.75 13.5062 22.75 13.5629V14.0565C22.75 15.8942 22.75 17.3499 22.5969 18.4891C22.4392 19.6615 22.1071 20.6104 21.3588 21.3588C20.6104 22.1072 19.6614 22.4393 18.489 22.5969C17.3498 22.7501 15.8942 22.7501 14.0564 22.7501H9.94359C8.10583 22.7501 6.65019 22.7501 5.51098 22.5969C4.33856 22.4393 3.38961 22.1072 2.64124 21.3588C1.89288 20.6104 1.56076 19.6615 1.40314 18.4891C1.24997 17.3499 1.24998 15.8942 1.25 14.0565V9.94363C1.24998 8.10587 1.24997 6.65024 1.40314 5.51103C1.56076 4.33861 1.89288 3.38966 2.64124 2.64129C3.39019 1.89235 4.34232 1.56059 5.51887 1.40313C6.66283 1.25002 8.1257 1.25003 9.97352 1.25005L10.0298 1.25005C10.0789 1.25005 10.1275 1.25004 10.1755 1.25002Z" fill="#ff0000"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M7.98705 19.0472C8.27554 19.3177 8.72446 19.3177 9.01296 19.0472L11.013 17.1722C11.3151 16.8889 11.3305 16.4143 11.0472 16.1121C10.7639 15.8099 10.2892 15.7946 9.98705 16.0779L9.25 16.7689V13.5001C9.25 13.0858 8.91421 12.7501 8.5 12.7501C8.08579 12.7501 7.75 13.0858 7.75 13.5001V16.7689L7.01296 16.0779C6.71077 15.7946 6.23615 15.8099 5.95285 16.1121C5.66955 16.4143 5.68486 16.8889 5.98705 17.1722L7.98705 19.0472Z" fill="#ff0000"></path> </g></svg>
-                  <a
-                    href={file.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    class="flex-1 truncate font-semibold text-primary hover:underline"
-                  >
-                    {file.label}
-                  </a>
-                  <span class="text-xs text-zinc-500 dark:text-zinc-400">PDF</span>
-                </li>
-              ))}
-            </ul>
+        <section class="relative flex flex-col gap-6 rounded-3xl border border-zinc-200 bg-white/90 p-6 shadow-xl shadow-primary/5 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/85 lg:sticky lg:top-6 lg:self-start lg:p-8">
+          <div class="space-y-3">
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Producto</p>
+            <h1 class="text-3xl font-black leading-tight text-zinc-900 dark:text-white sm:text-4xl">{producto?.nombre}</h1>
+            <div class="flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+              <span class="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                <span class="h-2 w-2 rounded-full bg-primary"></span>
+                {categoriaActual?.nombre ?? "Sin categoría"}
+              </span>
+              <span class="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                {marcaActual?.nombre ?? "Sin marca"}
+              </span>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4 shadow-inner dark:border-primary/30 dark:bg-primary/10">
+            <p class="hidden text-4xl font-extrabold text-primary" data-auth-visible="authenticated" data-precio-display>{precio}</p>
+            <p class="text-sm text-primary" data-auth-visible="guest">Inicia sesión para ver mas de este producto.</p>
+            {stock !== null ? (
+              <p class="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-100">
+                Stock disponible: {stock} unidades
+              </p>
+            ) : null}
+          </div>
+
+          <section class="space-y-4">
+            <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
+              <span class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-zinc-300 to-transparent dark:via-zinc-700"></span>
+              <span>Descripción</span>
+              <span class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-zinc-300 to-transparent dark:via-zinc-700"></span>
+            </div>
+            <div class="prose prose-sm max-w-none text-zinc-800 dark:prose-invert dark:text-zinc-100">
+              {Array.isArray(descripcion) && descripcion.length > 0 && descripcion.some((block) => Array.isArray(block.children) && block.children.length > 0)
+                ? <BlocksRenderer content={descripcion} />
+                : <p class="text-sm">No hay descripción para este producto.</p>
+              }
+            </div>
           </section>
-        ) : null}
 
+          {datasheetLinks.length > 0 ? (
+            <section class="space-y-3" data-auth-visible="authenticated">
+              <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">
+                <span class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-zinc-300 to-transparent dark:via-zinc-700"></span>
+                <span>Fichas técnicas</span>
+                <span class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-zinc-300 to-transparent dark:via-zinc-700"></span>
+              </div>
+              <ul class="space-y-2 text-sm text-zinc-700 dark:text-zinc-200">
+                {datasheetLinks.map((file) => (
+                  <li class="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white/70 px-4 py-3 shadow-sm transition hover:border-primary/40 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <svg viewBox="0 0 24 24" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M12.25 2.83422C11.7896 2.75598 11.1622 2.75005 10.0298 2.75005C8.11311 2.75005 6.75075 2.75163 5.71785 2.88987C4.70596 3.0253 4.12453 3.27933 3.7019 3.70195C3.27869 4.12516 3.02502 4.70481 2.88976 5.7109C2.75159 6.73856 2.75 8.09323 2.75 10.0001V14.0001C2.75 15.9069 2.75159 17.2615 2.88976 18.2892C3.02502 19.2953 3.27869 19.8749 3.7019 20.2981C4.12511 20.7214 4.70476 20.975 5.71085 21.1103C6.73851 21.2485 8.09318 21.2501 10 21.2501H14C15.9068 21.2501 17.2615 21.2485 18.2892 21.1103C19.2952 20.975 19.8749 20.7214 20.2981 20.2981C20.7213 19.8749 20.975 19.2953 21.1102 18.2892C21.2484 17.2615 21.25 15.9069 21.25 14.0001V13.5629C21.25 12.0269 21.2392 11.2988 21.0762 10.7501H17.9463C16.8135 10.7501 15.8877 10.7501 15.1569 10.6518C14.3929 10.5491 13.7306 10.3268 13.2019 9.79815C12.6732 9.26945 12.4509 8.60712 12.3482 7.84317C12.25 7.1123 12.25 6.18657 12.25 5.05374V2.83422ZM13.75 3.6095V5.00005C13.75 6.19976 13.7516 7.0241 13.8348 7.64329C13.9152 8.24091 14.059 8.53395 14.2626 8.73749C14.4661 8.94103 14.7591 9.08486 15.3568 9.16521C15.976 9.24846 16.8003 9.25005 18 9.25005H20.0195C19.723 8.9625 19.3432 8.61797 18.85 8.17407L14.8912 4.61117C14.4058 4.17433 14.0446 3.85187 13.75 3.6095ZM10.1755 1.25002C11.5601 1.24965 12.4546 1.24942 13.2779 1.56535C14.1012 1.88129 14.7632 2.47735 15.7873 3.39955C15.8226 3.43139 15.8584 3.46361 15.8947 3.49623L19.8534 7.05912C19.8956 7.09705 19.9372 7.1345 19.9783 7.17149C21.162 8.23614 21.9274 8.92458 22.3391 9.84902C22.7508 10.7734 22.7505 11.8029 22.75 13.3949C22.75 13.4502 22.75 13.5062 22.75 13.5629V14.0565C22.75 15.8942 22.75 17.3499 22.5969 18.4891C22.4392 19.6615 22.1071 20.6104 21.3588 21.3588C20.6104 22.1072 19.6614 22.4393 18.489 22.5969C17.3498 22.7501 15.8942 22.7501 14.0564 22.7501H9.94359C8.10583 22.7501 6.65019 22.7501 5.51098 22.5969C4.33856 22.4393 3.38961 22.1072 2.64124 21.3588C1.89288 20.6104 1.56076 19.6615 1.40314 18.4891C1.24997 17.3499 1.24998 15.8942 1.25 14.0565V9.94363C1.24998 8.10587 1.24997 6.65024 1.40314 5.51103C1.56076 4.33861 1.89288 3.38966 2.64124 2.64129C3.39019 1.89235 4.34232 1.56059 5.51887 1.40313C6.66283 1.25002 8.1257 1.25003 9.97352 1.25005L10.0298 1.25005C10.0789 1.25005 10.1275 1.25004 10.1755 1.25002Z"
+                          fill="currentColor"
+                        ></path>
+                        <path
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M7.98705 19.0472C8.27554 19.3177 8.72446 19.3177 9.01296 19.0472L11.013 17.1722C11.3151 16.8889 11.3305 16.4143 11.0472 16.1121C10.7639 15.8099 10.2892 15.7946 9.98705 16.0779L9.25 16.7689V13.5001C9.25 13.0858 8.91421 12.7501 8.5 12.7501C8.08579 12.7501 7.75 13.0858 7.75 13.5001V16.7689L7.01296 16.0779C6.71077 15.7946 6.23615 15.8099 5.95285 16.1121C5.66955 16.4143 5.68486 16.8889 5.98705 17.1722L7.98705 19.0472Z"
+                          fill="currentColor"
+                        ></path>
+                      </svg>
+                    </span>
+                    <a
+                      href={file.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      class="flex-1 truncate font-semibold text-primary hover:underline"
+                    >
+                      {file.label}
+                    </a>
+                    <span class="text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">PDF</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
-        <div class="flex flex-col gap-3 sm:flex-row">
-           <button
-                type="button"
-                data-auth-visible="authenticated"
-                data-action="add-to-cart"
-                class="w-full cursor-pointer rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110"
-                data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}
-                data-product-name={producto?.nombre ?? "Producto"}
-                data-product-price={typeof producto?.precio === "number" ? producto.precio : ""}
-                data-product-image={mainImage}
-                data-product-url={`/producto/${slug}`}
-                >
-                Añadir al carrito
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              data-auth-visible="authenticated"
+              data-action="add-to-cart"
+              class="w-full cursor-pointer rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30"
+              data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}
+              data-product-name={producto?.nombre ?? "Producto"}
+              data-product-price={typeof producto?.precio === "number" ? producto.precio : ""}
+              data-product-image={mainImage}
+              data-product-url={`/producto/${slug}`}
+            >
+              Añadir al carrito
             </button>
-          <a
-            href="/tienda#contacto"
-            class="w-full rounded-full border border-primary px-6 py-3 text-center text-sm font-semibold text-primary transition hover:bg-primary/10"
-          >
-            Contactar un asesor
-          </a>
-        </div>
-      </section>
-    </div>
-  </article>
+            <a
+              href="/tienda#contacto"
+              class="w-full rounded-full border border-primary/40 px-6 py-3 text-center text-sm font-semibold text-primary transition hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20"
+            >
+              Contactar un asesor
+            </a>
+          </div>
+        </section>
+      </div>
+    </article>
   </Container>
 </BaseLayout>
-
 <script>
   window.addEventListener("DOMContentLoaded", () => {
     const mainImg = document.getElementById("main-image");
@@ -352,12 +394,12 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
         .map(
           (src) => `
           <button
-            class="cursor-pointer thumb relative overflow-hidden rounded-2xl border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900"
+            class="thumb relative h-24 min-w-[96px] cursor-pointer overflow-hidden rounded-2xl border border-zinc-300 bg-white p-2 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:h-28"
             data-src="${src}"
             type="button"
             aria-label="Cambiar imagen"
           >
-            <img src="${src}" alt="Vista adicional" class="h-32 w-full object-cover pointer-events-none" loading="lazy" />
+            <img src="${src}" alt="Vista adicional" class="h-full w-full object-cover pointer-events-none" loading="lazy" />
           </button>`
         )
         .join("");
