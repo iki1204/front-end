@@ -1,10 +1,18 @@
 @import "tailwindcss";
-@import "tailwindcss/preflight"
+@plugin "@tailwindcss/typography";
+@source "../**/*.{astro,html,js,jsx,md,mdx,ts,tsx}";
 
-@tailwind utilities;
 
-
-@plugin '@tailwindcss/typography';
+@layer components {
+  .slider .slide {
+    opacity: 0;
+    transform: scale(1);
+  }
+  .slider .slide.is-active {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
 @layer utilities {
 
@@ -42,20 +50,9 @@
       transform: scale(0.98);
     }
     100% {
-      transform: scale(1);
-    }
-  }
-
-  @layer components {
-    .slider .slide {
-      opacity: 0;
-      transform: scale(1);
-    }
-
-    .slider .slide.is-active {
-      opacity: 1;
-      transform: scale(1);
-    }
+        transform: scale(1);
+      }
+    
   }
 
   .animate-scroll-x {
@@ -63,7 +60,7 @@
   }
 
 
-  .cart-widget-bump{
+  .cart-widget-bump {
     animation: cart-widget-bounce 0.6s ease;
   }
 }

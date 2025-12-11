@@ -114,6 +114,11 @@ const datasheetEntries: any[] = [
   ...(producto?.datasheets?.data?.attributes ? [producto.datasheets.data.attributes] : []),
 ].filter(Boolean);
 
+const MAX_DATASHEET_LABEL_LENGTH = 15;
+
+const truncateLabel = (label: string, maxLength = MAX_DATASHEET_LABEL_LENGTH) =>
+  label.length > maxLength ? `${label.slice(0, maxLength - 1)}…` : label;
+
 const datasheetLinks = datasheetEntries
   .map((item) => {
     const url = item?.url ?? item?.formats?.pdf?.url ?? null;
@@ -121,8 +126,9 @@ const datasheetLinks = datasheetEntries
 
     const absoluteUrl = url.startsWith("http") ? url : `${API_URL ?? ""}${url}`;
     const label = item?.name ?? item?.alternativeText ?? item?.caption ?? "Ficha técnica";
+    const displayLabel = truncateLabel(label);
 
-    return { url: absoluteUrl, label };
+    return { url: absoluteUrl, label, displayLabel };
   })
   .filter(Boolean);
 
@@ -180,13 +186,11 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
 <BaseLayout global={global}>
   <Container>
     <article class="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-10">
-      <div class="pointer-events-none absolute inset-x-0 top-10 hidden h-64 rounded-[40px] bg-gradient-to-r from-primary/15 via-transparent to-primary/10 blur-3xl lg:block"></div>
-
       <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
         <button
           type="button"
           onclick="window.history.back()"
-          class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary shadow-sm transition hover:border-primary/40 hover:bg-primary/15"
+          class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary shadow-sm transition hover:border-primary/40 hover:bg-primary/15"
         >
           <span aria-hidden>←</span> Volver a la tienda
         </button>
@@ -194,7 +198,7 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
       </div>
 
       <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] xl:grid-cols-[1.15fr_0.85fr]">
-        <section class="relative space-y-5 rounded-3xl border border-zinc-200 bg-white/90 p-5 shadow-xl shadow-primary/5 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80 sm:p-7 lg:p-8">
+        <section class="relative space-y-5 rounded-3xl sm:p-7 lg:p-8">
           <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div class="flex flex-wrap items-center gap-2">
               <span class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary/80 dark:bg-primary/15">
@@ -210,20 +214,21 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
           </header>
 
           <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-gradient-to-br from-zinc-50 via-white to-zinc-100 shadow-inner dark:border-zinc-800 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
-            <div class="relative aspect-square sm:aspect-[4/3]">
-              <img
-                id="main-image"
-                src={mainImage}
-                alt={producto?.nombre ?? "Producto"}
-                class="h-full w-full object-contain"
-                loading="lazy"
-              />
-            </div>
+              <div class="relative flex items-center justify-center px-4 py-6 sm:px-6">
+              <div class="flex h-[320px] w-full max-w-[520px] items-center justify-center overflow-hidden rounded-xl sm:h-[420px] lg:h-[520px]">
+                <img
+                  id="main-image"
+                  src={mainImage}
+                  alt={producto?.nombre ?? "Producto"}
+                  class="h-full w-full object-contain"
+                  loading="lazy"
+                />
+              </div>
           </div>
 
           {galleryItems.length > 0 && (
             <div class="space-y-3">
-              <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Galería</p>
+              <p class="text-xs px-3 font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Galería</p>
               <div
                 id="thumbs"
                 class="grid grid-flow-col auto-cols-[minmax(110px,1fr)] gap-3 overflow-x-auto rounded-2xl border border-dashed border-zinc-200 bg-white/80 p-2 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60 sm:grid-flow-row sm:grid-cols-4 sm:overflow-visible"
@@ -251,17 +256,7 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
         <section class="relative flex flex-col gap-6 rounded-3xl border border-zinc-200 bg-white/90 p-6 shadow-xl shadow-primary/5 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/85 lg:sticky lg:top-6 lg:self-start lg:p-8">
           <div class="space-y-3">
             <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Producto</p>
-            <h1 class="text-3xl font-black leading-tight text-zinc-900 dark:text-white sm:text-4xl">{producto?.nombre}</h1>
-            <div class="flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
-              <span class="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-                <span class="h-2 w-2 rounded-full bg-primary"></span>
-                {categoriaActual?.nombre ?? "Sin categoría"}
-              </span>
-              <span class="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-                <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                {marcaActual?.nombre ?? "Sin marca"}
-              </span>
-            </div>
+            <h1 class="w-full break-words text-3xl font-black leading-tight text-zinc-900 dark:text-white sm:text-4xl">{producto?.nombre}</h1>
           </div>
 
           <div class="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4 shadow-inner dark:border-primary/30 dark:bg-primary/10">
@@ -280,7 +275,7 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
               <span>Descripción</span>
               <span class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-zinc-300 to-transparent dark:via-zinc-700"></span>
             </div>
-            <div class="prose prose-sm max-w-none text-zinc-800 dark:prose-invert dark:text-zinc-100">
+            <div class="prose overflow-x-auto break-words prose-sm max-w-none text-zinc-800 dark:prose-invert dark:text-zinc-100">
               {Array.isArray(descripcion) && descripcion.length > 0 && descripcion.some((block) => Array.isArray(block.children) && block.children.length > 0)
                 ? <BlocksRenderer content={descripcion} />
                 : <p class="text-sm">No hay descripción para este producto.</p>
@@ -297,7 +292,7 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
               </div>
               <ul class="space-y-2 text-sm text-zinc-700 dark:text-zinc-200">
                 {datasheetLinks.map((file) => (
-                  <li class="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white/70 px-4 py-3 shadow-sm transition hover:border-primary/40 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
+                  <li class="flex w-full max-w-full items-center overflow-hidden gap-3 rounded-xl border border-zinc-200 bg-white/70 px-4 py-3 shadow-sm transition hover:border-primary/40 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
                     <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <svg viewBox="0 0 24 24" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path
@@ -318,9 +313,11 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
                       href={file.url}
                       target="_blank"
                       rel="noreferrer"
-                      class="flex-1 truncate font-semibold text-primary hover:underline"
+                      class="flex-1 min-w-0 truncate font-semibold text-primary hover:underline"
+                      title={file.label}
                     >
-                      {file.label}
+                      <span class="block truncate sm:hidden">{file.displayLabel}</span>
+                      <span class="hidden sm:block break-words">{file.label}</span>
                     </a>
                     <span class="text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">PDF</span>
                   </li>

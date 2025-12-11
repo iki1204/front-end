@@ -62,7 +62,7 @@ async function fetchAPI(endpoint: string, params: QueryParams = "") {
 async function postAPI(endpoint: string, body: unknown = {}, params: QueryParams = "") {
   const query = buildQuery(params);
 
-  const res = await fetch(`http://192.168.5.52:1337/api/auth/${endpoint}${query}`, {
+  const res = await fetch(`http://192.168.5.53:1337/api/auth/${endpoint}${query}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
