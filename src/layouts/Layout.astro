@@ -1,8 +1,8 @@
 ---
 import { AstroFont } from 'astro-font';
-import { Icon } from 'astro-icon/components'
 import AppFooter from "../components/AppFooter.astro";
 import AppHeader from "../components/AppHeader.astro";
+import Background from './background.astro';
 import Cart from "../components/Cart.astro";
 import cartWidgetScript from "../lib/carritoWidget.ts?url";
 import loginWidgetScript from "../lib/sesionWidget.ts?url";
@@ -61,19 +61,13 @@ const siteName = response.data.siteName;
         />
     </head>
     
-    <body class="bg-white dark:bg-gray-950 overflow-x-hidden">
+    <body class="relative min-h-screen text-gray-900 dark:text-gray-100 overflow-x-hidden">
 
-        
-        <div aria-hidden="true" class="flex items-center justify-center pointer-events-none">
-            <div class="  border-zinc-200 p-8 shadow-sm dark:border-zinc-80 border-0 absolute inset-0 opacity-50 [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)]">
-               
-            </div>
-        </div>
-        
 
-        
+        <div class="relative z-10 min-h-screen" >
 
-        <div class="relative z-10">
+            <Background />
+            
             <AppHeader />
 
             <slot />

@@ -190,22 +190,22 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
         <button
           type="button"
           onclick="window.history.back()"
-          class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary shadow-sm transition hover:border-primary/40 hover:bg-primary/15"
+          class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-primary/20 bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:border-primary/40 hover:bg-primary/15"
         >
           <span aria-hidden>←</span> Volver a la tienda
         </button>
-        <p class="text-xs font-medium uppercase tracking-[0.25em] text-zinc-500 dark:text-zinc-400">Ficha de producto</p>
+        <p class="text-xs font-medium uppercase tracking-[0.25em] text-zinc-600 dark:text-zinc-300">Ficha de producto</p>
       </div>
 
       <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] xl:grid-cols-[1.15fr_0.85fr]">
         <section class="relative space-y-5 rounded-3xl sm:p-7 lg:p-8">
           <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div class="flex flex-wrap items-center gap-2">
-              <span class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary/80 dark:bg-primary/15">
-                <span class="h-2 w-2 rounded-full bg-primary"></span>
+              <span class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary/80 dark:text-white dark:bg-primary">
+                <span class="h-2 w-2 rounded-full bg-primary dark:bg-white"></span>
                 {categoriaActual?.nombre ?? "Sin categoría"}
               </span>
-              <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-100">
+              <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-200 dark:text-emerald-900">
                 <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
                 {marcaActual?.nombre ?? "Sin marca"}
               </span>

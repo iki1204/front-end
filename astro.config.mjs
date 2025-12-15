@@ -20,7 +20,11 @@ export default defineConfig({
     
   },
 
-  integrations: [react(), icon()],
+  integrations: [react(), icon({
+    sets: {
+        mdi: () => import('@iconify-json/mdi/icons.json')
+      }
+  })],
 
 
 });
