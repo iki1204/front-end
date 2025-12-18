@@ -8,6 +8,9 @@ const ITEMS_PER_PAGE = 24;
 const MAX_PRICE = 5000;
 const MIN_PRICE = 0;
 
+const normalizeWithAttributes = (item: any) => (item?.attributes ? { id: item.id, ...item.attributes } : item);
+const normalizeCollection = (collection: any[] = []) => collection.map(normalizeWithAttributes);
+
 const url = new URL(Astro.request.url);
 
 const searchParam = url.searchParams.get("search")?.toLowerCase().trim() ?? "";
@@ -47,7 +50,7 @@ if (priceFilterValue < MAX_PRICE) {
   strapiParams.set("filters[precio][$lte]", String(priceFilterValue));
 }
 
-const suggestionParams = new URLSearchParams({
+const suggestionBaseParams = new URLSearchParams({
   "pagination[page]": "1",
   "pagination[pageSize]": "200",
   sort: "nombre:asc",
@@ -55,17 +58,40 @@ const suggestionParams = new URLSearchParams({
   "fields[1]": "codigo",
 });
 
-const [productosResponse, suggestionResponse, categoriasResponse, marcasResponse, global] =
+const fetchAllSuggestionProducts = async () => {
+  const firstPage = await getProductos(suggestionBaseParams);
+  const firstPageProducts = normalizeCollection(firstPage?.data ?? []);
+  const paginationMeta = firstPage?.meta?.pagination ?? {};
+  const totalSuggestionPages = Math.max(1, paginationMeta.pageCount ?? 1);
+
+ if (totalSuggestionPages === 1) {
+    return firstPageProducts;
+  }
+
+  const additionalRequests = [] as Promise<any>[];
+
+  for (let page = 2; page <= totalSuggestionPages; page++) {
+    const params = new URLSearchParams(suggestionBaseParams);
+    params.set("pagination[page]", String(page));
+    additionalRequests.push(getProductos(params));
+  }
+
+  const additionalResponses = await Promise.all(additionalRequests);
+  const additionalProducts = additionalResponses.flatMap((response) =>
+    normalizeCollection(response?.data ?? [])
+  );
+
+  return [...firstPageProducts, ...additionalProducts];
+};
+
+const [productosResponse, categoriasResponse, marcasResponse, global, suggestionProducts] =
   await Promise.all([
     getProductos(strapiParams),
-    getProductos(suggestionParams),
     getCategorias(),
     getMarcas(),
     getGlobalData(),
+    fetchAllSuggestionProducts(),
   ]);
-
-const normalizeWithAttributes = (item: any) => (item?.attributes ? { id: item.id, ...item.attributes } : item);
-const normalizeCollection = (collection: any[] = []) => collection.map(normalizeWithAttributes);
 
 const getStrapiFileUrl = (file: any) => {
   const data = file?.data ?? file;
@@ -78,7 +104,6 @@ const getStrapiFileUrl = (file: any) => {
 };
 
 const productos = normalizeCollection(productosResponse?.data ?? []);
-const suggestionProducts = normalizeCollection(suggestionResponse?.data ?? []);
 const categorias = normalizeCollection(categoriasResponse?.data ?? []);
 const marcas = normalizeCollection(marcasResponse?.data ?? []);
 const suggestionItems = Array.from(
@@ -770,6 +795,5 @@ const showRightDots = endPage < totalPages;
       filterSuggestions();
     })();
   </script>
-
   
 </BaseLayout>
