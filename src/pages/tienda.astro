@@ -11,6 +11,7 @@ const MIN_PRICE = 0;
 const url = new URL(Astro.request.url);
 
 const searchParam = url.searchParams.get("search")?.toLowerCase().trim() ?? "";
+const searchTerms = searchParam.split(/\s+/).filter(Boolean);
 const categoryParam = url.searchParams.get("category") ?? "all";
 const brandParam = url.searchParams.get("brand") ?? "all";
 const pageParam = Number.parseInt(url.searchParams.get("page") ?? "1", 10);
@@ -34,9 +35,11 @@ if (brandParam !== "all") {
   strapiParams.set("filters[ID_Marca][$eq]", brandParam);
 }
 
-if (searchParam.length > 0) {
-  strapiParams.set("filters[$or][0][nombre][$containsi]", searchParam);
-  strapiParams.set("filters[$or][1][codigo][$containsi]", searchParam);
+if (searchTerms.length > 0) {
+  searchTerms.forEach((term, index) => {
+    strapiParams.set(`filters[$and][${index}][$or][0][nombre][$containsi]`, term);
+    strapiParams.set(`filters[$and][${index}][$or][1][codigo][$containsi]`, term);
+  });
 }
 
 
@@ -67,6 +70,14 @@ const getStrapiFileUrl = (file: any) => {
 const productos = normalizeCollection(productosResponse?.data ?? []);
 const categorias = normalizeCollection(categoriasResponse?.data ?? []);
 const marcas = normalizeCollection(marcasResponse?.data ?? []);
+const suggestionItems = Array.from(
+  new Set(
+    productos
+      .flatMap((producto) => [producto?.nombre, producto?.codigo])
+      .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+      .map((value) => value.trim())
+  )
+).slice(0, 10);
 
 const paginationMeta = productosResponse?.meta?.pagination ?? {};
 const totalPages = Math.max(1, paginationMeta.pageCount ?? 1);
@@ -512,8 +523,16 @@ const showRightDots = endPage < totalPages;
                 name="search"
                 placeholder="Buscar por nombre o código" 
                 value={searchParam}
+                list={suggestionItems.length > 0 ? "searchSuggestions" : undefined}
                 class="flex-1 rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-red-900 dark:bg-zinc-800 dark:text-white"
               />
+              {suggestionItems.length > 0 && (
+                <datalist id="searchSuggestions">
+                  {suggestionItems.map((suggestion) => (
+                    <option value={suggestion} />
+                  ))}
+                </datalist>
+              )}
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="page" value="1" />
               <button
