@@ -543,6 +543,7 @@ const showRightDots = endPage < totalPages;
             <form method="get" class="flex flex-col gap-4 md:flex-row md:items-start">
               <div class="relative flex-1">
                 <input
+                  id="store-search"
                   type="search"
                   name="search"
                   placeholder="Buscar por nombre o código (admite varias palabras)"
@@ -665,5 +666,97 @@ const showRightDots = endPage < totalPages;
       </div>
     </article>
   </Container>
-  
+
+  <script type="application/json" id="search-suggestions-data">
+    {JSON.stringify(suggestionItems)}
+  </script>
+  <script>
+    const suggestionsDataElement = document.getElementById("search-suggestions-data");
+    const baseSuggestionItems = suggestionsDataElement?.textContent
+      ? JSON.parse(suggestionsDataElement.textContent)
+      : [];
+
+    const searchInput = document.getElementById("store-search");
+    const suggestionWrapper = document.getElementById("search-suggestions");
+    const suggestionList = document.getElementById("search-suggestions-list");
+    const suggestionCount = document.getElementById("search-suggestions-count");
+
+    if (searchInput && suggestionWrapper && suggestionList && suggestionCount) {
+      const buildClientQueryString = (updates) => {
+        const params = new URLSearchParams(window.location.search);
+
+        Object.entries(updates).forEach(([key, value]) => {
+          if (value === null || value === "") {
+            params.delete(key);
+            return;
+          }
+          params.set(key, String(value));
+        });
+
+        if ("page" in updates) {
+          if (updates.page === null) {
+            params.delete("page");
+          } else {
+            params.set("page", String(updates.page));
+          }
+        }
+
+        const query = params.toString();
+        return `${window.location.pathname}${query ? `?${query}` : ""}`;
+      };
+
+      const renderSuggestions = (query) => {
+        const normalized = query.trim().toLowerCase();
+        const filtered = normalized.length
+          ? baseSuggestionItems.filter((item) => item.value.toLowerCase().includes(normalized))
+          : [];
+
+        suggestionList.innerHTML = "";
+
+        if (!filtered.length) {
+          suggestionWrapper.classList.add("hidden");
+          suggestionCount.textContent = "0";
+          return;
+        }
+
+        filtered.forEach((item) => {
+          const li = document.createElement("li");
+          const link = document.createElement("a");
+          link.href = buildClientQueryString({ search: item.value, page: 1 });
+          link.className =
+            "flex items-center justify-between gap-3 px-4 py-3 transition hover:bg-primary/5 hover:text-primary dark:hover:bg-red-900/30";
+
+          const label = document.createElement("span");
+          label.className = "text-left leading-snug";
+          label.textContent = item.label;
+
+          const cta = document.createElement("span");
+          cta.className = "text-xs font-semibold text-primary";
+          cta.textContent = "Ver resultados";
+
+          link.appendChild(label);
+          link.appendChild(cta);
+          li.appendChild(link);
+          suggestionList.appendChild(li);
+        });
+
+        suggestionCount.textContent = String(filtered.length);
+        suggestionWrapper.classList.remove("hidden");
+      };
+
+      searchInput.addEventListener("input", (event) => {
+        renderSuggestions(event.target.value);
+      });
+
+      searchInput.addEventListener("focus", (event) => {
+        renderSuggestions(event.target.value);
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!suggestionWrapper.contains(event.target) && event.target !== searchInput) {
+          suggestionWrapper.classList.add("hidden");
+        }
+      });
+    }
+  </script>
 </BaseLayout>
