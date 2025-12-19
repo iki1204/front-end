@@ -21,6 +21,8 @@ type SuggestionEntry = {
   normalized: string;
 };
 
+type Teardown = () => void;
+
 const readSuggestionValues = (dataElementId: string): string[] => {
   const dataNode = document.getElementById(dataElementId);
   if (!(dataNode instanceof HTMLScriptElement)) return [];
@@ -46,7 +48,7 @@ const buildSuggestionPool = (values: string[]): SuggestionEntry[] => {
   }));
 };
 
-export const setupTiendaSuggestions = (options: SetupOptions = {}) => {
+export const setupTiendaSuggestions = (options: SetupOptions = {}): Teardown | null => {
   if (typeof window === "undefined" || typeof document === "undefined") return;
 
   const config = { ...DEFAULT_OPTIONS, ...options };
@@ -64,6 +66,12 @@ export const setupTiendaSuggestions = (options: SetupOptions = {}) => {
   ) {
     return;
   }
+
+  if (input.dataset.suggestionsInitialized === "true") {
+    return;
+  }
+  input.dataset.suggestionsInitialized = "true";
+
 
   const suggestionPool = buildSuggestionPool(readSuggestionValues(config.dataElementId));
 
@@ -142,7 +150,24 @@ export const setupTiendaSuggestions = (options: SetupOptions = {}) => {
     renderSuggestions(matches);
   };
 
-  input.addEventListener("input", () => {
+  const listeners: Array<{
+    target: EventTarget;
+    type: string;
+    handler: EventListenerOrEventListenerObject;
+    options?: boolean | AddEventListenerOptions;
+  }> = [];
+
+  const addListener = (
+    target: EventTarget,
+    type: string,
+    handler: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions,
+  ) => {
+    target.addEventListener(type, handler as EventListener, options);
+    listeners.push({ target, type, handler, options });
+  };
+
+  const handleInput = () => {
     filterSuggestions();
 
     if (lastValue && input.value.trim() === "") {
@@ -151,15 +176,15 @@ export const setupTiendaSuggestions = (options: SetupOptions = {}) => {
     }
 
     lastValue = input.value;
-  });
+  };
 
-  input.addEventListener("focus", () => {
+  const handleFocus = () => {
     if (input.value.trim() !== "") {
       filterSuggestions();
     }
-  });
+  };
 
-  input.addEventListener("blur", () => {
+  const handleBlur = () => {
     window.setTimeout(() => {
       const active = document.activeElement;
       const isInsideDropdown = active instanceof Node && suggestionContainer.contains(active);
@@ -169,22 +194,38 @@ export const setupTiendaSuggestions = (options: SetupOptions = {}) => {
         toggleDropdown(false);
       }
     }, 50);
-  });
+  };
 
-  document.addEventListener("mousedown", (event) => {
+  const handleDocumentMouseDown = (event: Event) => {
     const target = event.target;
 
     if (target instanceof Node && !suggestionContainer.contains(target) && !input.contains(target)) {
       toggleDropdown(false);
     }
-  });
+  };
 
-  input.addEventListener("search", () => {
+  const handleSearch = () => {
     if (input.value.trim() === "") {
       toggleDropdown(false);
       submitForm();
     }
-  });
+  };
+
+  addListener(input, "input", handleInput);
+  addListener(input, "focus", handleFocus);
+  addListener(input, "blur", handleBlur);
+  addListener(document, "mousedown", handleDocumentMouseDown);
+  addListener(input, "search", handleSearch);
 
   filterSuggestions();
+  
+return () => {
+    clearSuggestions();
+    input.removeAttribute("data-suggestions-initialized");
+
+    listeners.forEach(({ target, type, handler, options }) => {
+      target.removeEventListener(type, handler as EventListener, options);
+    });
+  };
 };
+ 
