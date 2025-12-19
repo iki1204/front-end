@@ -7,7 +7,7 @@ import { getCategorias, getGlobalData, getMarcas, getProductos } from "../lib/ap
 const ITEMS_PER_PAGE = 24;
 const MAX_PRICE = 5000;
 const MIN_PRICE = 0;
-const SUGGESTIONS_LIMIT = 30;
+const SUGGESTIONS_LIMIT = 8;
 
 const normalizeWithAttributes = (item: any) => (item?.attributes ? { id: item.id, ...item.attributes } : item);
 const normalizeCollection = (collection: any[] = []) => collection.map(normalizeWithAttributes);
@@ -27,8 +27,7 @@ const priceFilterValue = Number.isFinite(priceParamRaw)
   ? Math.min(Math.max(priceParamRaw, MIN_PRICE), MAX_PRICE)
   : MAX_PRICE;
 
-const strapiBaseParams = new URLSearchParams({
-  "pagination[page]": String(requestedPage),
+const baseParams = new URLSearchParams({
   "pagination[pageSize]": String(ITEMS_PER_PAGE),
   sort: "nombre:asc",
 });
@@ -41,24 +40,25 @@ const applySearchFilters = (params: URLSearchParams, terms: string[]) => {
 };
 
 if (categoryParam !== "all") {
-  strapiBaseParams.set("filters[ID_Categoria][$eq]", categoryParam);
+  baseParams.set("filters[ID_Categoria][$eq]", categoryParam);
 }
 
 if (brandParam !== "all") {
-  strapiBaseParams.set("filters[ID_Marca][$eq]", brandParam);
+  baseParams.set("filters[ID_Marca][$eq]", brandParam);
 }
 
 if (priceFilterValue < MAX_PRICE) {
-  strapiBaseParams.set("filters[precio][$lte]", String(priceFilterValue));
+  baseParams.set("filters[precio][$lte]", String(priceFilterValue));
 }
 
-const strapiParams = new URLSearchParams(strapiBaseParams);
+const strapiParams = new URLSearchParams(baseParams);
+strapiParams.set("pagination[page]", String(requestedPage));
 
 if (searchTerms.length > 0) {
   applySearchFilters(strapiParams, searchTerms);
 }
 
-const suggestionParams = new URLSearchParams(strapiBaseParams);
+const suggestionParams = new URLSearchParams(baseParams);
 suggestionParams.set("pagination[page]", "1");
 suggestionParams.set("pagination[pageSize]", String(SUGGESTIONS_LIMIT));
 
