@@ -50,6 +50,7 @@ if (priceFilterValue < MAX_PRICE) {
   strapiParams.set("filters[precio][$lte]", String(priceFilterValue));
 }
 
+
 const suggestionBaseParams = new URLSearchParams({
   "pagination[page]": "1",
   "pagination[pageSize]": "200",
@@ -58,13 +59,14 @@ const suggestionBaseParams = new URLSearchParams({
   "fields[1]": "codigo",
 });
 
+
 const fetchAllSuggestionProducts = async () => {
   const firstPage = await getProductos(suggestionBaseParams);
   const firstPageProducts = normalizeCollection(firstPage?.data ?? []);
   const paginationMeta = firstPage?.meta?.pagination ?? {};
-  const totalSuggestionPages = Math.max(1, paginationMeta.pageCount ?? 1);
+  const totalSuggestionPages = Math.max(1, paginationMeta.pageCount ?? 1);  
 
- if (totalSuggestionPages === 1) {
+  if (totalSuggestionPages === 1) {
     return firstPageProducts;
   }
 
@@ -113,7 +115,7 @@ const suggestionItems = Array.from(
       .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
       .map((value) => value.trim())
   )
-).slice(0, 10);
+);
 
 const paginationMeta = productosResponse?.meta?.pagination ?? {};
 const totalPages = Math.max(1, paginationMeta.pageCount ?? 1);
@@ -553,7 +555,7 @@ const showRightDots = endPage < totalPages;
               </h1>
 
             </div>
-              <form id="storeSearchForm" method="get" class="flex flex-col gap-4 md:flex-row md:items-start">
+            <form id="storeSearchForm" method="get" class="flex flex-col gap-4 md:flex-row md:items-start">
               <div class="relative flex-1">
                 <input
                   id="storeSearchInput"
@@ -562,7 +564,6 @@ const showRightDots = endPage < totalPages;
                   placeholder="Buscar por nombre o código"
                   value={searchParam}
                   autocomplete="off"
-                  data-suggestions={JSON.stringify(suggestionItems)}
                   aria-autocomplete="list"
                   aria-expanded="false"
                   aria-controls="searchSuggestionList"
@@ -573,37 +574,12 @@ const showRightDots = endPage < totalPages;
                     id="searchSuggestionList"
                     class="absolute left-0 right-0 top-full z-10 mt-2 hidden overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-lg dark:border-red-900 dark:bg-zinc-900"
                   >
-                    <ul class="max-h-64 overflow-y-auto py-1">
-                      {suggestionItems.map((suggestion) => (
-                        <li>
-                          <button
-                            type="button"
-                            data-suggestion-value={suggestion}
-                            class="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-zinc-800 transition hover:bg-zinc-50 hover:text-primary dark:text-white dark:hover:bg-zinc-800"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              focusable="false"
-                              class="h-4 w-4 text-zinc-400"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M11 6C13.7614 6 16 8.23858 16 11M16.6588 16.6549L21 21M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              ></path>
-                            </svg>
-                            <span>{suggestion}</span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+                    <ul id="searchSuggestionItems" class="max-h-64 overflow-y-auto py-1"></ul>
                   </div>
                 )}
+                <script type="application/json" id="tiendaSuggestionData">
+                  {JSON.stringify(suggestionItems)}
+                </script>
               </div>
                 <input type="hidden" name="category" value={categoryParam} />
                 <input type="hidden" name="page" value="1" />
@@ -692,108 +668,10 @@ const showRightDots = endPage < totalPages;
   </Container>
 
  <script>
-    (() => {
-      const form = document.getElementById("storeSearchForm");
-      const input = document.getElementById("storeSearchInput");
-      const suggestionContainer = document.getElementById("searchSuggestionList");
+    import { setupTiendaSuggestions } from "../lib/tiendaSuggestions";
 
-      if (!(form instanceof HTMLFormElement) || !(input instanceof HTMLInputElement)) return;
-
-      const suggestionButtons = Array.from(
-        suggestionContainer?.querySelectorAll<HTMLButtonElement>("[data-suggestion-value]") ?? []
-      );
-
-      let lastValue = input.value;
-
-      const submitForm = () => {
-        form.requestSubmit();
-      };
-
-      const toggleDropdown = (shouldShow: boolean) => {
-        if (!suggestionContainer) return;
-
-        suggestionContainer.classList.toggle("hidden", !shouldShow);
-        input.setAttribute("aria-expanded", String(shouldShow));
-      };
-
-      const filterSuggestions = () => {
-        const term = input.value.trim().toLowerCase();
-        let visibleCount = 0;
-
-        suggestionButtons.forEach((button) => {
-          const value = button.dataset.suggestionValue ?? "";
-          const matches = term !== "" && value.toLowerCase().includes(term);
-          button.classList.toggle("hidden", !matches);
-          if (matches) visibleCount += 1;
-        });
-
-        toggleDropdown(visibleCount > 0);
-      };
-
-      suggestionContainer?.addEventListener("click", (event) => {
-        const target =
-          event.target instanceof HTMLElement
-            ? event.target.closest<HTMLButtonElement>("[data-suggestion-value]")
-            : null;
-
-        if (!target) return;
-
-        const value = target.dataset.suggestionValue ?? "";
-        input.value = value;
-        toggleDropdown(false);
-        submitForm();
-      });
-
-      input.addEventListener("input", () => {
-        filterSuggestions();
-
-        if (lastValue && input.value.trim() === "") {
-          toggleDropdown(false);
-          submitForm();
-        }
-
-        lastValue = input.value;
-      });
-
-      input.addEventListener("focus", () => {
-        filterSuggestions();
-      });
-
-      input.addEventListener("blur", () => {
-        window.setTimeout(() => {
-          const active = document.activeElement;
-          const isInsideDropdown =
-            suggestionContainer && active instanceof Node && suggestionContainer.contains(active);
-          const isInputFocused = active === input;
-
-          if (!isInsideDropdown && !isInputFocused) {
-            toggleDropdown(false);
-          }
-        }, 50);
-      });
-
-      document.addEventListener("mousedown", (event) => {
-        const target = event.target;
-
-        if (
-          target instanceof Node &&
-          suggestionContainer &&
-          !suggestionContainer.contains(target) &&
-          !input.contains(target)
-        ) {
-          toggleDropdown(false);
-        }
-      });
-
-      input.addEventListener("search", () => {
-        if (input.value.trim() === "") {
-          toggleDropdown(false);
-          submitForm();
-        }
-      });
-
-      filterSuggestions();
-    })();
+    setupTiendaSuggestions();
   </script>
+
   
 </BaseLayout>
