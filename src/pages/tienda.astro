@@ -550,6 +550,7 @@ const showRightDots = endPage < totalPages;
                   placeholder="Buscar por nombre o código (admite varias palabras)"
                   value={normalizedSearchParam}
                   autocomplete="off"
+                  list={hasSearch && suggestionItems.length > 0 ? "search-suggestions" : undefined}
                   class="w-full rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-red-900 dark:bg-zinc-800 dark:text-white"
                 />
                 <div
