@@ -1,7 +1,7 @@
 import { setupTiendaSuggestions } from "./tiendaSuggestions";
 
 let teardown: (() => void) | null = null;
-let listenersAttached = false;
+let attached = false;
 
 const bootstrap = () => {
   teardown?.();
@@ -13,19 +13,23 @@ const handleBeforeSwap = () => {
   teardown = null;
 };
 
-const attachNavigationListeners = () => {
-  if (listenersAttached) return;
-  listenersAttached = true;
+const attachListeners = () => {
+  if (attached) return;
+  attached = true;
   document.addEventListener("astro:page-load", bootstrap);
   document.addEventListener("astro:before-swap", handleBeforeSwap);
 };
 
-if (typeof window !== "undefined") {
-  attachNavigationListeners();
+const init = () => {
+  attachListeners();
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", bootstrap, { once: true });
   } else {
     bootstrap();
   }
+};
+
+if (typeof window !== "undefined") {
+  init();
 }

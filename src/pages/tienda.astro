@@ -108,9 +108,12 @@ const getStrapiFileUrl = (file: any) => {
 const productos = normalizeCollection(productosResponse?.data ?? []);
 const categorias = normalizeCollection(categoriasResponse?.data ?? []);
 const marcas = normalizeCollection(marcasResponse?.data ?? []);
+
+const suggestionSource = Array.isArray(suggestionProducts) ? suggestionProducts : [];
+const suggestionBase = suggestionSource.length > 0 ? suggestionSource : productos;
 const suggestionItems = Array.from(
   new Set(
-    suggestionProducts
+    suggestionBase
       .flatMap((producto) => [producto?.nombre, producto?.codigo])
       .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
       .map((value) => value.trim())
@@ -569,14 +572,12 @@ const showRightDots = endPage < totalPages;
                   aria-controls="searchSuggestionList"
                   class="w-full rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-red-900 dark:bg-zinc-800 dark:text-white"
                 />
-                {suggestionItems.length > 0 && (
-                  <div
-                    id="searchSuggestionList"
-                    class="absolute left-0 right-0 top-full z-10 mt-2 hidden overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-lg dark:border-red-900 dark:bg-zinc-900"
-                  >
-                    <ul id="searchSuggestionItems" class="max-h-64 overflow-y-auto py-1"></ul>
-                  </div>
-                )}
+                <div
+                  id="searchSuggestionList"
+                  class="absolute left-0 right-0 top-full z-10 mt-2 hidden overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-lg dark:border-red-900 dark:bg-zinc-900"
+                >
+                  <ul id="searchSuggestionItems" class="max-h-64 overflow-y-auto py-1"></ul>
+                </div>
                 <script type="application/json" id="tiendaSuggestionData">
                   {JSON.stringify(suggestionItems)}
                 </script>
