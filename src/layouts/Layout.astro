@@ -7,6 +7,7 @@ import Cart from "../components/Cart.astro";
 import cartWidgetScript from "../lib/carritoWidget.ts?url";
 import loginWidgetScript from "../lib/sesionWidget.ts?url";
 import authVisibilityScript from "../lib/authVisibility.ts?url";
+import searchWidgetScript from "../lib/search.ts?url";
 import { getGlobalData } from "../lib/api";
 import "../css/tailus.css"
 import "../styles/global.css";
@@ -81,6 +82,8 @@ const siteName = response.data.siteName;
         <script type="module" src={loginWidgetScript}></script>
         <script type="module" src={cartWidgetScript}></script>
         <script type="module" src={authVisibilityScript}></script>
+        <script type="module" src={searchWidgetScript}></script>
+
         
     </body>
 </html>
