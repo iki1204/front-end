@@ -3,17 +3,26 @@ type SuggestionItem = { value: string; label: string };
 export function mountSearchSuggestions() {
   const input = document.querySelector<HTMLInputElement>('input[name="search"]');
   const box = document.getElementById("search-suggestions-ui");
+  const container = input?.closest<HTMLElement>("[data-search-suggestions-container]") ?? input?.parentElement;
 
-  if (!input || !box) return;
+  if (!input || !box || !container) return;
 
   let controller: AbortController | null = null;
+
+  const hideBox = () => {
+    box.classList.add("hidden");
+    box.innerHTML = "";
+  };
+
+  const showBox = () => {
+    box.classList.remove("hidden");
+  };
 
   input.addEventListener("input", async () => {
     const q = input.value.trim();
 
     if (q.length < 2) {
-      box.classList.add("hidden");
-      box.innerHTML = "";
+      hideBox();
       return;
     }
 
@@ -28,8 +37,7 @@ export function mountSearchSuggestions() {
       const items = (await res.json()) as SuggestionItem[];
 
       if (!items.length) {
-        box.classList.add("hidden");
-        box.innerHTML = "";
+        hideBox();
         return;
       }
 
@@ -51,9 +59,15 @@ export function mountSearchSuggestions() {
             .join("")}
         </ul>
       `;
-      box.classList.remove("hidden");
+      showBox();
     } catch (err: any) {
       if (err?.name !== "AbortError") console.error(err);
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!container.contains(event.target as Node)) {
+      hideBox();
     }
   });
 }
