@@ -592,7 +592,7 @@ const showRightDots = endPage < totalPages;
                         <li data-suggestion-item data-suggestion-value={suggestion.value.toLowerCase()}>
                           <a
                             href={Astro.url.pathname + buildQueryString({ search: suggestion.value, page: 1 })}
-                            class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-zinc-700 transition hover:bg-primary/10 hover:text-primary dark:text-zinc-200 dark:hover:bg-red-900/40 dark:hover:text-red-200"
+                            class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-zinc-700 transition hover:-translate-y-px hover:bg-primary/10 hover:text-primary hover:shadow-sm dark:text-zinc-200 dark:hover:bg-red-900/40 dark:hover:text-red-200"
                           >
                             <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-[11px] font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
                               {suggestion.label.slice(0, 2).toUpperCase()}
@@ -633,11 +633,13 @@ const showRightDots = endPage < totalPages;
               const updateSuggestions = () => {
                 if (!panel || !input) return;
                 const query = input.value.trim().toLowerCase();
+                const terms = query.split(/\s+/).filter(Boolean);
                 let visibleCount = 0;
 
                 items.forEach((item) => {
                   const value = item.getAttribute("data-suggestion-value") || "";
-                  const matches = query.length > 0 && value.includes(query);
+                  const matches =
+                    terms.length > 0 && terms.every((term) => value.includes(term));
                   const show = matches && visibleCount < maxVisible;
                   item.classList.toggle("hidden", !show);
                   if (show) {
