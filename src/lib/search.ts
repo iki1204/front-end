@@ -7,13 +7,16 @@ export function mountSearchSuggestions() {
   if (!input || !box) return;
 
   let controller: AbortController | null = null;
+  const hideSuggestions = () => {
+    box.classList.add("hidden");
+    box.innerHTML = "";
+  };
 
   input.addEventListener("input", async () => {
     const q = input.value.trim();
 
     if (q.length < 2) {
-      box.classList.add("hidden");
-      box.innerHTML = "";
+      hideSuggestions();
       return;
     }
 
@@ -28,8 +31,7 @@ export function mountSearchSuggestions() {
       const items = (await res.json()) as SuggestionItem[];
 
       if (!items.length) {
-        box.classList.add("hidden");
-        box.innerHTML = "";
+        hideSuggestions();
         return;
       }
 
@@ -55,5 +57,12 @@ export function mountSearchSuggestions() {
     } catch (err: any) {
       if (err?.name !== "AbortError") console.error(err);
     }
+  });
+
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Node)) return;
+    if (target === input || box.contains(target)) return;
+    hideSuggestions();
   });
 }
