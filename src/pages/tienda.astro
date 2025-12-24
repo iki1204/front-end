@@ -136,6 +136,29 @@ const brandItems = marcas
   }))
   .filter((marca) => Boolean(marca.value));
 
+const searchSuggestions = Array.from(
+  new Map(
+    productos
+      .flatMap((producto) => {
+        const items: { label: string; value: string }[] = [];
+        const nombre = producto?.nombre?.trim();
+        const codigo = producto?.codigo?.trim();
+
+        if (nombre) {
+          items.push({ label: nombre, value: nombre });
+        }
+
+        if (codigo) {
+          items.push({ label: `Código: ${codigo}`, value: codigo });
+        }
+
+        return items;
+      })
+      .filter((item) => item.value)
+      .map((item) => [item.value.toLowerCase(), item]),
+  ).values(),
+);
+
 const priceFormatter = new Intl.NumberFormat("es-PE", {
   style: "currency",
   currency: "USD",
@@ -517,7 +540,7 @@ const showRightDots = endPage < totalPages;
 
             </div>
             <form method="get" class="flex flex-col gap-4 md:flex-row md:items-start">
-              <div class="relative flex-1">
+              <div class="relative flex-1" data-search-suggestions>
                 <input
                   type="search"
                   name="search"
@@ -526,6 +549,28 @@ const showRightDots = endPage < totalPages;
                   autocomplete="off"
                   class="w-full rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-red-900 dark:bg-zinc-800 dark:text-white"
                 />
+                {searchSuggestions.length > 0 && (
+                  <div
+                    class="mt-2 hidden overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-red-900 dark:bg-zinc-900"
+                    data-suggestions-panel
+                  >
+                    <p class="px-4 pt-3 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                      Sugerencias
+                    </p>
+                    <ul class="flex flex-col py-2" data-suggestions-list>
+                      {searchSuggestions.map((suggestion) => (
+                        <li data-suggestion-item data-suggestion-value={suggestion.value.toLowerCase()}>
+                          <a
+                            href={Astro.url.pathname + buildQueryString({ search: suggestion.value, page: 1 })}
+                            class="flex items-center gap-2 px-4 py-2 text-sm text-zinc-700 transition hover:bg-primary/10 hover:text-primary dark:text-zinc-200 dark:hover:bg-red-900/40 dark:hover:text-red-200"
+                          >
+                            <span class="font-medium">{suggestion.label}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="page" value="1" />
@@ -541,6 +586,42 @@ const showRightDots = endPage < totalPages;
               Mostrando <strong>{productos.length}</strong> de <strong>{totalItems}</strong> productos disponibles.
             </p>
           </header>
+
+          <script is:inline>
+            const suggestionScope = document.querySelector("[data-search-suggestions]");
+            if (suggestionScope) {
+              const input = suggestionScope.querySelector("input[type='search']");
+              const panel = suggestionScope.querySelector("[data-suggestions-panel]");
+              const items = Array.from(suggestionScope.querySelectorAll("[data-suggestion-item]"));
+              const maxVisible = 6;
+
+              const updateSuggestions = () => {
+                if (!panel || !input) return;
+                const query = input.value.trim().toLowerCase();
+                let visibleCount = 0;
+
+                items.forEach((item) => {
+                  const value = item.getAttribute("data-suggestion-value") || "";
+                  const matches = query.length > 0 && value.includes(query);
+                  const show = matches && visibleCount < maxVisible;
+                  item.classList.toggle("hidden", !show);
+                  if (show) {
+                    visibleCount += 1;
+                  }
+                });
+
+                panel.classList.toggle("hidden", query.length === 0 || visibleCount === 0);
+              };
+
+              input?.addEventListener("input", updateSuggestions);
+              input?.addEventListener("focus", updateSuggestions);
+              input?.addEventListener("blur", () => {
+                if (panel) {
+                  setTimeout(() => panel.classList.add("hidden"), 150);
+                }
+              });
+            }
+          </script>
 
           {productos.length > 0 ? (
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full">
