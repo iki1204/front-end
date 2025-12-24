@@ -61,6 +61,8 @@ const getAllProductsForSuggestions = async () => {
     "pagination[pageSize]": "100",
     "fields[0]": "nombre",
     "fields[1]": "codigo",
+    "fields[2]": "ID_Nombre",
+    "fields[3]": "slug",
     sort: "nombre:asc",
   });
 
@@ -165,21 +167,22 @@ const searchSuggestions = Array.from(
   new Map(
     suggestionProducts
       .flatMap((producto) => {
-        const items: { label: string; value: string }[] = [];
+        const items: { label: string; value: string; slug: string }[] = [];
         const nombre = producto?.nombre?.trim();
         const codigo = producto?.codigo?.trim();
+        const slug = producto?.ID_Nombre ?? producto?.slug ?? producto?.id;
 
-        if (nombre) {
-          items.push({ label: nombre, value: nombre });
+        if (nombre && slug) {
+          items.push({ label: nombre, value: nombre, slug });
         }
 
-        if (codigo) {
-          items.push({ label: `Código: ${codigo}`, value: codigo });
+        if (codigo && slug) {
+          items.push({ label: `Código: ${codigo}`, value: codigo, slug });
         }
 
         return items;
       })
-      .filter((item) => item.value)
+      .filter((item) => item.value && item.slug)
       .map((item) => [item.value.toLowerCase(), item]),
   ).values(),
 );
@@ -591,7 +594,7 @@ const showRightDots = endPage < totalPages;
                       {searchSuggestions.map((suggestion) => (
                         <li data-suggestion-item data-suggestion-value={suggestion.value.toLowerCase()}>
                           <a
-                            href={Astro.url.pathname + buildQueryString({ search: suggestion.value, page: 1 })}
+                            href={`/producto/${suggestion.slug}`}
                             class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-zinc-700 transition hover:-translate-y-px hover:bg-primary/10 hover:text-primary hover:shadow-sm dark:text-zinc-200 dark:hover:bg-red-900/40 dark:hover:text-red-200"
                           >
                             <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-[11px] font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
