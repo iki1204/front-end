@@ -519,6 +519,7 @@ const showRightDots = endPage < totalPages;
             <form method="get" class="flex flex-col gap-4 md:flex-row md:items-start">
               <div class="relative flex-1">
                 <input
+                  id="store-search"
                   type="search"
                   name="search"
                   placeholder="Buscar por nombre o código (admite varias palabras)"
@@ -526,6 +527,17 @@ const showRightDots = endPage < totalPages;
                   autocomplete="off"
                   class="w-full rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-red-900 dark:bg-zinc-800 dark:text-white"
                 />
+                <div
+                  id="search-suggestions"
+                  class="hidden absolute left-0 right-0 top-full z-30 mt-2 rounded-2xl border border-zinc-200 bg-white/95 backdrop-blur shadow-lg dark:border-red-900 dark:bg-zinc-900/90"
+                >
+                  <div class="flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                    <span>Sugerencias</span>
+                    <span id="search-suggestions-count" class="text-primary">0</span>
+                  </div>
+                  <ul id="search-suggestions-list" class="max-h-64 overflow-y-auto divide-y divide-zinc-100 text-sm dark:divide-red-900/60"></ul>
+                  <p id="search-suggestions-empty" class="hidden px-4 py-3 text-sm text-zinc-500 dark:text-zinc-300">Sin resultados</p>
+                </div>
               </div>
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="page" value="1" />
@@ -612,5 +624,121 @@ const showRightDots = endPage < totalPages;
       </div>
     </article>
   </Container>
-  
+
+  <script>
+    const searchInput = document.getElementById("store-search");
+    const suggestionWrapper = document.getElementById("search-suggestions");
+    const suggestionList = document.getElementById("search-suggestions-list");
+    const suggestionCount = document.getElementById("search-suggestions-count");
+    const suggestionEmpty = document.getElementById("search-suggestions-empty");
+
+    let controller = null;
+    let debounceTimer = null;
+
+    const buildClientQueryString = (updates) => {
+      const params = new URLSearchParams(window.location.search);
+
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === null || value === "") {
+          params.delete(key);
+          return;
+        }
+        params.set(key, String(value));
+      });
+
+      if ("page" in updates) {
+        if (updates.page === null) {
+          params.delete("page");
+        } else {
+          params.set("page", String(updates.page));
+        }
+      }
+
+      const query = params.toString();
+      return query ? `?${query}` : "";
+    };
+
+    const hideSuggestions = () => {
+      suggestionWrapper?.classList.add("hidden");
+    };
+
+    const renderSuggestions = (items = []) => {
+      if (!suggestionWrapper || !suggestionList || !suggestionCount || !suggestionEmpty) return;
+
+      suggestionList.innerHTML = "";
+      if (!items.length) {
+        suggestionCount.textContent = "0";
+        suggestionEmpty.classList.remove("hidden");
+        suggestionWrapper.classList.remove("hidden");
+        return;
+      }
+
+      suggestionEmpty.classList.add("hidden");
+      suggestionCount.textContent = String(items.length);
+
+      items.forEach((item) => {
+        const li = document.createElement("li");
+        const link = document.createElement("a");
+        link.href = `${window.location.pathname}${buildClientQueryString({ search: item.search, page: 1 })}`;
+        link.className =
+          "flex items-center justify-between gap-3 px-4 py-3 transition hover:bg-primary/5 hover:text-primary dark:hover:bg-red-900/30";
+
+        const label = document.createElement("span");
+        label.className = "text-left leading-snug";
+        label.textContent = item.label;
+
+        const cta = document.createElement("span");
+        cta.className = "text-xs font-semibold text-primary";
+        cta.textContent = "Ver resultados";
+
+        link.appendChild(label);
+        link.appendChild(cta);
+        li.appendChild(link);
+        suggestionList.appendChild(li);
+      });
+
+      suggestionWrapper.classList.remove("hidden");
+    };
+
+    const fetchSuggestions = async (value) => {
+      const query = value.trim();
+      if (!query) {
+        hideSuggestions();
+        return;
+      }
+
+      try {
+        if (controller) controller.abort();
+        controller = new AbortController();
+        const res = await fetch(`/api/tienda-search.json?q=${encodeURIComponent(query)}`, {
+          signal: controller.signal,
+        });
+        if (!res.ok) throw new Error("Error al buscar");
+        const items = await res.json();
+        renderSuggestions(items);
+      } catch (error) {
+        if (error?.name === "AbortError") return;
+        renderSuggestions([]);
+      }
+    };
+
+    if (searchInput) {
+      searchInput.addEventListener("input", (event) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => fetchSuggestions(event.target.value), 200);
+      });
+
+      searchInput.addEventListener("focus", (event) => {
+        if (event.target.value.trim()) {
+          fetchSuggestions(event.target.value);
+        }
+      });
+    }
+
+    document.addEventListener("click", (event) => {
+      if (suggestionWrapper && !suggestionWrapper.contains(event.target) && event.target !== searchInput) {
+        hideSuggestions();
+      }
+    });
+  </script>
 </BaseLayout>
