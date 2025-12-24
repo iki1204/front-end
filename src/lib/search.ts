@@ -8,44 +8,13 @@ export function mountSearchSuggestions() {
   if (!input || !box || !container) return;
 
   let controller: AbortController | null = null;
+  let lastQuery = "";
   const hideSuggestions = () => {
     box.classList.add("hidden");
     box.innerHTML = "";
   };
-
-  const hideBox = () => {
-    box.classList.add("hidden");
-    box.innerHTML = "";
-  };
-
-  const showBox = () => {
-    box.classList.remove("hidden");
-  };
-
-  input.addEventListener("input", async () => {
-    const q = input.value.trim();
-
-    if (q.length < 2) {
-      hideSuggestions();
-      return;
-    }
-
-    if (controller) controller.abort();
-    controller = new AbortController();
-
-    try {
-      const res = await fetch(`/api/search-suggestions?q=${encodeURIComponent(q)}`, {
-        signal: controller.signal,
-      });
-
-      const items = (await res.json()) as SuggestionItem[];
-
-      if (!items.length) {
-        hideSuggestions();
-        return;
-      }
-
-      box.innerHTML = `
+  const showSuggestions = (items: SuggestionItem[]) => {
+    box.innerHTML = `
         <div class="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
           Sugerencias de búsqueda
         </div>
@@ -63,9 +32,60 @@ export function mountSearchSuggestions() {
             .join("")}
         </ul>
       `;
-      showBox();
+    box.classList.remove("hidden");
+  };
+
+  const handleInput = async () => {
+    const q = input.value.trim();
+
+    if (q.length < 2) {
+      hideSuggestions();
+      lastQuery = "";
+      return;
+    }
+
+    if (q === lastQuery) {
+      return;
+    }
+    lastQuery = q;
+
+    if (controller) controller.abort();
+    controller = new AbortController();
+
+    try {
+      const res = await fetch(`/api/search-suggestions?q=${encodeURIComponent(q)}`, {
+        signal: controller.signal,
+      });
+
+      if (!res.ok) {
+        hideSuggestions();
+        return;
+      }
+
+      const items = (await res.json()) as SuggestionItem[];
+      if (!items.length) {
+        hideSuggestions();
+        return;
+      }
+
+      showSuggestions(items);
     } catch (err: any) {
-      if (err?.name !== "AbortError") console.error(err);
+      if (err?.name !== "AbortError") {
+        console.error(err);
+        hideSuggestions();
+      }
+    }
+  };
+
+  input.addEventListener("input", handleInput);
+  input.addEventListener("focus", () => {
+    if (input.value.trim().length >= 2) {
+      handleInput();
+    }
+  });
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      hideSuggestions();
     }
   });
 
@@ -75,4 +95,14 @@ export function mountSearchSuggestions() {
     if (target === input || box.contains(target)) return;
     hideSuggestions();
   });
+
+  input.form?.addEventListener("submit", () => {
+    hideSuggestions();
+  });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", mountSearchSuggestions, { once: true });
+} else {
+  mountSearchSuggestions();
 }
