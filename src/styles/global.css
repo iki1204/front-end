@@ -2,6 +2,9 @@
 @plugin "@tailwindcss/typography";
 @source "../**/*.{astro,html,js,jsx,md,mdx,ts,tsx}";
 
+@custom-variant hover (&:hover);
+@custom-variant group-hover (.group:hover &);
+@custom-variant peer-hover (.peer:hover ~ &);
 
 @layer components {
   .slider .slide {
