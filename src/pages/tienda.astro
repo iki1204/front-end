@@ -517,7 +517,7 @@ const showRightDots = endPage < totalPages;
 
             </div>
             <form method="get" class="flex flex-col gap-4 md:flex-row md:items-start">
-              <div class="relative flex-1" data-search-suggestions-container>
+              <div class="relative flex-1">
                 <input
                   type="search"
                   name="search"
@@ -526,10 +526,6 @@ const showRightDots = endPage < totalPages;
                   autocomplete="off"
                   class="w-full rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-red-900 dark:bg-zinc-800 dark:text-white"
                 />
-                <div
-                  id="search-suggestions-ui"
-                  class="absolute left-0 right-0 top-full z-30 mt-2 hidden rounded-2xl border border-zinc-200 bg-white/95 backdrop-blur shadow-lg dark:border-red-900 dark:bg-zinc-900/90"
-                ></div>
               </div>
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="page" value="1" />
