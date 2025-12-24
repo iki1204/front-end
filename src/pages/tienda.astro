@@ -16,7 +16,6 @@ const url = new URL(Astro.request.url);
 const searchParam = url.searchParams.get("search")?.toLowerCase().trim() ?? "";
 const searchTerms = searchParam.split(/\s+/).filter(Boolean);
 const normalizedSearchParam = searchTerms.join(" ");
-const hasSearch = searchTerms.length > 0;
 const categoryParam = url.searchParams.get("category") ?? "all";
 const brandParam = url.searchParams.get("brand") ?? "all";
 const pageParam = Number.parseInt(url.searchParams.get("page") ?? "1", 10);
@@ -76,6 +75,7 @@ const getStrapiFileUrl = (file: any) => {
 const productos = normalizeCollection(productosResponse?.data ?? []);
 const categorias = normalizeCollection(categoriasResponse?.data ?? []);
 const marcas = normalizeCollection(marcasResponse?.data ?? []);
+
 const paginationMeta = productosResponse?.meta?.pagination ?? {};
 const totalPages = Math.max(1, paginationMeta.pageCount ?? 1);
 const currentPage = Math.min(Math.max(paginationMeta.page ?? requestedPage, 1), totalPages);

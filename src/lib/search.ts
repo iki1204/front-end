@@ -8,6 +8,10 @@ export function mountSearchSuggestions() {
   if (!input || !box || !container) return;
 
   let controller: AbortController | null = null;
+  const hideSuggestions = () => {
+    box.classList.add("hidden");
+    box.innerHTML = "";
+  };
 
   const hideBox = () => {
     box.classList.add("hidden");
@@ -22,7 +26,7 @@ export function mountSearchSuggestions() {
     const q = input.value.trim();
 
     if (q.length < 2) {
-      hideBox();
+      hideSuggestions();
       return;
     }
 
@@ -37,7 +41,7 @@ export function mountSearchSuggestions() {
       const items = (await res.json()) as SuggestionItem[];
 
       if (!items.length) {
-        hideBox();
+        hideSuggestions();
         return;
       }
 
@@ -66,8 +70,9 @@ export function mountSearchSuggestions() {
   });
 
   document.addEventListener("click", (event) => {
-    if (!container.contains(event.target as Node)) {
-      hideBox();
-    }
+    const target = event.target;
+    if (!(target instanceof Node)) return;
+    if (target === input || box.contains(target)) return;
+    hideSuggestions();
   });
 }
