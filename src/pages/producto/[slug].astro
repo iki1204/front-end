@@ -461,19 +461,9 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
           return respuesta.cantidad_stock;
         }
 
-        const possibleList =
-          Array.isArray(respuesta) ? respuesta : Array.isArray(respuesta?.data) ? respuesta.data : null;
-
-        if (possibleList && productoCodigo) {
-          const match = possibleList.find(
-            (item) =>
-              String(item?.codigo ?? "") === productoCodigo ||
-              String(item?.ID_Producto ?? "") === productoCodigo ||
-              String(item?.id ?? "") === productoCodigo,
-          );
-          if (typeof match?.cantidad_stock === "number") {
-            return match.cantidad_stock;
-          }
+        if (typeof respuesta?.cantidad_stock === "string") {
+          const parsed = Number(respuesta.cantidad_stock);
+          return Number.isNaN(parsed) ? null : parsed;
         }
 
         return null;
@@ -482,7 +472,13 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
       const fallbackStock =
         defaultStock && !Number.isNaN(Number(defaultStock)) ? Number(defaultStock) : null;
 
-      fetch("https://api.contifico.com/sistema/api/v1/producto/")
+      if (!productoCodigo) {
+        hideElement(loadingEl);
+        showElement(emptyEl);
+        return;
+      }
+
+      fetch(`https://api.contifico.com/sistema/api/v1/producto/${productoCodigo}`)
         .then((response) => response.json())
         .then((respuesta) => {
           const cantidadStock = parseStockFromResponse(respuesta);
