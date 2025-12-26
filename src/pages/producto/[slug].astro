@@ -262,11 +262,37 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
           <div class="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4 shadow-inner dark:border-primary/30 dark:bg-primary/10">
             <p class="hidden text-4xl font-extrabold text-primary" data-auth-visible="authenticated" data-precio-display>{precio}</p>
             <p class="text-sm text-primary" data-auth-visible="guest">Inicia sesión para ver mas de este producto.</p>
-            {stock !== null ? (
-              <p class="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-100">
-                Stock disponible: {stock} unidades
+            <div
+              class="mt-2 flex flex-wrap items-center gap-2"
+              data-stock-wrapper
+              data-product-codigo={producto?.codigo ?? ""}
+              data-stock-default={typeof stock === "number" ? String(stock) : ""}
+            >
+              <span
+                class="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
+                data-stock-loading
+              >
+                <svg class="h-4 w-4 animate-spin text-primary" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+                Cargando stock...
+              </span>
+              <p
+                class="hidden inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-100"
+                data-stock-value
+              ></p>
+              <p
+                class="hidden inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/40 dark:text-amber-100"
+                data-stock-empty
+              >
+                Stock no disponible
               </p>
-            ) : null}
+            </div>
           </div>
 
           <section class="space-y-4">
@@ -356,40 +382,40 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
   window.addEventListener("DOMContentLoaded", () => {
     const mainImg = document.getElementById("main-image");
     const thumbsRoot = document.getElementById("thumbs");
-    if (!mainImg || !thumbsRoot) return;
 
-    // Estado: URLs absolutas
-    const mainState = { src: mainImg.getAttribute("src") };
-    let thumbs = Array.from(thumbsRoot.querySelectorAll("[data-src]"))
-      .map((el) => el.getAttribute("data-src"))
-      .filter(Boolean);
+    if (mainImg && thumbsRoot) {
+      // Estado: URLs absolutas
+      const mainState = { src: mainImg.getAttribute("src") };
+      let thumbs = Array.from(thumbsRoot.querySelectorAll("[data-src]"))
+        .map((el) => el.getAttribute("data-src"))
+        .filter(Boolean);
 
-    // Delegación de eventos para clicks en las miniaturas
-    thumbsRoot.addEventListener("click", (e) => {
-      const btn = (e.target as HTMLElement).closest("[data-src]");
-      if (!btn) return;
+      // Delegación de eventos para clicks en las miniaturas
+      thumbsRoot.addEventListener("click", (e) => {
+        const btn = (e.target as HTMLElement).closest("[data-src]");
+        if (!btn) return;
 
-      const newMain = btn.getAttribute("data-src");
-      if (!newMain || newMain === mainState.src) return;
+        const newMain = btn.getAttribute("data-src");
+        if (!newMain || newMain === mainState.src) return;
 
-      // 1) Cambia imagen principal
-      const prevMain = mainState.src;
-      mainState.src = newMain;
-      mainImg.setAttribute("src", newMain);
+        // 1) Cambia imagen principal
+        const prevMain = mainState.src;
+        mainState.src = newMain;
+        mainImg.setAttribute("src", newMain);
 
-      // 2) Reordena: quita clicada y agrega la anterior principal al final
-      thumbs = thumbs.filter((u) => u !== newMain);
-      thumbs.push(prevMain);
+        // 2) Reordena: quita clicada y agrega la anterior principal al final
+        thumbs = thumbs.filter((u) => u !== newMain);
+        thumbs.push(prevMain);
 
-      // 3) Re-renderiza miniaturas
-      renderThumbs();
-    });
+        // 3) Re-renderiza miniaturas
+        renderThumbs();
+      });
 
-    function renderThumbs() {
-      // Limpia y vuelve a dibujar
-      thumbsRoot.innerHTML = thumbs
-        .map(
-          (src) => `
+      function renderThumbs() {
+        // Limpia y vuelve a dibujar
+        thumbsRoot.innerHTML = thumbs
+          .map(
+            (src) => `
           <button
             class="thumb relative h-24 min-w-[96px] cursor-pointer overflow-hidden rounded-2xl border border-zinc-300 bg-white p-2 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:h-28"
             data-src="${src}"
@@ -398,8 +424,90 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
           >
             <img src="${src}" alt="Vista adicional" class="h-full w-full object-cover pointer-events-none" loading="lazy" />
           </button>`
-        )
-        .join("");
+          )
+          .join("");
+      }
+    }
+
+    const stockWrapper = document.querySelector("[data-stock-wrapper]");
+    if (stockWrapper instanceof HTMLElement) {
+      const loadingEl = stockWrapper.querySelector("[data-stock-loading]");
+      const valueEl = stockWrapper.querySelector("[data-stock-value]");
+      const emptyEl = stockWrapper.querySelector("[data-stock-empty]");
+      const productoCodigo = stockWrapper.dataset.productCodigo ?? "";
+      const defaultStock = stockWrapper.dataset.stockDefault;
+
+      const showElement = (element) => {
+        if (element instanceof HTMLElement) {
+          element.classList.remove("hidden");
+        }
+      };
+
+      const hideElement = (element) => {
+        if (element instanceof HTMLElement) {
+          element.classList.add("hidden");
+        }
+      };
+
+      const setStockValue = (cantidad) => {
+        if (!(valueEl instanceof HTMLElement)) return;
+        valueEl.textContent = `Stock disponible: ${cantidad} unidades`;
+        showElement(valueEl);
+        hideElement(emptyEl);
+      };
+
+      const parseStockFromResponse = (respuesta) => {
+        if (typeof respuesta?.cantidad_stock === "number") {
+          return respuesta.cantidad_stock;
+        }
+
+        const possibleList =
+          Array.isArray(respuesta) ? respuesta : Array.isArray(respuesta?.data) ? respuesta.data : null;
+
+        if (possibleList && productoCodigo) {
+          const match = possibleList.find(
+            (item) =>
+              String(item?.codigo ?? "") === productoCodigo ||
+              String(item?.ID_Producto ?? "") === productoCodigo ||
+              String(item?.id ?? "") === productoCodigo,
+          );
+          if (typeof match?.cantidad_stock === "number") {
+            return match.cantidad_stock;
+          }
+        }
+
+        return null;
+      };
+
+      const fallbackStock =
+        defaultStock && !Number.isNaN(Number(defaultStock)) ? Number(defaultStock) : null;
+
+      fetch("https://api.contifico.com/sistema/api/v1/producto/")
+        .then((response) => response.json())
+        .then((respuesta) => {
+          const cantidadStock = parseStockFromResponse(respuesta);
+          if (typeof cantidadStock === "number") {
+            setStockValue(cantidadStock);
+            return;
+          }
+
+          if (typeof fallbackStock === "number") {
+            setStockValue(fallbackStock);
+            return;
+          }
+
+          showElement(emptyEl);
+        })
+        .catch(() => {
+          if (typeof fallbackStock === "number") {
+            setStockValue(fallbackStock);
+          } else {
+            showElement(emptyEl);
+          }
+        })
+        .finally(() => {
+          hideElement(loadingEl);
+        });
     }
   });
 </script>
