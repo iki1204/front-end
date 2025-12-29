@@ -4,6 +4,9 @@ import Container from "../../components/Container.astro";
 import { BlocksRenderer} from "@strapi/blocks-react-renderer";
 import { getProductoBySlug, getGlobalData, getCategorias, getProductos, getMarcas } from "../../lib/api";
 
+const API_URL = import.meta.env.VITE_STRAPI_URL;
+
+
 const normalizeCollection = (collection: any[] = []) =>
   collection.map((item) => (item?.attributes ? { id: item.id, ...item.attributes } : item));
 
@@ -65,6 +68,8 @@ const [productoResponse, global, categoriasResponse, marcasResponse] = await Pro
   getMarcas()
 ]);
 
+console.log("Producto response:", productoResponse);
+
 const producto = normalizeCollection(productoResponse?.data ?? [])[0];
 
 if (!producto) {
@@ -80,9 +85,10 @@ const marcaActual = marcas.find((marca) =>
   marca?.ID_Marca === producto?.ID_Marca || null
 )
 
+const identifier = producto?.identifier;
+const stockEndpoint = `${API_URL}/api/productos/${encodeURIComponent(String(identifier))}/stock`;
 
 
-const API_URL = import.meta.env.VITE_STRAPI_URL;
 const galeriasPosibles = [producto?.imagen, producto?.imagenes?.data];
 
 const firstArray = galeriasPosibles.find(a => Array.isArray(a) && a.length);
@@ -174,13 +180,9 @@ const formattedPrices: Record<string, string> = Object.fromEntries(
   ]),
 );
 
-
-
 const precio = formattedPrices.default;
 
 var descripcion = producto?.descripcion;
-
-const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_stock : null;
 ---
 
 <BaseLayout global={global}>
@@ -262,11 +264,26 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
           <div class="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4 shadow-inner dark:border-primary/30 dark:bg-primary/10">
             <p class="hidden text-4xl font-extrabold text-primary" data-auth-visible="authenticated" data-precio-display>{precio}</p>
             <p class="text-sm text-primary" data-auth-visible="guest">Inicia sesión para ver mas de este producto.</p>
-            {stock !== null ? (
-              <p class="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-100">
-                Stock disponible: {stock} unidades
-              </p>
-            ) : null}
+
+
+            <span
+              class="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-200"
+              id="stock-value" 
+              data-stock-endpoint={stockEndpoint}
+            >
+              <svg class="h-4 w-4 animate-spin text-primary" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+              Cargando stock...
+            </span>
+
+
+
           </div>
 
           <section class="space-y-4">
@@ -403,3 +420,28 @@ const stock = typeof producto?.cantidad_stock === "number" ? producto.cantidad_s
     }
   });
 </script>
+
+<script type="module">
+  window.addEventListener("DOMContentLoaded", async () => {
+    const el = document.getElementById("stock-value");
+    if (!el) return;
+
+    const endpoint = el.dataset.stockEndpoint;
+    if (!endpoint) {
+      el.textContent = "N/D";
+      return;
+    }
+
+    try {
+      const res = await fetch(endpoint, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json(); // { message, id, cantidad_stock }
+
+      el.textContent = String(data?.cantidad_stock ?? "0") + " unidades en stock";
+    } catch (e) {
+      el.textContent = "Error, intente más tarde";
+    }
+  });
+</script>
+
+
