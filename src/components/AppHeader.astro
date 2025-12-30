@@ -180,6 +180,9 @@ const botones = response.data.header.Botones.map((boton) => ({
   const refreshLoginCta = () => {
     if (!loginCta) return;
     const session = parseStoredSession();
+    if (!session) {
+      clearSession();
+    }
     const isLoggedIn = hasActiveSession(session);
     const shouldShowLogout = isLoggedIn;
 
