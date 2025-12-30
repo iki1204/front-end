@@ -1,11 +1,25 @@
 const SESSION_STORAGE_KEY = "usuarioSesion";
 const SESSION_EVENT = "usuarioSesion:cambio";
 
-type SessionUser = { confirmed?: boolean | null } | null;
+type SessionUser = { confirmed?: boolean | null; tipoUsuario?: number | string | null } | null;
 type SessionPayload = {
   jwt?: string | null;
   user?: SessionUser;
 } | null;
+
+const normalizeTipoUsuario = (tipoUsuario: unknown) => {
+  if (tipoUsuario === null || tipoUsuario === undefined) return null;
+  if (typeof tipoUsuario === "number") {
+    return tipoUsuario >= 1 && tipoUsuario <= 4 ? `tipo${tipoUsuario}` : null;
+  }
+  if (typeof tipoUsuario === "string") {
+    const normalized = tipoUsuario.trim().toLowerCase();
+    if (!normalized || normalized === "null") return null;
+    if (/^tipo[1-4]$/.test(normalized)) return normalized;
+    if (/^[1-4]$/.test(normalized)) return `tipo${normalized}`;
+  }
+  return null;
+};
 
 const parseStoredSession = (): SessionPayload => {
   try {
@@ -20,7 +34,7 @@ const parseStoredSession = (): SessionPayload => {
 
 const hasActiveSession = (session: SessionPayload = parseStoredSession()) => {
   const user = session?.user;
-  return Boolean(session?.jwt && user && user.confirmed !== false);
+  return Boolean(session?.jwt && user && user.confirmed !== false && normalizeTipoUsuario(user?.tipoUsuario));
 };
 
 const refreshAuthVisibility = () => {

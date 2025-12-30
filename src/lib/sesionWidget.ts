@@ -2,6 +2,7 @@ import { postUsuarioLogin, postUsuarioRegister } from "./api";
 
 const SESSION_STORAGE_KEY = "usuarioSesion";
 const SESSION_EVENT = "usuarioSesion:cambio";
+const PENDING_VERIFICATION_PATH = "/pendiente-verificacion";
 
 type FeedbackVariant = "neutral" | "success" | "error";
 
@@ -96,9 +97,23 @@ const getStoredSession = (): SessionPayload | null => {
   }
 };
 
+const normalizeTipoUsuario = (tipoUsuario: SessionUser["tipoUsuario"]) => {
+  if (tipoUsuario === null || tipoUsuario === undefined) return null;
+  if (typeof tipoUsuario === "number") {
+    return tipoUsuario >= 1 && tipoUsuario <= 4 ? `tipo${tipoUsuario}` : null;
+  }
+  if (typeof tipoUsuario === "string") {
+    const normalized = tipoUsuario.trim().toLowerCase();
+    if (!normalized || normalized === "null") return null;
+    if (/^tipo[1-4]$/.test(normalized)) return normalized;
+    if (/^[1-4]$/.test(normalized)) return `tipo${normalized}`;
+  }
+  return null;
+};
+
 const hasActiveSession = (session: SessionPayload | null = getStoredSession()) => {
   const user = session?.user;
-  return Boolean(session?.jwt && user && user.confirmed !== false);
+  return Boolean(session?.jwt && user && user.confirmed !== false && normalizeTipoUsuario(user.tipoUsuario));
 };
 
 
@@ -137,6 +152,14 @@ const handleLoginSubmit = async (event: SubmitEvent) => {
     const response = await postUsuarioLogin({ identifier, password });
     const user = (response as any)?.user ?? {};
     const displayName = user?.nombre ?? user?.username ?? identifier;
+    const tipoUsuario = normalizeTipoUsuario(user?.tipoUsuario);
+
+    if (!tipoUsuario) {
+      setStatusMessage(status, "Cuenta pendiente de verificación.");
+      setFeedbackMessage(feedback, "Tu cuenta está pendiente de verificación. Redirigiendo...", "error");
+      window.location.assign(PENDING_VERIFICATION_PATH);
+      return;
+    }
 
     saveSession(response as Record<string, unknown>);
     setStatusMessage(status, `Sesión iniciada como ${displayName}`);
@@ -255,4 +278,3 @@ if (document.readyState === "loading") {
 } else {
   initRegister();
 }
-

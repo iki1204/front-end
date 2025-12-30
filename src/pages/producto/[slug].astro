@@ -143,40 +143,23 @@ const priceFormatter = new Intl.NumberFormat("es-PE", {
   minimumFractionDigits: 2,
 });
 
-const findPriceByType = (tipo: number) => {
-  const keyCandidates: Record<number, string[]> = {
-    1: ["precio"],
-    2: ["Precio2"],
-    3: ["Precio3"],
-  };
-
-  const candidates = keyCandidates[tipo] ?? [];
-
-  for (const key of candidates) {
-    const value = producto?.[key as keyof typeof producto];
-    if (typeof value === "number") {
-      return value;
-    }
-  }
-
-  return null;
+const rawPrices = {
+  default: typeof producto?.precio === "number" ? producto.precio : null,
+  tipo1: typeof producto?.precio === "number" ? producto.precio : null,
+  tipo2: typeof producto?.Precio2 === "number" ? producto.Precio2 : null,
+  tipo3: typeof producto?.Precio3 === "number" ? producto.Precio3 : null,
+  tipo4: typeof producto?.Precio4 === "number" ? producto.Precio4 : null,
 };
 
-const rawPrices: Record<string, number | null> = {
-  default: null,
-  1: findPriceByType(1),
-  2: findPriceByType(2),
-  3: findPriceByType(3),
+const formatPrice = (value: number | null) => (typeof value === "number" ? priceFormatter.format(value) : "Consultar");
+
+const formattedPrices = {
+  default: formatPrice(rawPrices.default),
+  tipo1: formatPrice(rawPrices.tipo1),
+  tipo2: formatPrice(rawPrices.tipo2),
+  tipo3: formatPrice(rawPrices.tipo3),
+  tipo4: formatPrice(rawPrices.tipo4),
 };
-
-rawPrices.default = rawPrices[1] ?? (typeof producto?.precio === "number" ? producto.precio : null);
-
-const formattedPrices: Record<string, string> = Object.fromEntries(
-  Object.entries(rawPrices).map(([key, value]) => [
-    key,
-    typeof value === "number" ? priceFormatter.format(value) : "Consultar",
-  ]),
-);
 
 const precio = formattedPrices.default;
 
@@ -260,7 +243,19 @@ var descripcion = producto?.descripcion;
           </div>
 
           <div class="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4 shadow-inner dark:border-primary/30 dark:bg-primary/10">
-            <p class="hidden text-4xl font-extrabold text-primary" data-auth-visible="authenticated" data-precio-display>{precio}</p>
+            <p
+              class="hidden text-4xl font-extrabold text-primary"
+              data-auth-visible="authenticated"
+              data-precio-display
+              data-user-price
+              data-price-default={formattedPrices.default}
+              data-price-tipo1={formattedPrices.tipo1}
+              data-price-tipo2={formattedPrices.tipo2}
+              data-price-tipo3={formattedPrices.tipo3}
+              data-price-tipo4={formattedPrices.tipo4}
+            >
+              {precio}
+            </p>
             <p class="text-sm text-primary" data-auth-visible="guest">Inicia sesión para ver mas de este producto.</p>
 
             
@@ -380,9 +375,15 @@ var descripcion = producto?.descripcion;
               class="w-full cursor-pointer rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30"
               data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}
               data-product-name={producto?.nombre ?? "Producto"}
-              data-product-price={typeof producto?.precio === "number" ? producto.precio : ""}
+              data-product-price={rawPrices.default ?? ""}
               data-product-image={mainImage}
               data-product-url={`/producto/${slug}`}
+              data-user-price-target="productPrice"
+              data-price-default={rawPrices.default ?? ""}
+              data-price-tipo1={rawPrices.tipo1 ?? ""}
+              data-price-tipo2={rawPrices.tipo2 ?? ""}
+              data-price-tipo3={rawPrices.tipo3 ?? ""}
+              data-price-tipo4={rawPrices.tipo4 ?? ""}
             >
               Añadir al carrito
             </button>
@@ -490,5 +491,3 @@ var descripcion = producto?.descripcion;
     }
   });
 </script>
-
-
