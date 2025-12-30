@@ -18,6 +18,7 @@ const searchTerms = searchParam.split(/\s+/).filter(Boolean);
 const normalizedSearchParam = searchTerms.join(" ");
 const categoryParam = url.searchParams.get("category") ?? "all";
 const brandParam = url.searchParams.get("brand") ?? "all";
+const stockParam = url.searchParams.get("stock") ?? "all";
 const pageParam = Number.parseInt(url.searchParams.get("page") ?? "1", 10);
 const requestedPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
 const priceParamRaw = Number.parseInt(url.searchParams.get("price") ?? String(MAX_PRICE), 10);
@@ -46,10 +47,17 @@ if (brandParam !== "all") {
   strapiParams.set("filters[ID_Marca][$eq]", brandParam);
 }
 
+if (stockParam === "in") {
+  strapiParams.set("filters[cantidad_stock][$gt]", "0");
+}
+
+if (stockParam === "out") {
+  strapiParams.set("filters[cantidad_stock][$lte]", "0");
+}
+
 if (searchTerms.length > 0) {
   applySearchFilters(strapiParams, searchTerms);
 }
-
 
 if (priceFilterValue < MAX_PRICE) {
   strapiParams.set("filters[precio][$lte]", String(priceFilterValue));
@@ -218,6 +226,7 @@ const showRightDots = endPage < totalPages;
     <article class="flex flex-col gap-8 py-10 w-full">
       <!-- Filtro responsive -->
       <div class="flex flex-col gap-6 md:hidden">
+
         <div class="group relative block">
           <label for="mobileCategory" class="text-base font-semibold text-zinc-900 dark:text-white mb-4">
             Filtrar por categoría:
@@ -287,12 +296,44 @@ const showRightDots = endPage < totalPages;
             )}
           </select>
         </div>
+
+        <div class="group relative block">
+          <label for="mobileStock" class="text-base font-semibold text-zinc-900 dark:text-white mb-4">
+            Filtrar por stock:
+          </label>
+          <select
+            id="mobileStock"
+            class="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+            onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
+          >
+            <option
+              value={Astro.url.pathname + buildQueryString({ stock: "all", page: 1 })}
+              selected={stockParam === "all"}
+            >
+              TODOS
+            </option>
+            <option
+              value={Astro.url.pathname + buildQueryString({ stock: "in", page: 1 })}
+              selected={stockParam === "in"}
+            >
+              Con stock
+            </option>
+            <option
+              value={Astro.url.pathname + buildQueryString({ stock: "out", page: 1 })}
+              selected={stockParam === "out"}
+            >
+              Sin stock
+            </option>
+          </select>
+        </div>
+
         <div class="group relative block">
             <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-4">Precio máximo</h3>
             <form method="get" class="flex flex-col gap-4">
               <input type="hidden" name="search" value={searchParam} />
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="brand" value={brandParam} />
+              <input type="hidden" name="stock" value={stockParam} />
               <input type="hidden" name="page" value="1" />
               <label for="priceRange" class="text-sm text-zinc-600 dark:text-zinc-300">Ajusta el rango de precio:</label>
               <div class="flex flex-col gap-3">
@@ -522,6 +563,35 @@ const showRightDots = endPage < totalPages;
             </details>
           </div>
 
+          <!-- Filtro Stock -->
+
+          <div class="mt-6 border-t border-zinc-300 pt-6 dark:border-zinc-800">
+            <h2 class="sticky text-lg font-semibold mb-4 text-zinc-900 dark:text-white">Stock</h2>
+            <ul class="flex flex-col gap-2 text-sm">
+              {[
+                { label: "Todos", value: "all" },
+                { label: "Con stock", value: "in" },
+                { label: "Sin stock", value: "out" },
+              ].map((option) => {
+                const isActive = stockParam === option.value;
+                return (
+                  <li>
+                    <a
+                      href={buildQueryString({ stock: option.value, page: 1 })}
+                      class={`flex items-center justify-between rounded-2xl border px-4 py-2 font-medium transition ${
+                        isActive
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-zinc-300 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-red-900 dark:bg-zinc-900 dark:text-zinc-200"
+                      }`}
+                      aria-current={isActive ? "true" : undefined}
+                    >
+                      <span>{option.label}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
 
           <!-- Filtro de precio -->
           <div class="mt-6 border-t border-zinc-300 pt-6 dark:border-zinc-800" data-auth-visible="authenticated">

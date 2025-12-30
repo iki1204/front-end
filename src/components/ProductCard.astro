@@ -42,16 +42,23 @@ const priceFormatter = new Intl.NumberFormat("es-PE", {
 
 const slug = producto?.ID_Nombre ?? producto?.slug ?? producto?.id;
 const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(producto.precio) : "Consultar";
+const stockCount = Number(producto?.cantidad_stock ?? 0);
+const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.cantidad_stock;
 ---
 
 <article class="group flex h-full flex-col rounded-2xl border border-zinc-300 bg-zinc-100 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg  dark:border-red-900 dark:bg-zinc-900">
   <a href={`/producto/${slug}`} class="flex flex-1 flex-col">
-    <div class="relative overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-600 dark:border-red-900">
+    <div class="relative overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-600 dark:border-red-900 transition duration-300 group-hover:scale-105">
+      {isOutOfStock ? (
+        <span class="absolute -left-12 top-4 rotate-[-35deg] bg-rose-600 px-12 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-md">
+          Sin stock
+        </span>
+      ) : null}
       <img
         src={imgUrl}
         alt={producto?.nombre ?? "Producto"}
         sizes={srcset ? sizes : undefined}
-        class="h-56 w-full object-contain transition duration-300 group-hover:scale-105"
+        class="h-56 w-full object-contain "
         decoding="async"
         loading="lazy"
       />
