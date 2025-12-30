@@ -54,32 +54,30 @@ const botones = response.data.header.Botones.map((boton) => ({
                 </div>
                 <div id="navLayer" aria-hidden="true" class="fixed inset-0 z-10 h-screen w-screen origin-bottom scale-y-0 bg-white/70 backdrop-blur-2xl transition duration-500 group-data-[state=active]:origin-top group-data-[state=active]:scale-y-100 dark:bg-gray-950/70 lg:hidden"></div>
                 <div id="navlinks" class="invisible absolute top-full  justify-center left-0 z-20 w-full origin-top-right translate-y-1 scale-90 flex-col flex-wrap gap-6 rounded-3xl border border-gray-100 bg-white p-8 opacity-0 shadow-2xl shadow-gray-600/10 transition-all duration-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none lg:visible lg:relative lg:flex lg:w-fit lg:translate-y-0 lg:scale-100 lg:flex-row lg:items-center lg:gap-0 lg:border-none lg:bg-transparent lg:p-0 lg:opacity-100 lg:shadow-none lg:dark:bg-transparent group-data-[state=active]:visible group-data-[state=active]:scale-100 group-data-[state=active]:opacity-100 lg:group-data-[state=active]:translate-y-0">
-                    <div class="w-full text-gray-600 dark:text-gray-200 lg:w-auto lg:pr-4 lg:pt-0">
-                        <div id="links-group" class="flex flex-col gap-6 tracking-wide lg:flex-row lg:gap-0 lg:text-sm">
-                            {
-                                links.map((link) => (
-                                    <a href={link.to} class="hover:text-primary block transition dark:hover:text-white md:px-4">
-                                        <span>{link.label}</span>
-                                    </a>
-                                ))
-                            }
-                        </div>
-                    </div>            
-                        {
-                            botones.map((link) => (
-                                <div class="mt-12 mr-2 lg:mt-0"> 
-                                    <a href={link.to} class="relative flex h-9 w-full items-center justify-center px-4 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95 sm:w-max">
-                                        <span class="relative text-sm font-semibold text-white">{link.label}</span>
-                                    </a>
-                                </div>
+                  <div class="w-full text-gray-600 dark:text-gray-200 lg:w-auto lg:pr-4 lg:pt-0">
+                      <div id="links-group" class="flex flex-col gap-6 tracking-wide lg:flex-row lg:gap-0 lg:text-sm">
+                          {
+                            links.map((link) => (
+                              <a href={link.to} class="hover:text-primary block transition dark:hover:text-white md:px-4">
+                                <span>{link.label}</span>
+                              </a>
                             ))
-                        }
-
+                          }
+                      </div>
+                  </div>            
+                    {
+                      botones.map((link) => (
+                        <div class="mt-12 mr-2 lg:mt-0"> 
+                          <a href={link.to} class="relative flex h-9 w-full items-center justify-center px-4 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95 sm:w-max">
+                            <span class="relative text-sm font-semibold text-white">{link.label}</span>
+                          </a>
+                        </div>
+                      ))
+                    }
                     <div class="ml-4 flex items-center gap-2">  
-                      <a
+                      <button
                           data-login-button
-                          href="/login"
-                          class="mt-12 group inline-flex items-center gap-2 rounded-full border border-primary/40 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary lg:mt-0"
+                          class="mt-12 cursor-pointer group inline-flex items-center gap-2 rounded-full border border-primary/40 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary lg:mt-0"
                           aria-label="Iniciar sesión"
                       >
                           <span class="text-sm font-semibold tracking-wide">Ingresar</span>
@@ -90,11 +88,11 @@ const botones = response.data.header.Botones.map((boton) => ({
                               <path d="M12 4H8C5.79086 4 4 5.79086 4 8V16C4 18.2091 5.79086 20 8 20H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                             </svg>
                           </span>
-                      </a>
+                      </button>
                       <button
                           type="button"
                           data-logout-cta
-                          class="mt-12 hidden group flex h-10 w-10 items-center justify-center rounded-full border border-primary text-gray-700 transition hover:bg-red-200 hover:text-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary lg:mt-0"
+                          class="mt-12 cursor-pointer hidden group flex h-10 w-10 items-center justify-center rounded-full border border-primary text-gray-700 transition hover:bg-red-200 hover:text-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary lg:mt-0"
                           aria-label="Cerrar sesión"
                           aria-expanded="false"
                           aria-controls="logout-confirmation"
@@ -135,13 +133,9 @@ const botones = response.data.header.Botones.map((boton) => ({
                           No
                         </button>
                       </div>
-                    </div>
+                    </div>  
+                  </div>
                 </div>
-
-                
-            </div>
-
-                
             </div>
         </Container>
     </nav>

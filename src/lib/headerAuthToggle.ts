@@ -25,8 +25,8 @@ const initHeaderAuthToggle = () => {
       clearSession();
     }
 
-    loginCta.classList.toggle("hidden", isLoggedIn);
-    loginCta.setAttribute("aria-hidden", isLoggedIn.toString());
+    loginCta?.classList.toggle("hidden", isLoggedIn);
+    loginCta?.setAttribute("aria-hidden", isLoggedIn.toString());
     logoutCta?.classList.toggle("hidden", !isLoggedIn);
     logoutCta?.setAttribute("aria-hidden", (!isLoggedIn).toString());
   };
