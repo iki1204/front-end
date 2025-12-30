@@ -180,14 +180,16 @@ const botones = response.data.header.Botones.map((boton) => ({
   const refreshLoginCta = () => {
     if (!loginCta) return;
     const session = parseStoredSession();
-    if (!session) {
+    const isLoggedIn = hasActiveSession(session);
+
+    if (session && !isLoggedIn) {
       clearSession();
     }
-    const isLoggedIn = hasActiveSession(session);
-    const shouldShowLogout = isLoggedIn;
 
-    loginCta.classList.toggle("hidden", shouldShowLogout);
-    logoutCta?.classList.toggle("hidden", !shouldShowLogout);
+    loginCta.classList.toggle("hidden", isLoggedIn);
+    loginCta.setAttribute("aria-hidden", isLoggedIn.toString());
+    logoutCta?.classList.toggle("hidden", !isLoggedIn);
+    logoutCta?.setAttribute("aria-hidden", (!isLoggedIn).toString());
   };
 
   const hideLogoutAlert = () => {
