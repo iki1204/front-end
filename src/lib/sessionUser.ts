@@ -39,6 +39,10 @@ export const parseStoredSession = (): SessionPayload => {
   }
 };
 
+export const hasSessionToken = (session: SessionPayload = parseStoredSession()) => {
+  return Boolean(session?.jwt);
+};
+
 export const hasActiveSession = (session: SessionPayload = parseStoredSession()) => {
   const user = session?.user;
   return Boolean(session?.jwt && user && user.confirmed !== false && normalizeTipoUsuario(user?.tipoUsuario));

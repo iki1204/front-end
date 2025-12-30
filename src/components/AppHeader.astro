@@ -76,19 +76,19 @@ const botones = response.data.header.Botones.map((boton) => ({
 
                     <div class="ml-4 flex items-center gap-2">  
                       <a
-                          data-login-cta
-                          id="loginbtn"
+                          data-login-button
                           href="/login"
-                          type="button"
-                          class="mt-12 group flex h-10 w-10 items-center justify-center rounded-full   transition duration-200 border border-red-300 hover:bg-red-200 lg:mt-0 hover:border-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary dark:hover:bg-red-900"
+                          class="mt-12 group inline-flex items-center gap-2 rounded-full border border-primary/40 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary lg:mt-0"
                           aria-label="Iniciar sesión"
                       >
-                          <span class="sr-only">Iniciar sesión</span>
-                          <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="9" r="3" stroke="#1C274C" stroke-width="1.5"/>
-                            <path d="M17.9691 20C17.81 17.1085 16.9247 15 11.9999 15C7.07521 15 6.18991 17.1085 6.03076 20" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M7 3.33782C8.47087 2.48697 10.1786 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 10.1786 2.48697 8.47087 3.33782 7" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
-                          </svg>
+                          <span class="text-sm font-semibold tracking-wide">Ingresar</span>
+                          <span class="flex size-7 items-center justify-center rounded-full bg-primary/10 transition group-hover:bg-white/20 dark:bg-white/10">
+                            <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M14.5 6L20 12L14.5 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                              <path d="M20 12H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              <path d="M12 4H8C5.79086 4 4 5.79086 4 8V16C4 18.2091 5.79086 20 8 20H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                          </span>
                       </a>
                       <a
                           type="button"
@@ -160,9 +160,9 @@ const botones = response.data.header.Botones.map((boton) => ({
 
 
 <script type="module">
-  import { SESSION_EVENT, SESSION_STORAGE_KEY, hasActiveSession, parseStoredSession } from "../lib/sessionUser";
+  import { SESSION_EVENT, SESSION_STORAGE_KEY, hasSessionToken, parseStoredSession } from "../lib/sessionUser";
 
-  const loginCta = document.querySelector("[data-login-cta]");
+  const loginCta = document.querySelector("[data-login-button]");
   const logoutCta = document.querySelector("[data-logout-cta]");
   const logoutAlert = document.querySelector("[data-logout-confirmation]");
   const logoutConfirmYes = logoutAlert?.querySelector("[data-logout-confirm='yes']");
@@ -180,7 +180,7 @@ const botones = response.data.header.Botones.map((boton) => ({
   const refreshLoginCta = () => {
     if (!loginCta) return;
     const session = parseStoredSession();
-    const isLoggedIn = hasActiveSession(session);
+    const isLoggedIn = hasSessionToken(session);
 
     if (session && !isLoggedIn) {
       clearSession();
