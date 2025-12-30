@@ -160,47 +160,13 @@ const botones = response.data.header.Botones.map((boton) => ({
 
 
 <script type="module">
-  const SESSION_STORAGE_KEY = "usuarioSesion";
-  const SESSION_EVENT = "usuarioSesion:cambio";
+  import { SESSION_EVENT, SESSION_STORAGE_KEY, hasActiveSession, parseStoredSession } from "../lib/sessionUser";
+
   const loginCta = document.querySelector("[data-login-cta]");
   const logoutCta = document.querySelector("[data-logout-cta]");
   const logoutAlert = document.querySelector("[data-logout-confirmation]");
   const logoutConfirmYes = logoutAlert?.querySelector("[data-logout-confirm='yes']");
   const logoutConfirmNo = logoutAlert?.querySelector("[data-logout-confirm='no']");
-
-  /**
-   * @typedef {Object} SessionUser
-   * @property {boolean} [confirmed]
-   * @property {string|number|null} [tipoUsuario]
-   */
-
-  /**
-   * @typedef {Object} SessionPayload
-   * @property {string} [jwt]
-   * @property {SessionUser|null} [user]
-   */
-
-  const normalizeTipoUsuario = (tipoUsuario) => {
-    if (tipoUsuario === null || tipoUsuario === undefined) return null;
-    if (typeof tipoUsuario === "number") {
-      return tipoUsuario >= 1 && tipoUsuario <= 4 ? `tipo${tipoUsuario}` : null;
-    }
-    if (typeof tipoUsuario === "string") {
-      const normalized = tipoUsuario.trim().toLowerCase();
-      if (!normalized || normalized === "null") return null;
-      if (/^tipo[1-4]$/.test(normalized)) return normalized;
-      if (/^[1-4]$/.test(normalized)) return `tipo${normalized}`;
-    }
-    return null;
-  };
-
-  const isValidSession = (session) =>
-    Boolean(
-      session?.jwt &&
-        session.user &&
-        session.user.confirmed !== false &&
-        normalizeTipoUsuario(session.user.tipoUsuario),
-    );
 
   const clearSession = () => {
     try {
@@ -211,21 +177,10 @@ const botones = response.data.header.Botones.map((boton) => ({
     window.dispatchEvent(new CustomEvent(SESSION_EVENT));
   };
 
-  const getStoredSession = () => {
-    try {
-      const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-      if (!raw) return null;
-
-      return JSON.parse(raw);
-    } catch (error) {
-      clearSession();
-      return null;
-    }
-  };
-
   const refreshLoginCta = () => {
     if (!loginCta) return;
-    const isLoggedIn = isValidSession(getStoredSession());
+    const session = parseStoredSession();
+    const isLoggedIn = hasActiveSession(session);
     const shouldShowLogout = isLoggedIn;
 
     loginCta.classList.toggle("hidden", shouldShowLogout);
