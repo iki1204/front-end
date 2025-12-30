@@ -14,6 +14,21 @@ export type SessionPayload =
     }
   | null;
 
+export const normalizeSessionPayload = (payload: unknown): SessionPayload => {
+  if (!payload || typeof payload !== "object") return null;
+  const data = payload as Record<string, unknown>;
+  const nestedData = (data.data ?? {}) as Record<string, unknown>;
+  const jwtCandidate = data.jwt ?? data.token ?? data.accessToken ?? nestedData.jwt ?? nestedData.token ?? nestedData.accessToken;
+  const userCandidate = data.user ?? nestedData.user;
+
+  const jwt = typeof jwtCandidate === "string" ? jwtCandidate : null;
+  const user = (userCandidate as SessionUser | null | undefined) ?? null;
+
+  if (!jwt && !user) return null;
+
+  return { jwt, user };
+};
+
 export const normalizeTipoUsuario = (tipoUsuario: SessionUser["tipoUsuario"]) => {
   if (tipoUsuario === null || tipoUsuario === undefined) return null;
   if (typeof tipoUsuario === "number") {
@@ -32,7 +47,8 @@ export const parseStoredSession = (): SessionPayload => {
   try {
     const raw = localStorage.getItem(SESSION_STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    return normalizeSessionPayload(parsed);
   } catch (error) {
     console.warn("No se pudo leer la sesión almacenada", error);
     return null;
