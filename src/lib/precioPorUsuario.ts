@@ -77,12 +77,12 @@ const initPriceByUser = () => {
   refreshPriceDisplays();
 
   window.addEventListener("storage", (event) => {
-    if (event.key === SESSION_STORAGE_KEY) {
+    if (event.key === SESSION_STORAGE_KEY_tipo) {
       refreshPriceDisplays();
     }
   });
 
-  window.addEventListener(SESSION_EVENT, refreshPriceDisplays);
+  window.addEventListener(SESSION_EVENT_tipo, refreshPriceDisplays);
 };
 
 if (typeof window !== "undefined") {

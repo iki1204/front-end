@@ -66,9 +66,13 @@ const formattedPrices = {
   <a href={`/producto/${slug}`} class="flex flex-1 flex-col">
     <div class="relative overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-600 dark:border-red-900 transition duration-300 group-hover:scale-105">
       {isOutOfStock ? (
-        <span class="absolute -left-12 top-4 rotate-[-35deg] bg-rose-600 px-12 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-md">
-          Sin stock
-        </span>
+        <div
+          data-auth-visible="authenticated"
+        >
+          <span class="absolute -left-12 top-4 rotate-[-35deg] bg-rose-600 px-12 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-md">
+            Sin stock
+          </span>
+        </div>
       ) : null}
       <img
         src={imgUrl}
