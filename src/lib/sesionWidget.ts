@@ -1,22 +1,25 @@
 import { postUsuarioLogin, postUsuarioRegister } from "./api";
-
-const SESSION_STORAGE_KEY = "usuarioSesion";
-const SESSION_EVENT = "usuarioSesion:cambio";
+import {
+  SESSION_EVENT,
+  SESSION_STORAGE_KEY,
+  hasActiveSession,
+  normalizeTipoUsuario,
+  parseStoredSession,
+  type SessionPayload,
+  type SessionUser,
+} from "./sessionUser";
 const PENDING_VERIFICATION_PATH = "/pendiente-verificacion";
 
 type FeedbackVariant = "neutral" | "success" | "error";
 
-type SessionUser = {
-  confirmed?: boolean;
+type SessionUserDetails = SessionUser & {
   nombre?: string;
   username?: string;
   email?: string;
-  tipoUsuario?: number | string | null;
 };
 
-type SessionPayload = {
-  jwt?: string;
-  user?: SessionUser | null;
+type SessionPayloadDetails = Omit<NonNullable<SessionPayload>, "user"> & {
+  user?: SessionUserDetails | null;
 };
 
 const VARIANT_CLASS_MAP: Record<FeedbackVariant, string[]> = {
@@ -83,38 +86,7 @@ const clearSession = () => {
   
   window.dispatchEvent(new CustomEvent(SESSION_EVENT));
 };
-const getStoredSession = (): SessionPayload | null => {
-  try {
-    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-    if (!raw) return null;
-
-    const session = JSON.parse(raw);
-    const user = session?.user;
-
-    return JSON.parse(raw) as SessionPayload;
-  } catch (error) {
-    return null;
-  }
-};
-
-const normalizeTipoUsuario = (tipoUsuario: SessionUser["tipoUsuario"]) => {
-  if (tipoUsuario === null || tipoUsuario === undefined) return null;
-  if (typeof tipoUsuario === "number") {
-    return tipoUsuario >= 1 && tipoUsuario <= 4 ? `tipo${tipoUsuario}` : null;
-  }
-  if (typeof tipoUsuario === "string") {
-    const normalized = tipoUsuario.trim().toLowerCase();
-    if (!normalized || normalized === "null") return null;
-    if (/^tipo[1-4]$/.test(normalized)) return normalized;
-    if (/^[1-4]$/.test(normalized)) return `tipo${normalized}`;
-  }
-  return null;
-};
-
-const hasActiveSession = (session: SessionPayload | null = getStoredSession()) => {
-  const user = session?.user;
-  return Boolean(session?.jwt && user && user.confirmed !== false && normalizeTipoUsuario(user.tipoUsuario));
-};
+const getStoredSession = (): SessionPayloadDetails | null => parseStoredSession();
 
 
 const handleLoginSubmit = async (event: SubmitEvent) => {
