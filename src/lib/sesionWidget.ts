@@ -4,6 +4,7 @@ import {
   SESSION_STORAGE_KEY,
   hasActiveSession,
   normalizeTipoUsuario,
+  normalizeSessionPayload,
   parseStoredSession,
   type SessionPayload,
   type SessionUser,
@@ -122,9 +123,14 @@ const handleLoginSubmit = async (event: SubmitEvent) => {
 
   try {
     const response = await postUsuarioLogin({ identifier, password });
-    const user = (response as any)?.user ?? {};
+    const normalizedSession = normalizeSessionPayload(response);
+    const user = normalizedSession?.user ?? (response as any)?.user ?? {};
     const displayName = user?.nombre ?? user?.username ?? identifier;
     const tipoUsuario = normalizeTipoUsuario(user?.tipoUsuario);
+    const sessionPayload = normalizedSession ?? {
+      jwt: (response as any)?.jwt ?? (response as any)?.token ?? (response as any)?.accessToken ?? null,
+      user,
+    };
 
     if (!tipoUsuario) {
       setStatusMessage(status, "Cuenta pendiente de verificación.");
@@ -133,7 +139,7 @@ const handleLoginSubmit = async (event: SubmitEvent) => {
       return;
     }
 
-    saveSession(response as Record<string, unknown>);
+    saveSession(sessionPayload as Record<string, unknown>);
     setStatusMessage(status, `Sesión iniciada como ${displayName}`);
     setFeedbackMessage(feedback, "Inicio de sesión exitoso. Redirigiendo...", "success");
 
