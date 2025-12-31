@@ -75,9 +75,11 @@ const botones = response.data.header.Botones.map((boton) => ({
                       ))
                     }
                     <div class="ml-4 flex items-center gap-2">  
-                      <button
+                      <a
+                          type="button"
+                          href="/login"
                           data-login-button
-                          class="mt-12 cursor-pointer group inline-flex items-center gap-2 rounded-full border border-primary/40 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary lg:mt-0"
+                          class="mt-12 cursor-pointer group flex hidden items-center gap-2 rounded-full border border-primary/40 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary lg:mt-0"
                           aria-label="Iniciar sesión"
                       >
                           <span class="text-sm font-semibold tracking-wide">Ingresar</span>
@@ -88,27 +90,25 @@ const botones = response.data.header.Botones.map((boton) => ({
                               <path d="M12 4H8C5.79086 4 4 5.79086 4 8V16C4 18.2091 5.79086 20 8 20H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                             </svg>
                           </span>
-                      </button>
+                      </a>
                       <button
                           type="button"
                           data-logout-cta
-                          class="mt-12 cursor-pointer hidden group flex h-10 w-10 items-center justify-center rounded-full border border-primary text-gray-700 transition hover:bg-red-200 hover:text-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary lg:mt-0"
+                          class="mt-12 cursor-pointer hidden group flex items-center gap-2 rounded-full border border-primary/40 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary lg:mt-0"
                           aria-label="Cerrar sesión"
                           aria-expanded="false"
                           aria-controls="logout-confirmation"
                       >
-                        <span class="sr-only">Cerrar sesión</span>
-                        <svg aria-hidden="true"
-                          class="size-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg">
-                          <path d="M17.2929 14.2929C16.9024 14.6834 16.9024 15.3166 17.2929 15.7071C17.6834 16.0976 18.3166 16.0976 18.7071 15.7071L21.6201 12.7941C21.6351 12.7791 21.6497 12.7637 21.6637 12.748C21.87 12.5648 22 12.2976 22 12C22 11.7024 21.87 11.4352 21.6637 11.252C21.6497 11.2363 21.6351 11.2209 21.6201 11.2059L18.7071 8.29289C18.3166 7.90237 17.6834 7.90237 17.2929 8.29289C16.9024 8.68342 16.9024 9.31658 17.2929 9.70711L18.5858 11H13C12.4477 11 12 11.4477 12 12C12 12.5523 12.4477 13 13 13H18.5858L17.2929 14.2929Z" fill="#323232"/>
-                          <path d="M5 2C3.34315 2 2 3.34315 2 5V19C2 20.6569 3.34315 22 5 22H14.5C15.8807 22 17 20.8807 17 19.5V16.7326C16.8519 16.647 16.7125 16.5409 16.5858 16.4142C15.9314 15.7598 15.8253 14.7649 16.2674 14H13C11.8954 14 11 13.1046 11 12C11 10.8954 11.8954 10 13 10H16.2674C15.8253 9.23514 15.9314 8.24015 16.5858 7.58579C16.7125 7.4591 16.8519 7.35296 17 7.26738V4.5C17 3.11929 15.8807 2 14.5 2H5Z" fill="#323232"/>
-                        </svg>
+                        <span class="flex size-7 items-center justify-center rounded-full bg-primary/10 transition group-hover:bg-white/20 dark:bg-white/10">
+                          <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14.5 6L20 12L14.5 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20 12H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M12 4H8C5.79086 4 4 5.79086 4 8V16C4 18.2091 5.79086 20 8 20H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                          </svg>
+                        </span>
                       </button>
                     </div>
-                    <div
+                  <div
                       data-logout-confirmation
                       id="logout-confirmation"
                       class="hidden absolute right-4 top-20 z-50 w-full max-w-xs rounded-lg border border-red-200 bg-white p-4 text-sm shadow-lg shadow-red-100/60 dark:border-red-700 dark:bg-gray-900 dark:text-red-100"
@@ -133,9 +133,13 @@ const botones = response.data.header.Botones.map((boton) => ({
                           No
                         </button>
                       </div>
-                    </div>  
+                    </div>
                   </div>
-                </div>
+
+                
+            </div>
+
+                
             </div>
         </Container>
     </nav>
