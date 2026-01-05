@@ -64,7 +64,7 @@ const formattedPrices = {
 
 <article class="group flex h-full flex-col rounded-2xl border border-zinc-300 bg-zinc-100 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg  dark:border-red-900 dark:bg-zinc-900">
   <a href={`/producto/${slug}`} class="flex flex-1 flex-col">
-    <div class="relative overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-600 dark:border-red-900 transition duration-300 group-hover:scale-105">
+    <div class="relative overflow-hidden rounded-xl bg-zinc-100  dark:border-red-900 transition duration-300 group-hover:scale-105">
       {isOutOfStock ? (
         <div
           data-auth-visible="authenticated"
@@ -87,7 +87,11 @@ const formattedPrices = {
       <h3 class="line-clamp-2 text-lg font-semibold text-zinc-900 dark:text-white">
         {producto?.nombre}
       </h3>
-      <p class="text-sm text-zinc-500 dark:text-zinc-400">Código: {producto?.codigo ?? "N/A"}</p>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400"
+        data-auth-visible="authenticated"
+      >
+        Código: {producto?.codigo ?? "N/A"}
+      </p>
       <div class="mt-auto flex items-center justify-between">
         <p
           class="text-lg font-bold text-red-500"
