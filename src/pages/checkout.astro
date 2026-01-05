@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/Layout.astro";
 import Container from "../components/Container.astro";
 import { getGlobalData } from "../lib/api";
+import checkoutGuardScript from "../lib/checkoutGuard.ts?url";
 
 const global = await getGlobalData();
 ---
@@ -84,3 +85,5 @@ const global = await getGlobalData();
     </section>
   </Container>
 </BaseLayout>
+
+<script type="module" src={checkoutGuardScript}></script>
