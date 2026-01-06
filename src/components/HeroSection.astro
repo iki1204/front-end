@@ -17,73 +17,73 @@ const lastDescripcion = heroSection.Descripcion.slice(-7);
 const botones = heroSection?.boton_link ?? [];
 const img = heroSection?.Imagen?.map((img) => `${API_URL}${img.url}`) ?? [];
 
+interface Props {
+  src?: string;
+  poster?: string;
+  overlayClass?: string;
+  videoClass?: string;
+}
+
+const {
+  src = "../public/images/video/video2.mp4",
+  poster = "",
+  overlayClass = "bg-black/40",
+  videoClass = "",
+} = Astro.props;
+
 ---
+  
+<div class="relative z-40" id="hero">
 
-<div class="relative" id="hero">
-  <Container>
-    <header>
-      <div class="relative pt-28 ml-auto grid grid-cols-1 md:grid-cols-2 items-center gap-5">
-        <div class="lg:w-9/10 text-center mx-auto">
-          <h1 class="text-gray-900 text-balance dark:text-white font-bold text-5xl md:text-6xl xl:text-7xl">
-            {mainTitulo}
-            <span class="text-primary">{lastTitulo}</span>
-          </h1>
-          <p class="mt-8 text-gray-700 dark:text-gray-300">
-            {mainDescripcion}
-            <span class="text-primary ">{lastDescripcion}</span>
-          </p>
-          <div class="mt-16 flex flex-wrap justify-center gap-y-4 gap-x-6">
-            {botones.map((btn, index) => {
-              const isEven = index % 2 === 0;
-              const baseClasses =
-                'relative flex h-11 w-full items-center justify-center px-6 before:absolute before:inset-0 before:rounded-full before:transition before:duration-300 active:duration-75 sm:w-max';
-              const colorClasses = isEven
-                ? 'before:bg-primary hover:before:scale-105 active:before:scale-95'
-                : 'before:border before:border-transparent before:bg-primary/10 before:bg-gradient-to-b hover:before:scale-105 active:before:scale-95 dark:before:border-gray-700 dark:before:bg-gray-800';
-              const textClasses = isEven
-                ? 'relative text-base font-semibold text-white'
-                : 'relative text-base font-semibold text-primary dark:text-white';
-              return (
-                <a href={btn.url} class={`${baseClasses} ${colorClasses}`}>
-                  <span class={textClasses}>{btn.etiqueta}</span>
-                </a>
-              );
-            })}
+    <div class="relative " aria-hidden="true">
+      <video
+          class={`h-screen w-screen object-cover overflow-visible ${videoClass}`}
+          autoplay
+          muted
+          loop
+          playsinline
+          poster={poster}
+      >
+          <source src={src} type="video/mp4" />
+
+      </video>
+
+      <div class={`absolute inset-0 ${overlayClass}`}>
+        <header>
+          <div class="relative bg-black/50 h-screen w-screen pt-28 ml-auto flex md:grid-cols-2 items-start gap-5">
+            <div class="lg:w-9/10 text-center mx-auto">
+              <h1 class="text-gray-900 text-balance dark:text-white font-bold text-8xl md:text-6xl xl:text-7xl">
+                {mainTitulo}
+                <span class="text-primary">{lastTitulo}</span>
+              </h1>
+              <p class="mt-8 text-gray-700 text-5xl dark:text-gray-300">
+                {mainDescripcion}
+                <span class="text-primary ">{lastDescripcion}</span>
+              </p>
+              <div class="mt-16 flex flex-wrap justify-center gap-y-4 gap-x-6">
+                {botones.map((btn, index) => {
+                  const isEven = index % 2 === 0;
+                  const baseClasses =
+                    'relative flex h-11 w-full items-center justify-center px-6 before:absolute before:inset-0 before:rounded-full before:transition before:duration-300 active:duration-75 sm:w-max';
+                  const colorClasses = isEven
+                    ? 'before:bg-primary hover:before:scale-105 active:before:scale-95'
+                    : 'before:border before:border-transparent before:bg-primary/10 before:bg-gradient-to-b hover:before:scale-105 active:before:scale-95 dark:before:border-gray-700 dark:before:bg-gray-800';
+                  const textClasses = isEven
+                    ? 'relative text-base font-semibold text-white'
+                    : 'relative text-base font-semibold text-primary dark:text-white';
+                  return (
+                    <a href={btn.url} class={`${baseClasses} ${colorClasses}`}>
+                      <span class={textClasses}>{btn.etiqueta}</span>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-        </div>
-
-
-        <div
-          class=" slider relative flex justify-center items-center min-h-[350px] overflow-hidden rounded-3xl shadow-2xl"
-          data-hero-slider
-        >
-          {img.map((src, i) => (
-            <img
-              src={src}
-              alt={`Hero image ${i + 1}`}
-              class={`slide absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out ${
-                i === 0 ? "is-active" : ""
-              }`}
-              loading={i === 0 ? "eager" : "lazy"}
-            />
-          ))}
-        </div>
+        </header>
       </div>
-    </header>
-  </Container>
+  </div>
+
 </div>
-<script>
-  const slider = document.querySelector("[data-hero-slider]");
-  if (slider) {
-    const slides = slider.querySelectorAll(".slide");
-    if (slides.length > 1) {
-      let index = 0;
-      setInterval(() => {
-        slides[index].classList.remove("is-active");
-        index = (index + 1) % slides.length;
-        slides[index].classList.add("is-active");
-      }, 5000); // 4s por slide
-    }
-  }
-</script>
+
 

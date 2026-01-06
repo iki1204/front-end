@@ -3,15 +3,18 @@ import Stats from '../components/Stats.astro';
 import Features from '../components/Features.astro';
 import HeroSection from '../components/HeroSection.astro';
 import SliderMarcas from '../components/SliderMarcas.astro';
-import Layout from '../layouts/Layout.astro';
+import SliderBanner from '../components/SliderBanner.astro';
+import Layout from '../layouts/LayoutIndex.astro';
 import Testimonials from '../components/Testimonials.astro';
 import CallToAction from '../components/CallToAction.astro';
 import Blog from '../components/Blog.astro';
+
 ---
 
 <Layout title="Unicom - Inicio">
 	<main class="space-y-40 mb-40">
 		<HeroSection/>
+		<SliderBanner/>
 		<SliderMarcas/>
 		<Features/>
 		<Stats/>

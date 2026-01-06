@@ -149,7 +149,7 @@ const botones = response.data.header.Botones.map((boton) => ({
   const header = document.getElementById("site-header");
 
   window.addEventListener("scroll", () => {
-    if (window.scrollY > 20) {
+    if (window.scrollY > 30) {
       header.classList.add("bg-white", "dark:bg-gray-950", "shadow-md");
       header.classList.remove("bg-transparent");
     } else {
