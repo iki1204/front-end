@@ -26,7 +26,7 @@ interface Props {
 const {
   src = "../images/video/video.mp4",
   poster = "",
-  overlayClass = "bg-black/40",
+  overlayClass = "bg-black/50",
   videoClass = "",
 } = Astro.props;
 
@@ -49,7 +49,7 @@ const {
 
       <div class={`absolute inset-0 ${overlayClass}`}>
         <header>
-          <div class="relative bg-black/50 h-lvh w-fit pt-28 ml-auto flex items-start gap-5">
+          <div class="relative h-screen w-screen pt-28 ml-auto flex items-start gap-5">
             <div class="lg:w-9/10 text-center mx-auto">
               <h1 class="text-balance text-white font-bold text-3xl md:text-6xl xl:text-8xl">
                 {mainTitulo}
