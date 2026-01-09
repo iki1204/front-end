@@ -10,8 +10,8 @@ const heroSection = responseHome?.data?.[0]?.Secciones?.find(
 const mainTitulo = heroSection.Titulo.slice(0, -2);
 const lastTitulo = heroSection.Titulo.slice(-2); 
 
-const mainDescripcion = heroSection.Descripcion.slice(0, -7);
-const lastDescripcion = heroSection.Descripcion.slice(-7);
+const mainSubtitulo = heroSection.Subtitulo.slice(0, -7);
+const lastSubtitulo = heroSection.Subtitulo.slice(-7);
 
 const botones = heroSection?.boton_link ?? [];
 const img = heroSection?.Imagen?.map((img) => `${API_URL}${img.url}`) ?? [];
@@ -56,8 +56,8 @@ const {
                 <span class="text-primary">{lastTitulo}</span>
               </h1>
               <p class="mt-8 text-gray-300 text-xl md:text-4xl xl:text-6xl">
-                {mainDescripcion}
-                <span class="text-primary ">{lastDescripcion}</span>
+                {mainSubtitulo}
+                <span class="text-primary ">{lastSubtitulo}</span>
               </p>
               <div class="mt-16 flex flex-wrap group justify-center gap-y-4 gap-x-6">
                 {botones.map((btn, index) => {

@@ -41,7 +41,6 @@ const priceFormatter = new Intl.NumberFormat("es-PE", {
 });
 
 const slug = producto?.ID_Nombre ?? producto?.slug ?? producto?.id;
-const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(producto.precio) : "Consultar";
 const stockCount = Number(producto?.cantidad_stock ?? 0);
 const fewStockThreshold = 10;
 const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.cantidad_stock;

@@ -125,7 +125,7 @@ const handleLoginSubmit = async (event: SubmitEvent) => {
     const response = await postUsuarioLogin({ identifier, password });
     const normalizedSession = normalizeSessionPayload(response);
     const user = normalizedSession?.user ?? (response as any)?.user ?? {};
-    const displayName = user?.nombre ?? user?.username ?? identifier;
+    const displayName = user?.username;
     const tipoUsuario = normalizeTipoUsuario(user?.tipoUsuario);
     const sessionPayload = normalizedSession ?? {
       jwt: (response as any)?.jwt ?? (response as any)?.token ?? (response as any)?.accessToken ?? null,

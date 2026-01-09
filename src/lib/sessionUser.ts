@@ -37,7 +37,7 @@ export const normalizeTipoUsuario = (tipoUsuario: SessionUser["tipoUsuario"]) =>
   if (typeof tipoUsuario === "string") {
     const normalized = tipoUsuario.trim().toLowerCase();
     if (!normalized || normalized === "null") return null;
-    if (/^tipo[1-4]$/.test(normalized)) return normalized;
+    if (/^pvp[1-4]$/.test(normalized)) return normalized;
     if (/^[1-4]$/.test(normalized)) return `tipo${normalized}`;
   }
   return null;
