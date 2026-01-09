@@ -10,7 +10,7 @@ const img = heroSection?.Imagen?.map((img) => `${API_URL}${img.url}`) ?? [];
 ---
 <Container>
     <div
-        class=" slider relative flex justify-center items-center min-h-[700px] overflow-hidden rounded-3xl shadow-2xl"
+        class=" slider relative flex justify-center items-center  xl:min-h-[700px] md:min-h-[500px] min-h-[200px] overflow-hidden rounded-3xl shadow-2xl"
         data-hero-slider
     >
         {img.map((src, i) => (

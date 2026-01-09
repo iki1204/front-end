@@ -297,7 +297,9 @@ const showRightDots = endPage < totalPages;
           </select>
         </div>
 
-        <div class="group relative block">
+        <div class="group relative block"
+          data-auth-visible="authenticated"
+        >
           <label for="mobileStock" class="text-base font-semibold text-zinc-900 dark:text-white mb-4">
             Filtrar por stock:
           </label>
@@ -316,7 +318,7 @@ const showRightDots = endPage < totalPages;
               value={Astro.url.pathname + buildQueryString({ stock: "in", page: 1 })}
               selected={stockParam === "in"}
             >
-              Con stock
+              En stock
             </option>
             <option
               value={Astro.url.pathname + buildQueryString({ stock: "out", page: 1 })}
@@ -327,7 +329,9 @@ const showRightDots = endPage < totalPages;
           </select>
         </div>
 
-        <div class="group relative block">
+        <div class="group relative block"
+          data-auth-visible="authenticated"
+        >
             <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-4">Precio máximo</h3>
             <form method="get" class="flex flex-col gap-4">
               <input type="hidden" name="search" value={searchParam} />
@@ -572,7 +576,7 @@ const showRightDots = endPage < totalPages;
             <ul class="flex flex-col gap-2 text-sm">
               {[
                 { label: "Todos", value: "all" },
-                { label: "Con stock", value: "in" },
+                { label: "En stock", value: "in" },
                 { label: "Sin stock", value: "out" },
               ].map((option) => {
                 const isActive = stockParam === option.value;

@@ -1,5 +1,4 @@
 ---
-import Container from "./Container.astro"
 import { getPageData } from "../lib/api";
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
@@ -25,7 +24,7 @@ interface Props {
 }
 
 const {
-  src = "../public/images/video/video2.mp4",
+  src = "../images/video/video.mp4",
   poster = "",
   overlayClass = "bg-black/40",
   videoClass = "",
@@ -33,11 +32,11 @@ const {
 
 ---
   
-<div class="relative z-40" id="hero">
+<div class="relative z-40 h-screen w-screen" id="hero">
 
-    <div class="relative " aria-hidden="true">
+    <div class="relative h-full w-full " aria-hidden="true">
       <video
-          class={`h-screen w-screen object-cover overflow-visible ${videoClass}`}
+          class={`absolute h-full w-full object-cover overflow-visible ${videoClass}`}
           autoplay
           muted
           loop
@@ -50,27 +49,27 @@ const {
 
       <div class={`absolute inset-0 ${overlayClass}`}>
         <header>
-          <div class="relative bg-black/50 h-screen w-screen pt-28 ml-auto flex md:grid-cols-2 items-start gap-5">
+          <div class="relative bg-black/50 h-lvh w-fit pt-28 ml-auto flex items-start gap-5">
             <div class="lg:w-9/10 text-center mx-auto">
-              <h1 class="text-gray-900 text-balance dark:text-white font-bold text-8xl md:text-6xl xl:text-7xl">
+              <h1 class="text-balance text-white font-bold text-3xl md:text-6xl xl:text-8xl">
                 {mainTitulo}
                 <span class="text-primary">{lastTitulo}</span>
               </h1>
-              <p class="mt-8 text-gray-700 text-5xl dark:text-gray-300">
+              <p class="mt-8 text-gray-300 text-xl md:text-4xl xl:text-6xl">
                 {mainDescripcion}
                 <span class="text-primary ">{lastDescripcion}</span>
               </p>
-              <div class="mt-16 flex flex-wrap justify-center gap-y-4 gap-x-6">
+              <div class="mt-16 flex flex-wrap group justify-center gap-y-4 gap-x-6">
                 {botones.map((btn, index) => {
                   const isEven = index % 2 === 0;
                   const baseClasses =
                     'relative flex h-11 w-full items-center justify-center px-6 before:absolute before:inset-0 before:rounded-full before:transition before:duration-300 active:duration-75 sm:w-max';
                   const colorClasses = isEven
                     ? 'before:bg-primary hover:before:scale-105 active:before:scale-95'
-                    : 'before:border before:border-transparent before:bg-primary/10 before:bg-gradient-to-b hover:before:scale-105 active:before:scale-95 dark:before:border-gray-700 dark:before:bg-gray-800';
+                    : 'before:border before:border-transparent before:bg-gradient-to-b group hover:before:scale-105 active:before:scale-95 before:border-gray-700 before:bg-gray-800';
                   const textClasses = isEven
                     ? 'relative text-base font-semibold text-white'
-                    : 'relative text-base font-semibold text-primary dark:text-white';
+                    : 'relative text-base font-semibold text-white';
                   return (
                     <a href={btn.url} class={`${baseClasses} ${colorClasses}`}>
                       <span class={textClasses}>{btn.etiqueta}</span>
@@ -79,7 +78,9 @@ const {
                 })}
               </div>
             </div>
+            
           </div>
+          
         </header>
       </div>
   </div>

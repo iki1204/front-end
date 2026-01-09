@@ -14,14 +14,25 @@ import "../styles/global.css";
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 
+const {
+    metaTitle: metaTitleOverride,
+    metaDescription: metaDescriptionOverride,
+    metaKeywords: metaKeywordsOverride,
+    metaImages: metaImagesOverride,
+} = Astro.props;
+
 const response = await getGlobalData();
-const metaTitle = response.data.defaultSeo.metaTitle;
-const metaDescription = response.data.defaultSeo.metaDescription;
-const metaKeywords = response.data.defaultSeo.metaKeywords;
+const metaTitle = metaTitleOverride ?? response.data.defaultSeo.metaTitle;
+const metaDescription = metaDescriptionOverride ?? response.data.defaultSeo.metaDescription;
+const metaKeywords = metaKeywordsOverride ?? response.data.defaultSeo.metaKeywords;
 const metaIcon = response.data.favicon?.url ? API_URL + response.data.favicon.url : null;
 const metaImage = response.data.defaultSeo?.shareImage?.url ? API_URL + response.data.defaultSeo.shareImage.url : null;
 const siteName = response.data.siteName;
-
+const metaImages = Array.isArray(metaImagesOverride) && metaImagesOverride.length
+    ? metaImagesOverride
+    : metaImage
+      ? [metaImage]
+      : [];
 ---
 
 <!DOCTYPE html>
@@ -38,12 +49,14 @@ const siteName = response.data.siteName;
         <!-- Open Graph / Facebook -->
         <meta property="og:title" content={metaTitle} />
         <meta property="og:description" content={metaDescription} />
-        <meta property="og:image" content={metaImage} />
+        {metaImages.map((image) => (
+            <meta property="og:image" content={image} />
+        ))}
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={siteName} />
 
         
-        <title>{siteName}</title>
+        <title>{metaTitle ?? siteName}</title>
 
 
 

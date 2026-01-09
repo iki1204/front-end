@@ -4,6 +4,7 @@ import { getGlobalData } from "../lib/api";
 import headerAuthScript from "../lib/headerAuthToggle.ts?url";
 
 
+
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 const response = await getGlobalData();
 const siteName = response.data.header.Etiqueta;
@@ -18,8 +19,8 @@ const botones = response.data.header.Botones.map((boton) => ({
 }));
 ---
 
-<header id="site-header" class="sticky top-0 z-60 border-b border-black/5 dark:border-white/5 bg-transparent backdrop-blur-md transition-all duration-500 ease-in-out">
-    <nav id="nav" class="group top-0 z-50  w-full border-b border-black/5 dark:border-white/5 lg:border-transparent">
+<header id="site-header" class="sticky w-screen top-0 z-60 border-b border-black/5 dark:border-white/5 bg-transparent backdrop-blur-md transition-all duration-500 ease-in-out">
+    <nav id="nav" class="group top-0 z-50 w-full border-b border-black/5 dark:border-white/5 lg:border-transparent">
         <Container>
             <div class="relative flex flex-wrap items-center justify-between gap-6 py-3 md:gap-0 md:py-4">
                 <div class="relative z-20 flex w-full justify-between md:px-0 lg:w-fit">
@@ -148,7 +149,8 @@ const botones = response.data.header.Botones.map((boton) => ({
 <script>
   const header = document.getElementById("site-header");
 
-  window.addEventListener("scroll", () => {
+  const updateHeaderState = () => {
+    if (!header) return;
     if (window.scrollY > 30) {
       header.classList.add("bg-white", "dark:bg-gray-950", "shadow-md");
       header.classList.remove("bg-transparent");
@@ -156,7 +158,10 @@ const botones = response.data.header.Botones.map((boton) => ({
       header.classList.remove("bg-white", "dark:bg-gray-950", "shadow-md");
       header.classList.add("bg-transparent");
     }
-  });
+   };
+
+  updateHeaderState();
+  window.addEventListener("scroll", updateHeaderState);
 </script>
 
 

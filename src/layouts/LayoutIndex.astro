@@ -11,6 +11,7 @@ import priceByUserScript from "../lib/precioPorUsuario.ts?url";
 import { getGlobalData } from "../lib/api";
 import "../css/tailus.css"
 import "../styles/global.css";
+import Container from '../components/Container.astro';
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 
@@ -21,6 +22,7 @@ const metaKeywords = response.data.defaultSeo.metaKeywords;
 const metaIcon = response.data.favicon?.url ? API_URL + response.data.favicon.url : null;
 const metaImage = response.data.defaultSeo?.shareImage?.url ? API_URL + response.data.defaultSeo.shareImage.url : null;
 const siteName = response.data.siteName;
+
 
 ---
 
@@ -66,13 +68,15 @@ const siteName = response.data.siteName;
 
         
 
-        <div class="relative z-10 min-h-screen" >
+        <div class="relative w-screen z-10" >
 
 
             
             <AppHeader />
 
+
             <slot />
+            
             
         
             <AppFooter />

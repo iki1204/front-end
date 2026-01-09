@@ -109,6 +109,18 @@ const galleryItems = galeriasPosibles
   .filter((value, index, array) => Boolean(value) && array.indexOf(value) === index)
   .filter((imageUrl) => imageUrl !== mainImage);
 
+
+const productoNombre = producto?.nombre ?? "Producto";
+const categoriaNombre = categoriaActual?.nombre ?? "Sin categoría";
+const marcaNombre = marcaActual?.nombre ?? "Sin marca";
+const fallbackDescription = `Compra ${productoNombre} de ${marcaNombre} en la categoría ${categoriaNombre}.`;
+const metaDescription =
+  typeof producto?.descripcion === "string" && producto.descripcion.trim()
+    ? producto.descripcion
+    : fallbackDescription;
+const metaKeywords = [productoNombre, categoriaNombre, marcaNombre].filter(Boolean).join(", ");
+const metaImages = [mainImage, ...galleryItems].filter(Boolean);
+
   
 const datasheetEntries: any[] = [
   ...(Array.isArray(producto?.datasheets) ? producto.datasheets : []),
@@ -145,20 +157,20 @@ const priceFormatter = new Intl.NumberFormat("es-PE", {
 
 const rawPrices = {
   default: typeof producto?.precio === "number" ? producto.precio : null,
-  tipo1: typeof producto?.precio === "number" ? producto.precio : null,
-  tipo2: typeof producto?.Precio2 === "number" ? producto.Precio2 : null,
-  tipo3: typeof producto?.Precio3 === "number" ? producto.Precio3 : null,
-  tipo4: typeof producto?.Precio4 === "number" ? producto.Precio4 : null,
+  pvp1: typeof producto?.precio === "number" ? producto.precio : null,
+  pvp2: typeof producto?.Precio2 === "number" ? producto.Precio2 : null,
+  pvp3: typeof producto?.Precio3 === "number" ? producto.Precio3 : null,
+  pvp4: typeof producto?.Precio4 === "number" ? producto.Precio4 : null,
 };
 
 const formatPrice = (value: number | null) => (typeof value === "number" ? priceFormatter.format(value) : "Consultar");
 
 const formattedPrices = {
   default: formatPrice(rawPrices.default),
-  tipo1: formatPrice(rawPrices.tipo1),
-  tipo2: formatPrice(rawPrices.tipo2),
-  tipo3: formatPrice(rawPrices.tipo3),
-  tipo4: formatPrice(rawPrices.tipo4),
+  pvp1: formatPrice(rawPrices.pvp1),
+  pvp2: formatPrice(rawPrices.pvp2),
+  pvp3: formatPrice(rawPrices.pvp3),
+  pvp4: formatPrice(rawPrices.pvp4),
 };
 
 const precio = formattedPrices.default;
@@ -166,7 +178,13 @@ const precio = formattedPrices.default;
 var descripcion = producto?.descripcion;
 ---
 
-<BaseLayout global={global}>
+<BaseLayout
+  global={global}
+  metaTitle={productoNombre}
+  metaDescription={metaDescription}
+  metaKeywords={metaKeywords}
+  metaImages={metaImages}
+>
   <Container>
     <article class="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-10">
       <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -202,14 +220,21 @@ var descripcion = producto?.descripcion;
 
           <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-gradient-to-br from-zinc-50 via-white to-zinc-100 shadow-inner dark:border-zinc-800 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
               <div class="relative flex items-center justify-center px-4 py-6 sm:px-6">
-              <div class="flex h-[320px] w-full max-w-[520px] items-center justify-center overflow-hidden rounded-xl sm:h-[420px] lg:h-[520px]">
+              <div
+                class="group relative flex h-[320px] w-full max-w-[520px] items-center justify-center overflow-hidden rounded-xl sm:h-[420px] lg:h-[520px]"
+                data-zoom-container
+              >
                 <img
                   id="main-image"
                   src={mainImage}
                   alt={producto?.nombre ?? "Producto"}
-                  class="h-full w-full object-contain"
+                  class="h-full w-full object-contain transition duration-200 will-change-transform group-hover:scale-[1.6]"
+                  style="transform-origin: var(--zoom-x, 50%) var(--zoom-y, 50%);"
                   loading="lazy"
                 />
+                <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <span class="flex h-14 w-14 items-center justify-center rounded-full bg-black/50 text-white opacity-0 transition duration-300 group-hover:opacity-100"></span>
+                </div>
               </div>
           </div>
 
@@ -253,10 +278,10 @@ var descripcion = producto?.descripcion;
               data-precio-display
               data-user-price
               data-price-default={formattedPrices.default}
-              data-price-tipo1={formattedPrices.tipo1}
-              data-price-tipo2={formattedPrices.tipo2}
-              data-price-tipo3={formattedPrices.tipo3}
-              data-price-tipo4={formattedPrices.tipo4}
+              data-price-pvp1={formattedPrices.pvp1}
+              data-price-pvp2={formattedPrices.pvp2}
+              data-price-pvp3={formattedPrices.pvp3}
+              data-price-pvp4={formattedPrices.pvp4}
             >
               {precio}
             </p>
@@ -301,17 +326,15 @@ var descripcion = producto?.descripcion;
                         d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
                       ></path>
                     </svg>
-                    Cargando disponibilidad...
+                    Cargando...
                   </p>
                 </div>
-                <span
-                  class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700"
-                  id="stock-status"
-                >
-                <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                  Disponible
-                </span>
               </div>
+              <span
+                class="hidden items-center  gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700"
+                id="stock-status"
+              >Disponible
+              </span>
             </div>
           </div>
 
@@ -385,10 +408,10 @@ var descripcion = producto?.descripcion;
               data-product-url={`/producto/${slug}`}
               data-user-price-target="productPrice"
               data-price-default={rawPrices.default ?? ""}
-              data-price-tipo1={rawPrices.tipo1 ?? ""}
-              data-price-tipo2={rawPrices.tipo2 ?? ""}
-              data-price-tipo3={rawPrices.tipo3 ?? ""}
-              data-price-tipo4={rawPrices.tipo4 ?? ""}
+              data-price-pvp1={rawPrices.pvp1 ?? ""}
+              data-price-pvp2={rawPrices.pvp2 ?? ""}
+              data-price-pvp3={rawPrices.pvp3 ?? ""}
+              data-price-pvp4={rawPrices.pvp4 ?? ""}
             >
               Añadir al carrito
             </button>
@@ -407,8 +430,32 @@ var descripcion = producto?.descripcion;
 <script>
   window.addEventListener("DOMContentLoaded", () => {
     const mainImg = document.getElementById("main-image");
+    const zoomContainer = document.querySelector("[data-zoom-container]");
     const thumbsRoot = document.getElementById("thumbs");
-    if (!mainImg || !thumbsRoot) return;
+    if (!mainImg) return;
+
+    if (zoomContainer) {
+      const handlePointerMove = (event: MouseEvent) => {
+        const rect = zoomContainer.getBoundingClientRect();
+        const offsetX = event.clientX - rect.left;
+        const offsetY = event.clientY - rect.top;
+        const percentX = Math.max(0, Math.min(100, (offsetX / rect.width) * 100));
+        const percentY = Math.max(0, Math.min(100, (offsetY / rect.height) * 100));
+        mainImg.style.setProperty("--zoom-x", `${percentX}%`);
+        mainImg.style.setProperty("--zoom-y", `${percentY}%`);
+      };
+
+      const resetZoomOrigin = () => {
+        mainImg.style.setProperty("--zoom-x", "50%");
+        mainImg.style.setProperty("--zoom-y", "50%");
+      };
+
+      zoomContainer.addEventListener("mousemove", handlePointerMove);
+      zoomContainer.addEventListener("mouseleave", resetZoomOrigin);
+      zoomContainer.addEventListener("touchend", resetZoomOrigin);
+    }
+
+    if (!thumbsRoot) return;
 
     // Estado: URLs absolutas
     const mainState = { src: mainImg.getAttribute("src") };
@@ -477,6 +524,27 @@ var descripcion = producto?.descripcion;
       const hasStock = Number.isFinite(stockCount) ? stockCount > 0 : false;
 
       el.textContent = `${Number.isFinite(stockCount) ? stockCount : 0}`;
+
+      if (stockCount === 1) {
+        el.textContent += " unidad";
+      } else {
+        el.textContent += " unidades";
+      }
+
+      if (stockCount <= 10 && stockCount > 0) {
+        el.innerHTML = `
+          <svg class="h-4 w-4 animate-pulse text-amber-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path
+              fill="currentColor"
+              d="M12 6V12L16 14"
+            ></path>
+          </svg>
+          <p class="text-amber-500 font-semibold">
+            Pocas Unidades
+          </p>
+        `;
+      }
 
       if (statusEl) {
         statusEl.innerHTML = hasStock
