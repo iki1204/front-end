@@ -1,5 +1,7 @@
-const API_URL = import.meta.env.VITE_STRAPI_URL + "/api";
+const API_ROOT = `${import.meta.env.VITE_STRAPI_URL}/api`;
 const API_TOKEN = import.meta.env.VITE_STRAPI_API_TOKEN;
+const AUTH_HEADERS = API_TOKEN ? { Authorization: `Bearer ${API_TOKEN}` } : {};
+const JSON_HEADERS = { "Content-Type": "application/json" };
 
 type QueryParams =
   | string
@@ -38,45 +40,50 @@ function buildQuery(params: QueryParams = "") {
   return query ? `?${query}` : "";
 }
 
+const parseJsonResponse = async (res: Response) => {
+  try {
+    return await res.json();
+  } catch (error) {
+    return null;
+  }
+};
+
 async function fetchAPI(endpoint: string, params: QueryParams = "") {
   const query = buildQuery(params);
 
-  const res = await fetch(`${API_URL}/${endpoint}${query}`, {
+  const res = await fetch(`${API_ROOT}/${endpoint}${query}`, {
     headers: {
-      Authorization: `Bearer ${API_TOKEN}`,
-      "Content-Type": "application/json",
+      ...AUTH_HEADERS,
+      ...JSON_HEADERS,
     },
     cache: "no-store",
   });
 
-  if (!res.ok) {
-    throw new Error(`Error fetching ${endpoint}: ${res.statusText}`);
-  }
+  const data = await parseJsonResponse(res);
 
-  const data = await res.json();
+  if (!res.ok) {
+    const message =
+      data?.error?.message ||
+      data?.message ||
+      (typeof data === "string" ? data : null) ||
+      res.statusText;
+    throw new Error(`Error fetching ${endpoint}: ${message}`);
+  }
 
   return data;
 }
 
-
 async function postAPI(endpoint: string, body: unknown = {}, params: QueryParams = "") {
   const query = buildQuery(params);
 
-  const res = await fetch(`http://192.168.5.55:1337/api/auth/${endpoint}${query}`, {
+  const res = await fetch(`${API_ROOT}/auth/${endpoint}${query}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: JSON_HEADERS,
     body: JSON.stringify(body ?? {}),
     cache: "no-store",
   });
 
-  let payload: any = null;
-  try {
-    payload = await res.json();
-  } catch (error) {
-    payload = null;
-  }
+  const payload = await parseJsonResponse(res);
 
   if (!res.ok) {
     const message =
@@ -96,7 +103,10 @@ export async function getGlobalData() {
 }
 
 export async function getPageData(slug: string) {
-  return fetchAPI(`paginas`);
+  return fetchAPI("paginas", {
+    "filters[slug][$eq]": slug,
+    populate: "*",
+  });
 }
 
 export async function getProductos(params?: QueryParams) {
@@ -131,6 +141,5 @@ export async function postUsuarioLogin(data: Record<string, string>) {
 export async function postUsuarioRegister(data: Record<string, string>) {
   return postAPI("local/register", data);
 }
-
 
 

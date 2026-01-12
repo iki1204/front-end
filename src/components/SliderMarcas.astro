@@ -1,9 +1,9 @@
 ---
-import Container from "./Container.astro"
-import { getPageData } from "../lib/api";
+import Container from "./Container.astro";
+const { pageData } = Astro.props;
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
-const response = await getPageData("home-page");
+const response = pageData;
 
 const sliderMarcasSection = response?.data?.[0]?.Secciones?.find(
   (s) => s.__component === "shared.slider"
