@@ -121,7 +121,7 @@ const formattedPrices = {
   <div class="mt-4 flex items-center justify-between gap-2">
     <a
       href={`/producto/${slug}`}
-      class="rounded-full border border-transparent px-4 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary/10"
+      class="rounded-full border border-transparent sm:px-1 px-5 py-2 flex text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary/10"
     >
       Ver detalles
     </a>
@@ -140,7 +140,7 @@ const formattedPrices = {
       data-price-tipo2={rawPrices.tipo2 ?? ""}
       data-price-tipo3={rawPrices.tipo3 ?? ""}
       data-price-tipo4={rawPrices.tipo4 ?? ""}
-      class="cursor-pointer rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-primary/60"
+      class="cursor-pointer flex rounded-full bg-primary sm:px-1 px-5 py-2 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-primary/60"
     >
       Añadir al carrito
     </button>
