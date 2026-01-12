@@ -1,8 +1,7 @@
 ---
-import { getPageData } from "../lib/api";
-
+const { pageData } = Astro.props;
 const API_URL = import.meta.env.VITE_STRAPI_URL;
-const responseHome = await getPageData("home-page");
+const responseHome = pageData;
 
 const heroSection = responseHome?.data?.[0]?.Secciones?.find(
   (s) => s.__component === "shared.hero"
@@ -59,5 +58,4 @@ const img = heroSection?.Imagen?.map((img) => `${API_URL}${img.url}`) ?? [];
   </div>
 
 </div>
-
 
