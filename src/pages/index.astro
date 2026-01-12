@@ -7,6 +7,7 @@ import SliderBanner from '../components/SliderBanner.astro';
 import Layout from '../layouts/LayoutIndex.astro';
 import Testimonials from '../components/Testimonials.astro';
 import CallToAction from '../components/CallToAction.astro';
+import ProductCarousel from '../components/ProductCarrusel.astro';
 import Blog from '../components/Blog.astro';
 import About from '../components/About.astro';
 import { getPageData } from '../lib/api';
@@ -21,6 +22,7 @@ const pageData = await getPageData("home-page");
 		<SliderBanner pageData={pageData}/>
 		<SliderMarcas pageData={pageData}/>
 		<Features/>
+		<ProductCarousel/>
 		<Stats/>
 		<Testimonials/>
 		<CallToAction/>

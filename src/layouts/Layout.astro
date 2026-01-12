@@ -73,9 +73,19 @@ const metaImages = Array.isArray(metaImagesOverride) && metaImagesOverride.lengt
             ]}
         />
     </head>
+
     
     <body class="relative min-h-screen dark:bg-gray-950">
 
+        <div
+            aria-hidden="true"
+            class="pointer-events-none fixed inset-0 -z-10"
+        >
+            <div class="mx-auto grid h-full w-full max-w-7xl grid-cols-2 -space-x-52 opacity-40 ">
+            <div class="h-full bg-gradient-to-br from-orange-400 to-red-400 dark:from-red-700 dark:to-amber-600 blur-3xl"></div>
+            <div class="h-full bg-gradient-to-r from-orange-400 to-red-300 dark:from-red-700 dark:to-amber-600 blur-3xl"></div>
+            </div>
+        </div>
 
         <div class="relative z-10 min-h-screen" >
 
