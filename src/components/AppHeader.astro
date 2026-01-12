@@ -66,48 +66,74 @@ const botones = response.data.header.Botones.map((boton) => ({
                           }
                       </div>
                   </div>            
-                    {
-                      botones.map((link) => (
-                        <div class="mt-12 mr-2 lg:mt-0"> 
-                          <a href={link.to} class="relative flex h-9 w-full items-center justify-center px-4 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95 sm:w-max">
-                            <span class="relative text-sm font-semibold text-white">{link.label}</span>
-                          </a>
-                        </div>
-                      ))
-                    }
-                    <div class="ml-4 flex items-center gap-2">  
-                      <a
+                    <div class="flex w-full flex-col gap-4 lg:w-auto lg:flex-row lg:items-center lg:gap-6">
+                      <div class="group relative mt-12 lg:mt-0">
+                        <button
                           type="button"
-                          href="/login"
-                          data-login-button
-                          class="mt-12 cursor-pointer group flex hidden items-center gap-2 rounded-full border border-primary/40 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary lg:mt-0"
-                          aria-label="Iniciar sesión"
-                      >
-                          <span class="text-sm font-semibold tracking-wide">Ingresar</span>
-                          <span class="flex size-7 items-center justify-center rounded-full bg-primary/10 transition group-hover:bg-white/20 dark:bg-white/10">
-                            <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M14.5 6L20 12L14.5 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                              <path d="M20 12H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                              <path d="M12 4H8C5.79086 4 4 5.79086 4 8V16C4 18.2091 5.79086 20 8 20H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            </svg>
-                          </span>
-                      </a>
-                      <button
-                          type="button"
-                          data-logout-cta
-                          class="mt-12 cursor-pointer hidden group flex items-center gap-2 rounded-full border border-primary/40 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary lg:mt-0"
-                          aria-label="Cerrar sesión"
-                          aria-expanded="false"
-                          aria-controls="logout-confirmation"
-                      >
-                        <span class="flex size-7 items-center justify-center rounded-full bg-primary/10 transition group-hover:bg-white/20 dark:bg-white/10">
-                          <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M14.5 6L20 12L14.5 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M20 12H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M12 4H8C5.79086 4 4 5.79086 4 8V16C4 18.2091 5.79086 20 8 20H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                          class="flex w-full items-center justify-center gap-2 rounded-full border border-primary/30 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary lg:w-auto"
+                          aria-haspopup="true"
+                        >
+                          Acciones
+                          <svg aria-hidden="true" class="size-4 transition duration-300 group-hover:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
                           </svg>
-                        </span>
-                      </button>
+                        </button>
+                        <div class="mt-3 flex w-full flex-col gap-3 lg:absolute lg:right-0 lg:top-full lg:mt-2 lg:min-w-[220px] lg:rounded-2xl lg:border lg:border-gray-100 lg:bg-white lg:p-4 lg:shadow-xl lg:shadow-gray-600/10 lg:opacity-0 lg:translate-y-3 lg:pointer-events-none lg:transition lg:duration-300 lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-hover:pointer-events-auto dark:lg:border-gray-700 dark:lg:bg-gray-800 dark:lg:shadow-none">
+                          {
+                            botones.map((link) => (
+                              <a href={link.to} class="relative flex h-9 w-full items-center justify-center px-4 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95">
+                                <span class="relative text-sm font-semibold text-white">{link.label}</span>
+                              </a>
+                            ))
+                          }
+                        </div>
+                      </div>
+                      <div class="group relative lg:ml-2">
+                        <button
+                          type="button"
+                          class="flex w-full items-center justify-center gap-2 rounded-full border border-primary/30 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary lg:w-auto"
+                          aria-haspopup="true"
+                        >
+                          Cuenta
+                          <svg aria-hidden="true" class="size-4 transition duration-300 group-hover:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
+                          </svg>
+                        </button>
+                        <div class="mt-3 flex w-full flex-col gap-3 lg:absolute lg:right-0 lg:top-full lg:mt-2 lg:min-w-[220px] lg:rounded-2xl lg:border lg:border-gray-100 lg:bg-white lg:p-4 lg:shadow-xl lg:shadow-gray-600/10 lg:opacity-0 lg:translate-y-3 lg:pointer-events-none lg:transition lg:duration-300 lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-hover:pointer-events-auto dark:lg:border-gray-700 dark:lg:bg-gray-800 dark:lg:shadow-none">
+                          <a
+                            type="button"
+                            href="/login"
+                            data-login-button
+                            class="cursor-pointer group flex w-full items-center justify-between gap-2 rounded-full border border-primary/40 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary"
+                            aria-label="Iniciar sesión"
+                          >
+                            <span class="text-sm font-semibold tracking-wide">Ingresar</span>
+                            <span class="flex size-7 items-center justify-center rounded-full bg-primary/10 transition group-hover:bg-white/20 dark:bg-white/10">
+                              <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14.5 6L20 12L14.5 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M20 12H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M12 4H8C5.79086 4 4 5.79086 4 8V16C4 18.2091 5.79086 20 8 20H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              </svg>
+                            </span>
+                          </a>
+                          <button
+                            type="button"
+                            data-logout-cta
+                            class="cursor-pointer hidden group flex w-full items-center justify-between gap-2 rounded-full border border-primary/40 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary"
+                            aria-label="Cerrar sesión"
+                            aria-expanded="false"
+                            aria-controls="logout-confirmation"
+                          >
+                            <span class="flex size-7 items-center justify-center rounded-full bg-primary/10 transition group-hover:bg-white/20 dark:bg-white/10">
+                              <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14.5 6L20 12L14.5 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M20 12H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M12 4H8C5.79086 4 4 5.79086 4 8V16C4 18.2091 5.79086 20 8 20H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              </svg>
+                            </span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   <div
                       data-logout-confirmation
