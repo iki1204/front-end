@@ -2,7 +2,6 @@
 import { AstroFont } from 'astro-font';
 import AppFooter from "../components/AppFooter.astro";
 import AppHeader from "../components/AppHeader.astro";
-import Background from './background.astro';
 import Cart from "../components/Cart.astro";
 import cartWidgetScript from "../lib/carritoWidget.ts?url";
 import loginWidgetScript from "../lib/sesionWidget.ts?url";
@@ -77,7 +76,6 @@ const metaImages = Array.isArray(metaImagesOverride) && metaImagesOverride.lengt
     
     <body class="relative min-h-screen dark:bg-gray-950">
 
-        <Background />
 
         <div class="relative z-10 min-h-screen" >
 

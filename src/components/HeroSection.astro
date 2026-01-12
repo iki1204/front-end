@@ -16,38 +16,11 @@ const lastSubtitulo = heroSection.Subtitulo.slice(-7);
 const botones = heroSection?.boton_link ?? [];
 const img = heroSection?.Imagen?.map((img) => `${API_URL}${img.url}`) ?? [];
 
-interface Props {
-  src?: string;
-  poster?: string;
-  overlayClass?: string;
-  videoClass?: string;
-}
-
-const {
-  src = "../images/video/video.mp4",
-  poster = "",
-  overlayClass = "bg-black/50",
-  videoClass = "",
-} = Astro.props;
-
 ---
   
 <div class="relative z-40 h-screen w-screen" id="hero">
 
-    <div class="relative h-full w-full " aria-hidden="true">
-      <video
-          class={`absolute h-full w-full object-cover overflow-visible ${videoClass}`}
-          autoplay
-          muted
-          loop
-          playsinline
-          poster={poster}
-      >
-          <source src={src} type="video/mp4" />
-
-      </video>
-
-      <div class={`absolute inset-0 ${overlayClass}`}>
+    <div class="absolute inset-0">
         <header>
           <div class="relative h-screen w-screen pt-28 ml-auto flex items-start gap-5">
             <div class="lg:w-9/10 text-center mx-auto">
@@ -55,7 +28,7 @@ const {
                 {mainTitulo}
                 <span class="text-primary">{lastTitulo}</span>
               </h1>
-              <p class="mt-8 text-gray-300 text-xl md:text-4xl xl:text-6xl">
+              <p class="mt-8 text-white text-xl md:text-4xl xl:text-6xl">
                 {mainSubtitulo}
                 <span class="text-primary ">{lastSubtitulo}</span>
               </p>

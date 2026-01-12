@@ -1,0 +1,112 @@
+---
+import Container from "../components/Container.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+
+    <Container>
+      <div class="text-center">
+        <h1 class="text-3xl font-semibold uppercase tracking-widest text-[#f05a28]">
+          ¿Quiénes Somos?
+        </h1>
+      </div>
+
+      <section class="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <div class="relative">
+          <div class="aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gray-200 shadow-sm">
+            <div class="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-500">
+              <img src="../images/background/about.jpg" alt="About Us Image" class="h-full w-full object-cover object-center" />
+            </div>
+          </div>
+
+          <div class="absolute bottom-6 left-1/2 w-[85%] -translate-x-1/2 rounded-2xl bg-white/80 px-8 py-6 shadow-xl">
+            <h2 class="text-center text-2xl font-semibold text-gray-900">Llámanos</h2>
+            <div class="mt-6 space-y-6 text-sm font-semibold text-gray-900">
+              <div class="flex items-center justify-center gap-4">
+                <div class="h-14 w-14 rounded-md border border-gray-300 bg-gray-100">
+                    <img src="../images/QR/edisonguerra.png" alt="Edison Guerra QR" class="h-full w-full object-cover object-center" loading="lazy"/>
+                </div>
+                <p>
+                  <span class="text-primary">0967302450</span> Edison Guerra
+                </p>
+              </div>
+              <div class="flex items-center justify-center gap-4">
+                <p>
+                  Moises Colcha <span class="text-primary">0989372276</span>
+                </p>
+                <div class="h-14 w-14 rounded-md border border-gray-300 bg-gray-100">
+                    <img src="../images/QR/moises.png" alt="Edison Guerra QR" class="h-full w-full object-cover object-center" loading="lazy"/>
+                </div>
+              </div>
+              <div class="flex items-center justify-center gap-4">
+                <div class="h-14 w-14 rounded-md border border-gray-300 bg-gray-100">
+                    <img src="../images/QR/katya.png" alt="Edison Guerra QR" class="h-full w-full object-cover object-center" loading="lazy"/>
+                </div>
+                <p>
+                  <span class="text-primary">0991046279</span> Katya Hidalgo
+                </p>
+              </div>
+              <div class="flex items-center justify-center gap-4">
+                <p>
+                  Samantha Pazmiño <span class="text-primary">0989538349</span>
+                </p>
+                <div class="h-14 w-14 rounded-md border border-gray-300 bg-gray-100">
+                    <img src="../images/QR/samantha.png" alt="Edison Guerra QR" class="h-full w-full object-cover object-center" loading="lazy"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-6 text-gray-700">
+          <p class="text-sm italic text-gray-600 dark:text-gray-100">
+            Unicom Ec destaca como el puente hacia un futuro más conectado y eficiente.
+          </p>
+
+          <div class="space-y-5 text-sm">
+            <div class="flex gap-3">
+              <span class="mt-1 text-lg text-[#f05a28]">✓</span>
+              <div>
+                <p class="font-semibold text-gray-900 dark:text-gray-100">Innovación que Conecta el Mundo</p>
+                <p class="dark:text-gray-100">
+                  Forjamos conexiones de alta velocidad que transforman la manera en que el mundo
+                  se comunica.
+                </p>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <span class="mt-1 text-lg text-[#f05a28]">✓</span>
+              <div>
+                <p class="font-semibold text-gray-900 dark:text-gray-100">Comprometidos con la Excelencia</p>
+                <p class="dark:text-gray-100">
+                  Nos comprometemos a ofrecer productos de la más alta calidad, seleccionados con
+                  precisión para cumplir con los estándares más exigentes.
+                </p>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <span class="mt-1 text-lg text-[#f05a28]">✓</span>
+              <div>
+                <p class="font-semibold text-gray-900 dark:text-gray-100">Tu Socio en la Revolución Digital</p>
+                <p class="dark:text-gray-100">
+                  Al elegir Unicom Ec, te asocias con un líder en la industria de la fibra óptica.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-sm dark:text-gray-100">
+            Bienvenido a Unicom Ec - Conéctate con nosotros y déjanos ser tu guía en el viaje hacia
+            la próxima era de la conectividad.
+          </p>
+
+          <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div class="text-center text-sm font-semibold text-gray-900">unicomec</div>
+            <div class="mt-4 text-center text-xs text-gray-400">TikTok (placeholder)</div>
+            <div class="position-relative mt-4">
+              <iframe class="tiktok-embed-placeholder h-50" data-unique-id="unicomec" loading="lazy"></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+    </Container>
