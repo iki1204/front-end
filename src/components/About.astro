@@ -100,13 +100,24 @@ import Layout from "../layouts/Layout.astro";
             la próxima era de la conectividad.
           </p>
 
-          <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div class="text-center text-sm font-semibold text-gray-900">unicomec</div>
-            <div class="mt-4 text-center text-xs text-gray-400">TikTok (placeholder)</div>
+          
             <div class="position-relative mt-4">
-              <iframe class="tiktok-embed-placeholder h-50" data-unique-id="unicomec" loading="lazy"></iframe>
+               <blockquote
+                    class="tiktok-embed"
+                    cite="https://www.tiktok.com/@unicomec"
+                    data-unique-id="unicomec"
+                    data-embed-type="creator"
+                    style="max-width: 100%; min-width: 325px;"
+                >
+                    <section>
+                    <a target="_blank" href="https://www.tiktok.com/@unicomec">
+                        @unicomec
+                    </a>
+                    </section>
+                </blockquote>
             </div>
-          </div>
+
         </div>
       </section>
     </Container>
+    <script async src="https://www.tiktok.com/embed.js"></script>
