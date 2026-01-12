@@ -10,6 +10,7 @@ const sliderMarcasSection = response?.data?.[0]?.Secciones?.find(
 );
 
 const img = sliderMarcasSection?.files?.map((img) => `${API_URL}${img.url}`) ?? [];
+const loopImages = [...img, ...img];
 ---
 
 <Container>
@@ -18,18 +19,9 @@ const img = sliderMarcasSection?.files?.map((img) => `${API_URL}${img.url}`) ?? 
      <div class="flex w-full h-30 overflow-hidden no-scrollbar">
         <div class="flex items-center animate-scroll-x justify-center gap-10 transition-transform duration-300 ">
                 {
-                    img.map((link) => (
+                    loopImages.map((link) => (
                         <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110 dark:grayscale-0 dark:saturate-20 dark:hover:saturate-150">
-                          <img src={link} alt="Carrusel Marcas" class="h-12 mx-auto overflow-visible" />
-                        </div>
-                    ))
-                }
-        </div>
-        <div class="flex items-center animate-scroll-x justify-center gap-10 transition-transform duration-300">
-                {
-                    img.map((link) => (
-                        <div class="flex-shrink-0 w-60 grayscale transition duration-200 ease-in-out hover:grayscale-0 hover:scale-110 dark:grayscale-0 dark:saturate-20 dark:hover:saturate-150">
-                          <img src={link} alt="Carrusel Marcas" class="h-12 mx-auto overflow-visible" />
+                          <img src={link} alt="Carrusel Marcas" class="h-12 mx-auto overflow-visible" loading="lazy" decoding="async" />
                         </div>
                     ))
                 }

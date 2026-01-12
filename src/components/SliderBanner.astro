@@ -21,6 +21,7 @@ const img = heroSection?.Imagen?.map((img) => `${API_URL}${img.url}`) ?? [];
             i === 0 ? "is-active" : ""
             }`}
             loading={i === 0 ? "eager" : "lazy"}
+            decoding="async"
         />
         ))}
     </div>
@@ -30,7 +31,8 @@ const img = heroSection?.Imagen?.map((img) => `${API_URL}${img.url}`) ?? [];
   const slider = document.querySelector("[data-hero-slider]");
   if (slider) {
     const slides = slider.querySelectorAll(".slide");
-    if (slides.length > 1) {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (slides.length > 1 && !prefersReducedMotion) {
       let index = 0;
       setInterval(() => {
         slides[index].classList.remove("is-active");

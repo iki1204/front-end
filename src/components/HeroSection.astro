@@ -3,17 +3,17 @@ const { pageData } = Astro.props;
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 const responseHome = pageData;
 
-const heroSection = responseHome?.data?.[0]?.Secciones?.find(
-  (s) => s.__component === "shared.hero"
-);
-const mainTitulo = heroSection.Titulo.slice(0, -2);
-const lastTitulo = heroSection.Titulo.slice(-2); 
+const heroSection =
+  responseHome?.data?.[0]?.Secciones?.find((s) => s.__component === "shared.hero") ?? {};
+const titulo = heroSection?.Titulo ?? "";
+const mainTitulo = titulo.slice(0, -2);
+const lastTitulo = titulo.slice(-2);
 
-const mainSubtitulo = heroSection.Subtitulo.slice(0, -7);
-const lastSubtitulo = heroSection.Subtitulo.slice(-7);
+const subtitulo = heroSection?.Subtitulo ?? "";
+const mainSubtitulo = subtitulo.slice(0, -7);
+const lastSubtitulo = subtitulo.slice(-7);
 
 const botones = heroSection?.boton_link ?? [];
-const img = heroSection?.Imagen?.map((img) => `${API_URL}${img.url}`) ?? [];
 
 ---
   
@@ -58,4 +58,3 @@ const img = heroSection?.Imagen?.map((img) => `${API_URL}${img.url}`) ?? [];
   </div>
 
 </div>
-
