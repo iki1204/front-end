@@ -30,7 +30,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                             <div class="h-6 w-2 bg-primary"></div>
                         </div>
                         <div>
-                            {logoUrl ? <img src={logoUrl[0]} alt={siteName} class="h-10 w-auto object-contain" /> : null}
+                            {logoUrl ? <img src={logoUrl[0]} alt={siteName} class="h-14 w-auto object-contain" /> : null}
                         </div>
                     </a>
                     <a href="/#home" aria-label="logo" class="hidden dark:flex items-center space-x-2">
@@ -55,7 +55,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                 </div>
                 <div id="navLayer" aria-hidden="true" class="fixed inset-0 z-10 h-screen w-screen origin-bottom scale-y-0 bg-white/70 backdrop-blur-2xl transition duration-500 group-data-[state=active]/nav:origin-top group-data-[state=active]/nav:scale-y-100 dark:bg-gray-950/70 lg:hidden"></div>
                 <div id="navlinks" class="invisible absolute top-full  justify-center left-0 z-20 w-full origin-top-right translate-y-1 scale-90 flex-col flex-wrap gap-6 rounded-3xl border border-gray-100 bg-white p-8 opacity-0 shadow-2xl shadow-gray-600/10 transition-all duration-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none lg:visible lg:relative lg:flex lg:w-fit lg:translate-y-0 lg:scale-100 lg:flex-row lg:items-center lg:gap-0 lg:border-none lg:bg-transparent lg:p-0 lg:opacity-100 lg:shadow-none lg:dark:bg-transparent group-data-[state=active]/nav:visible group-data-[state=active]/nav:scale-100 group-data-[state=active]/nav:opacity-100 lg:group-data-[state=active]/nav:translate-y-0">
-                  <div class="relative mt-12 w-full text-gray-600 dark:text-gray-200 lg:mt-0 lg:w-auto lg:pr-4 lg:pt-0 group/menu" data-nav-dropdown>
+                  <div class="relative mt-6 w-full text-gray-600 dark:text-gray-200 lg:mt-0 lg:w-auto lg:pr-4 lg:pt-0 group/menu" data-nav-dropdown>
                       <button
                         type="button"
                         class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
@@ -66,11 +66,11 @@ const botones = response.data.header.Botones.map((boton) => ({
                           <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
                         </svg>
                       </button>
-                      <div class="mt-3 w-full rounded-2xl border border-gray-100 bg-white p-3 shadow-xl shadow-gray-600/10 transition duration-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-64 lg:-translate-x-1/2 lg:origin-top lg:scale-95 lg:opacity-0 lg:pointer-events-none lg:group-hover/menu:scale-100 lg:group-hover/menu:opacity-100 lg:group-hover/menu:pointer-events-auto lg:group-data-[open=true]/menu:scale-100 lg:group-data-[open=true]/menu:opacity-100 lg:group-data-[open=true]/menu:pointer-events-auto" data-nav-panel>
-                          <div id="links-group" class="flex flex-col gap-3 tracking-wide lg:text-sm">
+                      <div class="mt-2 w-full overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl shadow-gray-600/10 transition-[max-height,opacity,transform] duration-300 max-h-0 opacity-0 pointer-events-none scale-95 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none group-data-[open=true]/menu:max-h-80 group-data-[open=true]/menu:scale-100 group-data-[open=true]/menu:opacity-100 group-data-[open=true]/menu:pointer-events-auto lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-64 lg:-translate-x-1/2 lg:origin-top lg:group-hover/menu:max-h-80 lg:group-hover/menu:scale-100 lg:group-hover/menu:opacity-100 lg:group-hover/menu:pointer-events-auto" data-nav-panel>
+                          <div id="links-group" class="flex flex-col gap-1 rounded-xl bg-gray-50 p-2 tracking-wide dark:bg-gray-900 lg:text-sm">
                               {
                                 links.map((link) => (
-                                  <a href={link.to} class="transition block rounded-full px-4 py-2 text-black dark:text-white hover:text-primary md:px-4">
+                                  <a href={link.to} class="transition block rounded-xl px-4 py-2 text-black dark:text-white hover:bg-primary/10 hover:text-primary md:px-4">
                                     <span>{link.label}</span>
                                   </a>
                                 ))
@@ -78,7 +78,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                           </div>
                       </div>
                   </div>            
-                  <div class="relative mt-12 w-full lg:mt-0 lg:w-auto group/menu" data-nav-dropdown>
+                  <div class="relative mt-6 w-full lg:mt-0 lg:w-auto group/menu" data-nav-dropdown>
                     <button
                       type="button"
                       class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
@@ -89,7 +89,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
                       </svg>
                     </button>
-                    <div class="mt-3 flex w-full flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-xl shadow-gray-600/10 transition duration-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-56 lg:-translate-x-1/2 lg:origin-top lg:scale-95 lg:opacity-0 lg:pointer-events-none lg:group-hover/menu:scale-100 lg:group-hover/menu:opacity-100 lg:group-hover/menu:pointer-events-auto lg:group-data-[open=true]/menu:scale-100 lg:group-data-[open=true]/menu:opacity-100 lg:group-data-[open=true]/menu:pointer-events-auto" data-nav-panel>
+                    <div class="mt-2 flex w-full flex-col gap-2 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl shadow-gray-600/10 transition-[max-height,opacity,transform] duration-300 max-h-0 opacity-0 pointer-events-none scale-95 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none group-data-[open=true]/menu:max-h-80 group-data-[open=true]/menu:scale-100 group-data-[open=true]/menu:opacity-100 group-data-[open=true]/menu:pointer-events-auto lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-56 lg:-translate-x-1/2 lg:origin-top lg:group-hover/menu:max-h-80 lg:group-hover/menu:scale-100 lg:group-hover/menu:opacity-100 lg:group-hover/menu:pointer-events-auto" data-nav-panel>
                       {
                         botones.map((link) => (
                           <a href={link.to} class="relative flex h-9 w-full items-center justify-center px-4 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95">
@@ -99,7 +99,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                       }
                     </div>
                   </div>
-                  <div class="relative mt-12 w-full lg:mt-0 lg:w-auto group/menu" data-nav-dropdown>
+                  <div class="relative mt-16 w-full lg:mt-0 lg:w-auto group/menu" data-nav-dropdown>
                     <button
                       type="button"
                       class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
@@ -110,7 +110,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
                       </svg>
                     </button>
-                    <div class="mt-3 flex w-full flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-xl shadow-gray-600/10 transition duration-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-60 lg:-translate-x-1/2 lg:origin-top lg:scale-95 lg:opacity-0 lg:pointer-events-none lg:group-hover/menu:scale-100 lg:group-hover/menu:opacity-100 lg:group-hover/menu:pointer-events-auto lg:group-data-[open=true]/menu:scale-100 lg:group-data-[open=true]/menu:opacity-100 lg:group-data-[open=true]/menu:pointer-events-auto" data-nav-panel>
+                                        <div class="mt-2 flex w-full flex-col gap-2 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl shadow-gray-600/10 transition-[max-height,opacity,transform] duration-300 max-h-0 opacity-0 pointer-events-none scale-95 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none group-data-[open=true]/menu:max-h-80 group-data-[open=true]/menu:scale-100 group-data-[open=true]/menu:opacity-100 group-data-[open=true]/menu:pointer-events-auto lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-60 lg:-translate-x-1/2 lg:origin-top lg:group-hover/menu:max-h-80 lg:group-hover/menu:scale-100 lg:group-hover/menu:opacity-100 lg:group-hover/menu:pointer-events-auto" data-nav-panel>
                       <a
                           type="button"
                           href="/login"
@@ -240,6 +240,49 @@ const botones = response.data.header.Botones.map((boton) => ({
       ? window.matchMedia("(hover: hover) and (pointer: fine)").matches
       : true;
   const dropdowns = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-dropdown]"));
+     const closeDropdown = (dropdown: HTMLElement) => {
+    dropdown.removeAttribute("data-open");
+    const button = dropdown.querySelector<HTMLButtonElement>("button");
+    if (button) {
+      button.setAttribute("aria-expanded", "false");
+    }
+  };
+  const openDropdown = (dropdown: HTMLElement) => {
+    dropdown.setAttribute("data-open", "true");
+    const button = dropdown.querySelector<HTMLButtonElement>("button");
+    if (button) {
+      button.setAttribute("aria-expanded", "true");
+    }
+  };
+  const closeAllDropdowns = (exception?: HTMLElement) => {
+    dropdowns.forEach((dropdown) => {
+      if (exception && dropdown === exception) return;
+      closeDropdown(dropdown);
+    });
+  };
+
+  dropdowns.forEach((dropdown) => {
+    const button = dropdown.querySelector<HTMLButtonElement>("button");
+    if (!button) return;
+    button.setAttribute("aria-expanded", "false");
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      const isOpen = dropdown.getAttribute("data-open") === "true";
+      if (isOpen) {
+        closeDropdown(dropdown);
+        return;
+      }
+      closeAllDropdowns(dropdown);
+      openDropdown(dropdown);
+    });
+  });
+
+  document.addEventListener("click", (event) => {
+    if (dropdowns.some((dropdown) => dropdown.contains(event.target as Node))) {
+      return;
+    }
+    closeAllDropdowns();
+  });
 
   if (hoverSupported && dropdowns.length > 0) {
     dropdowns.forEach((dropdown) => {
@@ -254,11 +297,11 @@ const botones = response.data.header.Botones.map((boton) => ({
         }
       };
       const isPointerInside = () => dropdown.matches(":hover") || panel.matches(":hover");
-      const openDropdown = () => {
-        dropdown.setAttribute("data-open", "true");
+      const openOnHover = () => {
+        openDropdown(dropdown);
       };
-      const closeDropdown = () => {
-        dropdown.removeAttribute("data-open");
+      const closeOnHover = () => {
+        closeDropdown(dropdown);
       };
       const scheduleClose = () => {
         clearHoverTimeout();
@@ -268,13 +311,13 @@ const botones = response.data.header.Botones.map((boton) => ({
             scheduleClose();
             return;
           }
-          closeDropdown();
+          closeOnHover();
         }, 220);
       };
 
       const handleEnter = () => {
         clearHoverTimeout();
-        openDropdown();
+        openOnHover();
       };
       const handleLeave = () => {
         scheduleClose();
