@@ -1,6 +1,14 @@
 ---
 import Container from "./Container.astro"
 
+const avatars = [
+  { src: "./images/avatars/avatar.webp", sizeClass: "h-8 w-8" },
+  { src: "./images/avatars/avatar-2.webp", sizeClass: "h-12 w-12" },
+  { src: "./images/avatars/avatar-3.webp", sizeClass: "h-16 w-16", extraClass: "z-10" },
+  { src: "./images/avatars/avatar-4.webp", sizeClass: "h-12 w-12", extraClass: "relative" },
+  { src: "./images/avatars/avatar-1.webp", sizeClass: "h-8 w-8" },
+];
+
 ---
 
 <div class="relative py-16">
@@ -11,46 +19,17 @@ import Container from "./Container.astro"
   <Container>
     <div class="relative">
       <div class="flex items-center justify-center -space-x-2">
-        <img
-          loading="lazy"
-          width="400"
-          height="400"
-          src="./images/avatars/avatar.webp"
-          alt="member photo"
-          class="h-8 w-8 rounded-full object-cover"
-        />
-        <img
-          loading="lazy"
-          width="200"
-          height="200"
-          src="./images/avatars/avatar-2.webp"
-          alt="member photo"
-          class="h-12 w-12 rounded-full object-cover"
-        />
-        <img
-          loading="lazy"
-          width="200"
-          height="200"
-          src="./images/avatars/avatar-3.webp"
-          alt="member photo"
-          class="z-10 h-16 w-16 rounded-full object-cover"
-        />
-        <img
-          loading="lazy"
-          width="200"
-          height="200"
-          src="./images/avatars/avatar-4.webp"
-          alt="member photo"
-          class="relative h-12 w-12 rounded-full object-cover"
-        />
-        <img
-          loading="lazy"
-          width="200"
-          height="200"
-          src="./images/avatars/avatar-1.webp"
-          alt="member photo"
-          class="h-8 w-8 rounded-full object-cover"
-        />
+        {avatars.map((avatar) => (
+          <img
+            loading="lazy"
+            decoding="async"
+            width="200"
+            height="200"
+            src={avatar.src}
+            alt="member photo"
+            class={`${avatar.sizeClass} ${avatar.extraClass ?? ""} rounded-full object-cover`}
+          />
+        ))}
       </div>
       <div class="mt-6 m-auto space-y-6 md:w-8/12 lg:w-7/12">
         <h1 class="text-center text-4xl font-bold text-gray-800 dark:text-white md:text-5xl">Get Started now</h1>
