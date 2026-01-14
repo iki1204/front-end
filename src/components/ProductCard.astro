@@ -41,17 +41,53 @@ const priceFormatter = new Intl.NumberFormat("es-PE", {
 });
 
 const slug = producto?.ID_Nombre ?? producto?.slug ?? producto?.id;
-const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(producto.precio) : "Consultar";
+const stockCount = Number(producto?.cantidad_stock ?? 0);
+const fewStockThreshold = 10;
+const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.cantidad_stock;
+const rawPrices = {
+  default: typeof producto?.precio === "number" ? producto.precio : null,
+  tipo1: typeof producto?.precio === "number" ? producto.precio : null,
+  tipo2: typeof producto?.Precio2 === "number" ? producto.Precio2 : null,
+  tipo3: typeof producto?.Precio3 === "number" ? producto.Precio3 : null,
+  tipo4: typeof producto?.Precio4 === "number" ? producto.Precio4 : null,
+};
+
+const formatPrice = (value: number | null) => (typeof value === "number" ? priceFormatter.format(value) : "Consultar");
+const formattedPrices = {
+  default: formatPrice(rawPrices.default),
+  tipo1: formatPrice(rawPrices.tipo1),
+  tipo2: formatPrice(rawPrices.tipo2),
+  tipo3: formatPrice(rawPrices.tipo3),
+  tipo4: formatPrice(rawPrices.tipo4),
+};
 ---
 
-<article class="group flex h-full flex-col rounded-2xl border border-zinc-300 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg  dark:border-red-900 dark:bg-zinc-900">
+<article class="group flex h-full flex-col rounded-2xl border border-zinc-300 bg-zinc-100 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg  dark:border-red-900 dark:bg-zinc-900">
   <a href={`/producto/${slug}`} class="flex flex-1 flex-col">
-    <div class="relative overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-600 dark:border-red-900">
+    <div class="relative overflow-hidden rounded-xl bg-zinc-100  dark:border-red-900 transition duration-300 group-hover:scale-105">
+      {isOutOfStock ? (
+        <div
+          data-auth-visible="authenticated"
+        >
+          <span class="absolute -left-12 top-4 rotate-[-35deg] bg-rose-600 px-12 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-md">
+            Sin stock
+          </span>
+        </div>
+      ) : null}
+      {fewStockThreshold && stockCount > 0 && stockCount <= fewStockThreshold ? (
+        <div
+          data-auth-visible="authenticated"
+        >
+          <span class="absolute -left-12 top-4 rotate-[-25deg] bg-yellow-500 px-12 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-md">
+            Ultimas unidades
+          </span>
+        </div>
+      ) : null}
       <img
         src={imgUrl}
         alt={producto?.nombre ?? "Producto"}
         sizes={srcset ? sizes : undefined}
-        class="h-56 w-full object-contain transition duration-300 group-hover:scale-105"
+        class="h-56 w-full object-contain "
         decoding="async"
         loading="lazy"
       />
@@ -60,9 +96,24 @@ const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(
       <h3 class="line-clamp-2 text-lg font-semibold text-zinc-900 dark:text-white">
         {producto?.nombre}
       </h3>
-      <p class="text-sm text-zinc-500 dark:text-zinc-400">Código: {producto?.codigo ?? "N/A"}</p>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400"
+        data-auth-visible="authenticated"
+      >
+        Código: {producto?.codigo ?? "N/A"}
+      </p>
       <div class="mt-auto flex items-center justify-between">
-        <p class="text-lg font-bold text-red-500" data-auth-visible="authenticated">{priceLabel}</p>
+        <p
+          class="text-lg font-bold text-red-500"
+          data-auth-visible="authenticated"
+          data-user-price
+          data-price-default={formattedPrices.default}
+          data-price-tipo1={formattedPrices.tipo1}
+          data-price-tipo2={formattedPrices.tipo2}
+          data-price-tipo3={formattedPrices.tipo3}
+          data-price-tipo4={formattedPrices.tipo4}
+        >
+          {formattedPrices.default}
+        </p>
       </div>
     </div>
     
@@ -70,7 +121,7 @@ const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(
   <div class="mt-4 flex items-center justify-between gap-2">
     <a
       href={`/producto/${slug}`}
-      class="rounded-full border border-transparent px-4 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary/10"
+      class="rounded-full border border-transparent sm:px-1 px-5 py-2 flex text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary/10"
     >
       Ver detalles
     </a>
@@ -80,10 +131,16 @@ const priceLabel = typeof producto?.precio === "number" ? priceFormatter.format(
       data-action="add-to-cart"
       data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}
       data-product-name={producto?.nombre ?? "Producto"}
-      data-product-price={typeof producto?.precio === "number" ? producto.precio : ""}
+      data-product-price={rawPrices.default ?? ""}
       data-product-image={imgUrl}
       data-product-url={`/producto/${slug}`}
-      class="cursor-pointer rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-primary/60"
+      data-user-price-target="productPrice"
+      data-price-default={rawPrices.default ?? ""}
+      data-price-tipo1={rawPrices.tipo1 ?? ""}
+      data-price-tipo2={rawPrices.tipo2 ?? ""}
+      data-price-tipo3={rawPrices.tipo3 ?? ""}
+      data-price-tipo4={rawPrices.tipo4 ?? ""}
+      class="cursor-pointer flex rounded-full bg-primary sm:px-1 px-5 py-2 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-primary/60"
     >
       Añadir al carrito
     </button>

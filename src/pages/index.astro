@@ -3,17 +3,26 @@ import Stats from '../components/Stats.astro';
 import Features from '../components/Features.astro';
 import HeroSection from '../components/HeroSection.astro';
 import SliderMarcas from '../components/SliderMarcas.astro';
-import Layout from '../layouts/Layout.astro';
+import SliderBanner from '../components/SliderBanner.astro';
+import Layout from '../layouts/LayoutIndex.astro';
 import Testimonials from '../components/Testimonials.astro';
 import CallToAction from '../components/CallToAction.astro';
+import ProductCarousel from '../components/ProductCarrusel.astro';
 import Blog from '../components/Blog.astro';
+import About from '../components/About.astro';
+import { getPageData } from '../lib/api';
+
+const pageData = await getPageData("home-page");
 ---
 
-<Layout title="Welcome to Astrolus.">
-	<main class="space-y-40 mb-40">
-		<HeroSection/>
-		<SliderMarcas/>
+<Layout title="Unicom - Inicio">
+	<main class="space-y-30 mb-40 ">
+		<HeroSection pageData={pageData}/>
+		<About/>
+		<SliderBanner pageData={pageData}/>
+		<SliderMarcas pageData={pageData}/>
 		<Features/>
+		<ProductCarousel/>
 		<Stats/>
 		<Testimonials/>
 		<CallToAction/>

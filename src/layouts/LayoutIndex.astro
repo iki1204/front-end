@@ -2,6 +2,7 @@
 import { AstroFont } from 'astro-font';
 import AppFooter from "../components/AppFooter.astro";
 import AppHeader from "../components/AppHeader.astro";
+
 import Cart from "../components/Cart.astro";
 import cartWidgetScript from "../lib/carritoWidget.ts?url";
 import loginWidgetScript from "../lib/sesionWidget.ts?url";
@@ -10,28 +11,19 @@ import priceByUserScript from "../lib/precioPorUsuario.ts?url";
 import { getGlobalData } from "../lib/api";
 import "../css/tailus.css"
 import "../styles/global.css";
+import Container from '../components/Container.astro';
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 
-const {
-    metaTitle: metaTitleOverride,
-    metaDescription: metaDescriptionOverride,
-    metaKeywords: metaKeywordsOverride,
-    metaImages: metaImagesOverride,
-} = Astro.props;
-
 const response = await getGlobalData();
-const metaTitle = metaTitleOverride ?? response.data.defaultSeo.metaTitle;
-const metaDescription = metaDescriptionOverride ?? response.data.defaultSeo.metaDescription;
-const metaKeywords = metaKeywordsOverride ?? response.data.defaultSeo.metaKeywords;
+const metaTitle = response.data.defaultSeo.metaTitle;
+const metaDescription = response.data.defaultSeo.metaDescription;
+const metaKeywords = response.data.defaultSeo.metaKeywords;
 const metaIcon = response.data.favicon?.url ? API_URL + response.data.favicon.url : null;
 const metaImage = response.data.defaultSeo?.shareImage?.url ? API_URL + response.data.defaultSeo.shareImage.url : null;
 const siteName = response.data.siteName;
-const metaImages = Array.isArray(metaImagesOverride) && metaImagesOverride.length
-    ? metaImagesOverride
-    : metaImage
-      ? [metaImage]
-      : [];
+
+
 ---
 
 <!DOCTYPE html>
@@ -48,14 +40,12 @@ const metaImages = Array.isArray(metaImagesOverride) && metaImagesOverride.lengt
         <!-- Open Graph / Facebook -->
         <meta property="og:title" content={metaTitle} />
         <meta property="og:description" content={metaDescription} />
-        {metaImages.map((image) => (
-            <meta property="og:image" content={image} />
-        ))}
+        <meta property="og:image" content={metaImage} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={siteName} />
 
         
-        <title>{metaTitle ?? siteName}</title>
+        <title>{siteName}</title>
 
 
 
@@ -73,27 +63,33 @@ const metaImages = Array.isArray(metaImagesOverride) && metaImagesOverride.lengt
             ]}
         />
     </head>
-
     
-    <body class="relative min-h-screen dark:bg-gray-950">
+    <body class="relative min-h-screen dark:bg-gray-900">
 
-        <div
-            aria-hidden="true"
-            class="pointer-events-none fixed inset-0 -z-10"
-        >
-            <div class="mx-auto grid h-full w-full max-w-7xl grid-cols-2 -space-x-52 opacity-40 ">
-            <div class="h-full bg-gradient-to-br from-orange-400 to-red-400 dark:from-red-700 dark:to-amber-600 blur-3xl"></div>
-            <div class="h-full bg-gradient-to-r from-orange-400 to-red-300 dark:from-red-700 dark:to-amber-600 blur-3xl"></div>
+        <div class="pointer-events-none absolute inset-x-0 top-0 z-0 h-screen" aria-hidden="true">
+            <div class="relative h-full w-full">
+                <div class="absolute inset-0 z-10 bg-black/50 black:bg-black/10"></div>
+                <video
+                    class="absolute inset-0 z-0 h-full w-full object-cover object-center"
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                >
+                    <source src="/images/video/video.mp4" type="video/mp4" />
+                </video>
             </div>
         </div>
 
-        <div class="relative z-10 min-h-screen" >
+        <div class="relative w-screen z-10" >
 
 
             
             <AppHeader />
 
+
             <slot />
+            
             
         
             <AppFooter />

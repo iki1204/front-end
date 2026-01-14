@@ -1,6 +1,8 @@
 ---
 import Container from "./Container.astro";
 import { getGlobalData } from "../lib/api";  
+import headerAuthScript from "../lib/headerAuthToggle.ts?url";
+
 
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
@@ -17,8 +19,8 @@ const botones = response.data.header.Botones.map((boton) => ({
 }));
 ---
 
-<header id="site-header" class="sticky top-0 z-60 border-b border-black/5 dark:border-white/5 bg-transparent backdrop-blur-md transition-all duration-500 ease-in-out">
-    <nav id="nav" class="group top-0 z-50  w-full border-b border-black/5 dark:border-white/5 lg:border-transparent">
+<header id="site-header" class="sticky w-screen top-0 z-60 border-b border-black/10 dark:border-white/5 bg-transparent transition-all duration-500 ease-in-out">
+    <nav id="nav" class="group/nav top-0 z-50 w-full  dark:border-white/5 lg:border-transparent">
         <Container>
             <div class="relative flex flex-wrap items-center justify-between gap-6 py-3 md:gap-0 md:py-4">
                 <div class="relative z-20 flex w-full justify-between md:px-0 lg:w-fit">
@@ -28,7 +30,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                             <div class="h-6 w-2 bg-primary"></div>
                         </div>
                         <div>
-                            {logoUrl ? <img src={logoUrl[0]} alt={siteName} class="h-8 w-auto object-contain" /> : null}
+                            {logoUrl ? <img src={logoUrl[0]} alt={siteName} class="h-14 w-auto object-contain" /> : null}
                         </div>
                     </a>
                     <a href="/#home" aria-label="logo" class="hidden dark:flex items-center space-x-2">
@@ -43,72 +45,110 @@ const botones = response.data.header.Botones.map((boton) => ({
 
                     <div class="flex items-center gap-3">
 
-                            <div class="relative flex max-h-10 items-center lg:hidden">
+                      <div class="relative flex max-h-10 items-center lg:hidden">
                             <button aria-label="humburger" id="hamburger" class="relative -mr-6 p-6 active:scale-95 duration-300">
-                                <div aria-hidden="true" id="line" class="m-auto h-0.5 w-5 rounded bg-gray-950 transition duration-300 dark:bg-white origin-top group-data-[state=active]:rotate-45 group-data-[state=active]:translate-y-1.5"></div>
-                                <div aria-hidden="true" id="line2" class="m-auto mt-2 h-0.5 w-5 rounded bg-gray-950 transition duration-300 dark:bg-white origin-bottom group-data-[state=active]:-rotate-45 group-data-[state=active]:-translate-y-1"></div>
+                                <div aria-hidden="true" id="line" class="m-auto h-0.5 w-5 rounded bg-gray-950 transition duration-300 dark:bg-white origin-top group-data-[state=active]/nav:rotate-45 group-data-[state=active]/nav:translate-y-1.5"></div>
+                                <div aria-hidden="true" id="line2" class="m-auto mt-2 h-0.5 w-5 rounded bg-gray-950 transition duration-300 dark:bg-white origin-bottom group-data-[state=active]/nav:-rotate-45 group-data-[state=active]/nav:-translate-y-1"></div>
                             </button>
                         </div>
                     </div>
                 </div>
-                <div id="navLayer" aria-hidden="true" class="fixed inset-0 z-10 h-screen w-screen origin-bottom scale-y-0 bg-white/70 backdrop-blur-2xl transition duration-500 group-data-[state=active]:origin-top group-data-[state=active]:scale-y-100 dark:bg-gray-950/70 lg:hidden"></div>
-                <div id="navlinks" class="invisible absolute top-full  justify-center left-0 z-20 w-full origin-top-right translate-y-1 scale-90 flex-col flex-wrap gap-6 rounded-3xl border border-gray-100 bg-white p-8 opacity-0 shadow-2xl shadow-gray-600/10 transition-all duration-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none lg:visible lg:relative lg:flex lg:w-fit lg:translate-y-0 lg:scale-100 lg:flex-row lg:items-center lg:gap-0 lg:border-none lg:bg-transparent lg:p-0 lg:opacity-100 lg:shadow-none lg:dark:bg-transparent group-data-[state=active]:visible group-data-[state=active]:scale-100 group-data-[state=active]:opacity-100 lg:group-data-[state=active]:translate-y-0">
-                    <div class="w-full text-gray-600 dark:text-gray-200 lg:w-auto lg:pr-4 lg:pt-0">
-                        <div id="links-group" class="flex flex-col gap-6 tracking-wide lg:flex-row lg:gap-0 lg:text-sm">
-                            {
+                <div id="navLayer" aria-hidden="true" class="fixed inset-0 z-10 h-screen w-screen origin-bottom scale-y-0 bg-white/70 backdrop-blur-2xl transition duration-500 group-data-[state=active]/nav:origin-top group-data-[state=active]/nav:scale-y-100 dark:bg-gray-950/70 lg:hidden"></div>
+                <div id="navlinks" class="invisible absolute top-full  justify-center left-0 z-20 w-full origin-top-right translate-y-1 scale-90 flex-col flex-wrap gap-6 rounded-3xl border border-gray-100 bg-white p-8 opacity-0 shadow-2xl shadow-gray-600/10 transition-all duration-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none lg:visible lg:relative lg:flex lg:w-fit lg:translate-y-0 lg:scale-100 lg:flex-row lg:items-center lg:gap-0 lg:border-none lg:bg-transparent lg:p-0 lg:opacity-100 lg:shadow-none lg:dark:bg-transparent group-data-[state=active]/nav:visible group-data-[state=active]/nav:scale-100 group-data-[state=active]/nav:opacity-100 lg:group-data-[state=active]/nav:translate-y-0">
+                  <div class="relative mt-6 w-full text-gray-600 dark:text-gray-200 lg:mt-0 lg:w-auto lg:pr-4 lg:pt-0 group/menu" data-nav-dropdown>
+                      <button
+                        type="button"
+                        class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
+                        aria-haspopup="true"
+                      >
+                        <span>Navegación</span>
+                        <svg aria-hidden="true" class="size-4 transition group-hover/menu:rotate-180 lg:group-data-[open=true]/menu:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
+                        </svg>
+                      </button>
+                      <div class="mt-2 w-full overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl shadow-gray-600/10 transition-[max-height,opacity,transform] duration-300 max-h-0 opacity-0 pointer-events-none scale-95 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none group-data-[open=true]/menu:max-h-80 group-data-[open=true]/menu:scale-100 group-data-[open=true]/menu:opacity-100 group-data-[open=true]/menu:pointer-events-auto lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-64 lg:-translate-x-1/2 lg:origin-top lg:group-hover/menu:max-h-80 lg:group-hover/menu:scale-100 lg:group-hover/menu:opacity-100 lg:group-hover/menu:pointer-events-auto" data-nav-panel>
+                          <div id="links-group" class="flex flex-col gap-1 rounded-xl bg-gray-50 p-2 tracking-wide dark:bg-gray-900 lg:text-sm">
+                              {
                                 links.map((link) => (
-                                    <a href={link.to} class="hover:text-primary block transition dark:hover:text-white md:px-4">
-                                        <span>{link.label}</span>
-                                    </a>
+                                  <a href={link.to} class="transition block rounded-xl px-4 py-2 text-black dark:text-white hover:bg-primary/10 hover:text-primary md:px-4">
+                                    <span>{link.label}</span>
+                                  </a>
                                 ))
-                            }
-                        </div>
-                    </div>            
-                        {
-                            botones.map((link) => (
-                                <div class="mt-12 mr-2 lg:mt-0"> 
-                                    <a href={link.to} class="relative flex h-9 w-full items-center justify-center px-4 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95 sm:w-max">
-                                        <span class="relative text-sm font-semibold text-white">{link.label}</span>
-                                    </a>
-                                </div>
-                            ))
-                        }
-
-                    <div class="ml-4 flex items-center gap-2">  
+                              }
+                          </div>
+                      </div>
+                  </div>            
+                  <div class="relative mt-6 w-full lg:mt-0 lg:w-auto group/menu" data-nav-dropdown>
+                    <button
+                      type="button"
+                      class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
+                      aria-haspopup="true"
+                    >
+                      <span>Botones</span>
+                      <svg aria-hidden="true" class="size-4 transition group-hover/menu:rotate-180 lg:group-data-[open=true]/menu:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
+                      </svg>
+                    </button>
+                    <div class="mt-2 flex w-full flex-col gap-2 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl shadow-gray-600/10 transition-[max-height,opacity,transform] duration-300 max-h-0 opacity-0 pointer-events-none scale-95 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none group-data-[open=true]/menu:max-h-80 group-data-[open=true]/menu:scale-100 group-data-[open=true]/menu:opacity-100 group-data-[open=true]/menu:pointer-events-auto lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-56 lg:-translate-x-1/2 lg:origin-top lg:group-hover/menu:max-h-80 lg:group-hover/menu:scale-100 lg:group-hover/menu:opacity-100 lg:group-hover/menu:pointer-events-auto" data-nav-panel>
+                      {
+                        botones.map((link) => (
+                          <a href={link.to} class="relative flex h-9 w-full items-center justify-center px-4 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95">
+                            <span class="relative text-sm font-semibold text-white">{link.label}</span>
+                          </a>
+                        ))
+                      }
+                    </div>
+                  </div>
+                  <div class="relative mt-16 w-full lg:mt-0 lg:w-auto group/menu" data-nav-dropdown>
+                    <button
+                      type="button"
+                      class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
+                      aria-haspopup="true"
+                    >
+                      <span>Cuenta</span>
+                      <svg aria-hidden="true" class="size-4 transition group-hover/menu:rotate-180 lg:group-data-[open=true]/menu:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
+                      </svg>
+                    </button>
+                                        <div class="mt-2 flex w-full flex-col gap-2 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl shadow-gray-600/10 transition-[max-height,opacity,transform] duration-300 max-h-0 opacity-0 pointer-events-none scale-95 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none group-data-[open=true]/menu:max-h-80 group-data-[open=true]/menu:scale-100 group-data-[open=true]/menu:opacity-100 group-data-[open=true]/menu:pointer-events-auto lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-60 lg:-translate-x-1/2 lg:origin-top lg:group-hover/menu:max-h-80 lg:group-hover/menu:scale-100 lg:group-hover/menu:opacity-100 lg:group-hover/menu:pointer-events-auto" data-nav-panel>
                       <a
-                          data-login-cta
-                          id="loginbtn"
-                          href="/login"
                           type="button"
-                          class="mt-12 group flex h-10 w-10 items-center justify-center rounded-full   transition duration-200 border border-red-300 hover:bg-red-200 lg:mt-0 hover:border-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary dark:hover:bg-red-900"
+                          href="/login"
+                          data-login-button
+                          class="cursor-pointer group flex hidden items-center justify-between gap-2 rounded-full border border-primary/40 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary"
                           aria-label="Iniciar sesión"
                       >
-                          <span class="sr-only">Iniciar sesión</span>
-                          <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="9" r="3" stroke="#1C274C" stroke-width="1.5"/>
-                            <path d="M17.9691 20C17.81 17.1085 16.9247 15 11.9999 15C7.07521 15 6.18991 17.1085 6.03076 20" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M7 3.33782C8.47087 2.48697 10.1786 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 10.1786 2.48697 8.47087 3.33782 7" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
-                          </svg>
+                          <span class="text-sm font-semibold tracking-wide">Ingresar</span>
+                          <span class="flex size-7 items-center justify-center rounded-full bg-primary/10 transition group-hover:bg-white/20 dark:bg-white/10">
+                            <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M14.5 6L20 12L14.5 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                              <path d="M20 12H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              <path d="M12 4H8C5.79086 4 4 5.79086 4 8V16C4 18.2091 5.79086 20 8 20H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                          </span>
                       </a>
-                      <a
+                      <button
                           type="button"
                           data-logout-cta
-                          class="mt-12 hidden group flex cursor-pointer h-10 w-10 items-center justify-center rounded-full border text-gray-700 transition border-primary hover:text-primary dark:border-gray-700 dark:text-gray-100 dark:hover:border-primary hover:bg-red-200 lg:mt-0"
+                          class="cursor-pointer hidden group flex items-center justify-between gap-2 rounded-full border border-primary/40 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 dark:text-white dark:hover:border-primary"
                           aria-label="Cerrar sesión"
+                          aria-expanded="false"
+                          aria-controls="logout-confirmation"
                       >
-                        <span class="sr-only">Cerrar sesión</span>
-                        <svg aria-hidden="true"
-                          class="size-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg">
-                          <path d="M17.2929 14.2929C16.9024 14.6834 16.9024 15.3166 17.2929 15.7071C17.6834 16.0976 18.3166 16.0976 18.7071 15.7071L21.6201 12.7941C21.6351 12.7791 21.6497 12.7637 21.6637 12.748C21.87 12.5648 22 12.2976 22 12C22 11.7024 21.87 11.4352 21.6637 11.252C21.6497 11.2363 21.6351 11.2209 21.6201 11.2059L18.7071 8.29289C18.3166 7.90237 17.6834 7.90237 17.2929 8.29289C16.9024 8.68342 16.9024 9.31658 17.2929 9.70711L18.5858 11H13C12.4477 11 12 11.4477 12 12C12 12.5523 12.4477 13 13 13H18.5858L17.2929 14.2929Z" fill="#323232"/>
-                          <path d="M5 2C3.34315 2 2 3.34315 2 5V19C2 20.6569 3.34315 22 5 22H14.5C15.8807 22 17 20.8807 17 19.5V16.7326C16.8519 16.647 16.7125 16.5409 16.5858 16.4142C15.9314 15.7598 15.8253 14.7649 16.2674 14H13C11.8954 14 11 13.1046 11 12C11 10.8954 11.8954 10 13 10H16.2674C15.8253 9.23514 15.9314 8.24015 16.5858 7.58579C16.7125 7.4591 16.8519 7.35296 17 7.26738V4.5C17 3.11929 15.8807 2 14.5 2H5Z" fill="#323232"/>
-                        </svg>
-                      </a>
+                        <span>Cerrar sesión</span>
+                        <span class="flex size-7 items-center justify-center rounded-full bg-primary/10 transition group-hover:bg-white/20 dark:bg-white/10">
+                          <svg aria-hidden="true" class="size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14.5 6L20 12L14.5 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20 12H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M12 4H8C5.79086 4 4 5.79086 4 8V16C4 18.2091 5.79086 20 8 20H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                          </svg>
+                        </span>
+                      </button>
                     </div>
-                    <div
+                  </div>
+                <div
                       data-logout-confirmation
+                      id="logout-confirmation"
                       class="hidden absolute right-4 top-20 z-50 w-full max-w-xs rounded-lg border border-red-200 bg-white p-4 text-sm shadow-lg shadow-red-100/60 dark:border-red-700 dark:bg-gray-900 dark:text-red-100"
                       role="alert"
                       aria-live="assertive"
@@ -132,7 +172,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                         </button>
                       </div>
                     </div>
-                </div>
+                  </div>
 
                 
             </div>
@@ -146,111 +186,24 @@ const botones = response.data.header.Botones.map((boton) => ({
 <script>
   const header = document.getElementById("site-header");
 
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > 20) {
+  const updateHeaderState = () => {
+    if (!header) return;
+    if (window.scrollY > 50) {
       header.classList.add("bg-white", "dark:bg-gray-950", "shadow-md");
       header.classList.remove("bg-transparent");
     } else {
       header.classList.remove("bg-white", "dark:bg-gray-950", "shadow-md");
       header.classList.add("bg-transparent");
     }
-  });
+   };
+
+  updateHeaderState();
+  window.addEventListener("scroll", updateHeaderState);
 </script>
 
 
 
-<script type="module">
-  const SESSION_STORAGE_KEY = "usuarioSesion";
-  const SESSION_EVENT = "usuarioSesion:cambio";
-  const loginCta = document.querySelector("[data-login-cta]");
-  const logoutCta = document.querySelector("[data-logout-cta]");
-  const logoutAlert = document.querySelector("[data-logout-confirmation]");
-  const logoutConfirmYes = logoutAlert?.querySelector("[data-logout-confirm='yes']");
-  const logoutConfirmNo = logoutAlert?.querySelector("[data-logout-confirm='no']");
-
-  /**
-   * @typedef {Object} SessionUser
-   * @property {boolean} [confirmed]
-   */
-
-  /**
-   * @typedef {Object} SessionPayload
-   * @property {string} [jwt]
-   * @property {SessionUser|null} [user]
-   */
-
-  const isValidSession = (session) =>
-    Boolean(session?.jwt && session.user && session.user.confirmed !== false);
-
-  const clearSession = () => {
-    try {
-      localStorage.removeItem(SESSION_STORAGE_KEY);
-    } catch (error) {
-      console.warn("No se pudo limpiar la sesión", error);
-    }
-    window.dispatchEvent(new CustomEvent(SESSION_EVENT));
-  };
-
-  const getStoredSession = () => {
-    try {
-      const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-      if (!raw) return null;
-
-      return JSON.parse(raw);
-    } catch (error) {
-      clearSession();
-      return null;
-    }
-  };
-
-  const refreshLoginCta = () => {
-    if (!loginCta) return;
-    const isLoggedIn = isValidSession(getStoredSession());
-    const shouldShowLogout = isLoggedIn;
-
-    loginCta.classList.toggle("hidden", shouldShowLogout);
-    logoutCta?.classList.toggle("hidden", !shouldShowLogout);
-  };
-
-  const hideLogoutAlert = () => {
-    logoutAlert?.classList.add("hidden");
-  };
-
-  const showLogoutAlert = () => {
-    if (!logoutAlert) return;
-    logoutAlert.classList.remove("hidden");
-  };
-
-  logoutCta?.addEventListener("click", (event) => {
-    event.preventDefault();
-    showLogoutAlert();
-  });
-
-  logoutConfirmYes?.addEventListener("click", () => {
-    clearSession();
-    hideLogoutAlert();
-    refreshLoginCta();
-    window.location.assign("/");
-  });
-
-  logoutConfirmNo?.addEventListener("click", () => {
-    hideLogoutAlert();
-  });
-
-  window.addEventListener("storage", (event) => {
-    if (event.key === SESSION_STORAGE_KEY) {
-      refreshLoginCta();
-    }
-  });
-
-  window.addEventListener(SESSION_EVENT, refreshLoginCta);
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", refreshLoginCta, { once: true });
-  } else {
-    refreshLoginCta();
-  }
-</script>
+<script type="module" src={headerAuthScript}></script>
 
 
 <script>
@@ -279,4 +232,101 @@ const botones = response.data.header.Botones.map((boton) => ({
             toggleNavlinks();
         });
     });
+</script>
+
+<script>
+  const hoverSupported =
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia("(hover: hover) and (pointer: fine)").matches
+      : true;
+  const dropdowns = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-dropdown]"));
+     const closeDropdown = (dropdown: HTMLElement) => {
+    dropdown.removeAttribute("data-open");
+    const button = dropdown.querySelector<HTMLButtonElement>("button");
+    if (button) {
+      button.setAttribute("aria-expanded", "false");
+    }
+  };
+  const openDropdown = (dropdown: HTMLElement) => {
+    dropdown.setAttribute("data-open", "true");
+    const button = dropdown.querySelector<HTMLButtonElement>("button");
+    if (button) {
+      button.setAttribute("aria-expanded", "true");
+    }
+  };
+  const closeAllDropdowns = (exception?: HTMLElement) => {
+    dropdowns.forEach((dropdown) => {
+      if (exception && dropdown === exception) return;
+      closeDropdown(dropdown);
+    });
+  };
+
+  dropdowns.forEach((dropdown) => {
+    const button = dropdown.querySelector<HTMLButtonElement>("button");
+    if (!button) return;
+    button.setAttribute("aria-expanded", "false");
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      const isOpen = dropdown.getAttribute("data-open") === "true";
+      if (isOpen) {
+        closeDropdown(dropdown);
+        return;
+      }
+      closeAllDropdowns(dropdown);
+      openDropdown(dropdown);
+    });
+  });
+
+  document.addEventListener("click", (event) => {
+    if (dropdowns.some((dropdown) => dropdown.contains(event.target as Node))) {
+      return;
+    }
+    closeAllDropdowns();
+  });
+
+  if (hoverSupported && dropdowns.length > 0) {
+    dropdowns.forEach((dropdown) => {
+      const panel = dropdown.querySelector<HTMLElement>("[data-nav-panel]");
+      if (!panel) return;
+
+      let hoverCloseTimeout: number | null = null;
+      const clearHoverTimeout = () => {
+        if (hoverCloseTimeout !== null) {
+          window.clearTimeout(hoverCloseTimeout);
+          hoverCloseTimeout = null;
+        }
+      };
+      const isPointerInside = () => dropdown.matches(":hover") || panel.matches(":hover");
+      const openOnHover = () => {
+        openDropdown(dropdown);
+      };
+      const closeOnHover = () => {
+        closeDropdown(dropdown);
+      };
+      const scheduleClose = () => {
+        clearHoverTimeout();
+        hoverCloseTimeout = window.setTimeout(() => {
+          hoverCloseTimeout = null;
+          if (isPointerInside()) {
+            scheduleClose();
+            return;
+          }
+          closeOnHover();
+        }, 220);
+      };
+
+      const handleEnter = () => {
+        clearHoverTimeout();
+        openOnHover();
+      };
+      const handleLeave = () => {
+        scheduleClose();
+      };
+
+      dropdown.addEventListener("mouseenter", handleEnter);
+      dropdown.addEventListener("mouseleave", handleLeave);
+      panel.addEventListener("mouseenter", handleEnter);
+      panel.addEventListener("mouseleave", handleLeave);
+    });
+  }
 </script>

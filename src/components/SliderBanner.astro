@@ -1,0 +1,44 @@
+---
+import Container from "./Container.astro";
+const { pageData } = Astro.props;
+const API_URL = import.meta.env.VITE_STRAPI_URL;
+const responseHome = pageData;
+const heroSection = responseHome?.data?.[0]?.Secciones?.find(
+  (s) => s.__component === "shared.hero"
+);
+const img = heroSection?.Imagen?.map((img) => `${API_URL}${img.url}`) ?? [];
+---
+<Container>
+    <div
+        class=" slider relative flex justify-center items-center  xl:min-h-[700px] md:min-h-[500px] min-h-[200px] overflow-hidden rounded-3xl shadow-2xl"
+        data-hero-slider
+    >
+        {img.map((src, i) => (
+        <img
+            src={src}
+            alt={`Hero image ${i + 1}`}
+            class={`slide absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out ${
+            i === 0 ? "is-active" : ""
+            }`}
+            loading={i === 0 ? "eager" : "lazy"}
+            decoding="async"
+        />
+        ))}
+    </div>
+</Container>
+
+<script>
+  const slider = document.querySelector("[data-hero-slider]");
+  if (slider) {
+    const slides = slider.querySelectorAll(".slide");
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (slides.length > 1 && !prefersReducedMotion) {
+      let index = 0;
+      setInterval(() => {
+        slides[index].classList.remove("is-active");
+        index = (index + 1) % slides.length;
+        slides[index].classList.add("is-active");
+      }, 5000); // 4s por slide
+    }
+  }
+</script>

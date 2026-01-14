@@ -1,21 +1,26 @@
 import { postUsuarioLogin, postUsuarioRegister } from "./api";
-
-const SESSION_STORAGE_KEY = "usuarioSesion";
-const SESSION_EVENT = "usuarioSesion:cambio";
+import {
+  SESSION_EVENT,
+  SESSION_STORAGE_KEY,
+  hasActiveSession,
+  normalizeTipoUsuario,
+  normalizeSessionPayload,
+  parseStoredSession,
+  type SessionPayload,
+  type SessionUser,
+} from "./sessionUser";
+const PENDING_VERIFICATION_PATH = "/pendiente-verificacion";
 
 type FeedbackVariant = "neutral" | "success" | "error";
 
-type SessionUser = {
-  confirmed?: boolean;
+type SessionUserDetails = SessionUser & {
   nombre?: string;
   username?: string;
   email?: string;
-  tipoUsuario?: number | string | null;
 };
 
-type SessionPayload = {
-  jwt?: string;
-  user?: SessionUser | null;
+type SessionPayloadDetails = Omit<NonNullable<SessionPayload>, "user"> & {
+  user?: SessionUserDetails | null;
 };
 
 const VARIANT_CLASS_MAP: Record<FeedbackVariant, string[]> = {
@@ -82,24 +87,7 @@ const clearSession = () => {
   
   window.dispatchEvent(new CustomEvent(SESSION_EVENT));
 };
-const getStoredSession = (): SessionPayload | null => {
-  try {
-    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-    if (!raw) return null;
-
-    const session = JSON.parse(raw);
-    const user = session?.user;
-
-    return JSON.parse(raw) as SessionPayload;
-  } catch (error) {
-    return null;
-  }
-};
-
-const hasActiveSession = (session: SessionPayload | null = getStoredSession()) => {
-  const user = session?.user;
-  return Boolean(session?.jwt && user && user.confirmed !== false);
-};
+const getStoredSession = (): SessionPayloadDetails | null => parseStoredSession();
 
 
 const handleLoginSubmit = async (event: SubmitEvent) => {
@@ -135,10 +123,23 @@ const handleLoginSubmit = async (event: SubmitEvent) => {
 
   try {
     const response = await postUsuarioLogin({ identifier, password });
-    const user = (response as any)?.user ?? {};
-    const displayName = user?.nombre ?? user?.username ?? identifier;
+    const normalizedSession = normalizeSessionPayload(response);
+    const user = normalizedSession?.user ?? (response as any)?.user ?? {};
+    const displayName = user?.username;
+    const tipoUsuario = normalizeTipoUsuario(user?.tipoUsuario);
+    const sessionPayload = normalizedSession ?? {
+      jwt: (response as any)?.jwt ?? (response as any)?.token ?? (response as any)?.accessToken ?? null,
+      user,
+    };
 
-    saveSession(response as Record<string, unknown>);
+    if (!tipoUsuario) {
+      setStatusMessage(status, "Cuenta pendiente de verificación.");
+      setFeedbackMessage(feedback, "Tu cuenta está pendiente de verificación. Redirigiendo...", "error");
+      window.location.assign(PENDING_VERIFICATION_PATH);
+      return;
+    }
+
+    saveSession(sessionPayload as Record<string, unknown>);
     setStatusMessage(status, `Sesión iniciada como ${displayName}`);
     setFeedbackMessage(feedback, "Inicio de sesión exitoso. Redirigiendo...", "success");
 
@@ -255,4 +256,3 @@ if (document.readyState === "loading") {
 } else {
   initRegister();
 }
-

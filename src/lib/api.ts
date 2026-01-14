@@ -62,7 +62,7 @@ async function fetchAPI(endpoint: string, params: QueryParams = "") {
 async function postAPI(endpoint: string, body: unknown = {}, params: QueryParams = "") {
   const query = buildQuery(params);
 
-  const res = await fetch(`http://192.168.5.52:1337/api/auth/${endpoint}${query}`, {
+  const res = await fetch(`http://192.168.5.55:1337/api/auth/${endpoint}${query}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -131,5 +131,6 @@ export async function postUsuarioLogin(data: Record<string, string>) {
 export async function postUsuarioRegister(data: Record<string, string>) {
   return postAPI("local/register", data);
 }
+
 
 

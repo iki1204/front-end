@@ -8,11 +8,17 @@ const ITEMS_PER_PAGE = 24;
 const MAX_PRICE = 5000;
 const MIN_PRICE = 0;
 
+const normalizeWithAttributes = (item: any) => (item?.attributes ? { id: item.id, ...item.attributes } : item);
+const normalizeCollection = (collection: any[] = []) => collection.map(normalizeWithAttributes);
+
 const url = new URL(Astro.request.url);
 
 const searchParam = url.searchParams.get("search")?.toLowerCase().trim() ?? "";
+const searchTerms = searchParam.split(/\s+/).filter(Boolean);
+const normalizedSearchParam = searchTerms.join(" ");
 const categoryParam = url.searchParams.get("category") ?? "all";
 const brandParam = url.searchParams.get("brand") ?? "all";
+const stockParam = url.searchParams.get("stock") ?? "all";
 const pageParam = Number.parseInt(url.searchParams.get("page") ?? "1", 10);
 const requestedPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
 const priceParamRaw = Number.parseInt(url.searchParams.get("price") ?? String(MAX_PRICE), 10);
@@ -26,6 +32,13 @@ const strapiParams = new URLSearchParams({
   sort: "nombre:asc",
 });
 
+const applySearchFilters = (params: URLSearchParams, terms: string[]) => {
+  terms.forEach((term, index) => {
+    params.set(`filters[$and][${index}][$or][0][nombre][$containsi]`, term);
+    params.set(`filters[$and][${index}][$or][1][codigo][$containsi]`, term);
+  });
+};
+
 if (categoryParam !== "all") {
   strapiParams.set("filters[ID_Categoria][$eq]", categoryParam);
 }
@@ -34,25 +47,53 @@ if (brandParam !== "all") {
   strapiParams.set("filters[ID_Marca][$eq]", brandParam);
 }
 
-if (searchParam.length > 0) {
-  strapiParams.set("filters[$or][0][nombre][$containsi]", searchParam);
-  strapiParams.set("filters[$or][1][codigo][$containsi]", searchParam);
+if (stockParam === "in") {
+  strapiParams.set("filters[cantidad_stock][$gt]", "0");
 }
 
+if (stockParam === "out") {
+  strapiParams.set("filters[cantidad_stock][$lte]", "0");
+}
+
+if (searchTerms.length > 0) {
+  applySearchFilters(strapiParams, searchTerms);
+}
 
 if (priceFilterValue < MAX_PRICE) {
   strapiParams.set("filters[precio][$lte]", String(priceFilterValue));
 }
 
-const [productosResponse, categoriasResponse, marcasResponse, global] = await Promise.all([
+const getAllProductsForSuggestions = async () => {
+  const suggestionParams = new URLSearchParams({
+    "pagination[page]": "1",
+    "pagination[pageSize]": "100",
+    "fields[0]": "nombre",
+    "fields[1]": "codigo",
+    sort: "nombre:asc",
+  });
+
+  const items: any[] = [];
+  let page = 1;
+  let pageCount = 1;
+
+  do {
+    suggestionParams.set("pagination[page]", String(page));
+    const response = await getProductos(suggestionParams);
+    items.push(...normalizeCollection(response?.data ?? []));
+    pageCount = response?.meta?.pagination?.pageCount ?? 1;
+    page += 1;
+  } while (page <= pageCount);
+
+  return items;
+};
+
+const [productosResponse, categoriasResponse, marcasResponse, global, suggestionProducts] = await Promise.all([
   getProductos(strapiParams),
   getCategorias(),
   getMarcas(),
   getGlobalData(),
+  getAllProductsForSuggestions(),
 ]);
-
-const normalizeWithAttributes = (item: any) => (item?.attributes ? { id: item.id, ...item.attributes } : item);
-const normalizeCollection = (collection: any[] = []) => collection.map(normalizeWithAttributes);
 
 const getStrapiFileUrl = (file: any) => {
   const data = file?.data ?? file;
@@ -84,10 +125,12 @@ const buildQueryString = (updates: Record<string, string | number | null>) => {
     params.set(key, String(value));
   });
 
-  if (updates.page === null) {
-    params.set("page", String(updates.page));
-  } else if (updates.page === null) {
-    params.delete("page");
+  if ("page" in updates) {
+    if (updates.page === null) {
+      params.delete("page");
+    } else {
+      params.set("page", String(updates.page));
+    }
   }
 
   const query = params.toString();
@@ -126,6 +169,29 @@ const brandItems = marcas
   }))
   .filter((marca) => Boolean(marca.value));
 
+const searchSuggestions = Array.from(
+  new Map(
+    suggestionProducts
+      .flatMap((producto) => {
+        const items: { label: string; value: string }[] = [];
+        const nombre = producto?.nombre?.trim();
+        const codigo = producto?.codigo?.trim();
+
+        if (nombre) {
+          items.push({ label: nombre, value: nombre });
+        }
+
+        if (codigo) {
+          items.push({ label: `Código: ${codigo}`, value: codigo });
+        }
+
+        return items;
+      })
+      .filter((item) => item.value)
+      .map((item) => [item.value.toLowerCase(), item]),
+  ).values(),
+);
+
 const priceFormatter = new Intl.NumberFormat("es-PE", {
   style: "currency",
   currency: "USD",
@@ -157,9 +223,10 @@ const showRightDots = endPage < totalPages;
 <BaseLayout global={global}>
 
   <Container>
-    <article class="flex flex-col gap-8 py-10 w-full">
+    <article class="flex flex-col gap-10 py-10 w-full">
       <!-- Filtro responsive -->
       <div class="flex flex-col gap-6 md:hidden">
+
         <div class="group relative block">
           <label for="mobileCategory" class="text-base font-semibold text-zinc-900 dark:text-white mb-4">
             Filtrar por categoría:
@@ -229,12 +296,48 @@ const showRightDots = endPage < totalPages;
             )}
           </select>
         </div>
-        <div class="group relative block">
+
+        <div class="group relative block"
+          data-auth-visible="authenticated"
+        >
+          <label for="mobileStock" class="text-base font-semibold text-zinc-900 dark:text-white mb-4">
+            Filtrar por stock:
+          </label>
+          <select
+            id="mobileStock"
+            class="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+            onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
+          >
+            <option
+              value={Astro.url.pathname + buildQueryString({ stock: "all", page: 1 })}
+              selected={stockParam === "all"}
+            >
+              TODOS
+            </option>
+            <option
+              value={Astro.url.pathname + buildQueryString({ stock: "in", page: 1 })}
+              selected={stockParam === "in"}
+            >
+              En stock
+            </option>
+            <option
+              value={Astro.url.pathname + buildQueryString({ stock: "out", page: 1 })}
+              selected={stockParam === "out"}
+            >
+              Sin stock
+            </option>
+          </select>
+        </div>
+
+        <div class="group relative block"
+          data-auth-visible="authenticated"
+        >
             <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-4">Precio máximo</h3>
             <form method="get" class="flex flex-col gap-4">
               <input type="hidden" name="search" value={searchParam} />
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="brand" value={brandParam} />
+              <input type="hidden" name="stock" value={stockParam} />
               <input type="hidden" name="page" value="1" />
               <label for="priceRange" class="text-sm text-zinc-600 dark:text-zinc-300">Ajusta el rango de precio:</label>
               <div class="flex flex-col gap-3">
@@ -263,7 +366,7 @@ const showRightDots = endPage < totalPages;
       <div class="flex flex-col md:flex-row gap-8">
         <!-- Aside de Navbar visible en escritorio -->
         <aside
-          class="hidden md:block md:w-64 shrink-0 sticky top-24 z-50 max-h-[calc(100vh-9rem)] overflow-y-auto rounded-3xl border border-zinc-300 p-6 shadow-sm no-scrollbar dark:border-red-900 dark:bg-zinc-900"
+          class="hidden md:block md:w-64 shrink-0 sticky top-24 z-50 max-h-[calc(100vh-9rem)] overflow-y-auto rounded-3xl border border-zinc-300 bg-zinc-100 p-6 shadow-sm no-scrollbar dark:border-red-900 dark:bg-zinc-900"
         >
 
         <!-- Categorías -->
@@ -464,6 +567,37 @@ const showRightDots = endPage < totalPages;
             </details>
           </div>
 
+          <!-- Filtro Stock -->
+
+          <div class="mt-6 border-t border-zinc-300 pt-6 dark:border-zinc-800"
+            data-auth-visible="authenticated"
+          >
+            <h2 class="sticky text-lg font-semibold mb-4 text-zinc-900 dark:text-white">Stock</h2>
+            <ul class="flex flex-col gap-2 text-sm">
+              {[
+                { label: "Todos", value: "all" },
+                { label: "En stock", value: "in" },
+                { label: "Sin stock", value: "out" },
+              ].map((option) => {
+                const isActive = stockParam === option.value;
+                return (
+                  <li>
+                    <a
+                      href={buildQueryString({ stock: option.value, page: 1 })}
+                      class={`flex items-center justify-between rounded-2xl border px-4 py-2 font-medium transition ${
+                        isActive
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-zinc-300 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-red-900 dark:bg-zinc-900 dark:text-zinc-200"
+                      }`}
+                      aria-current={isActive ? "true" : undefined}
+                    >
+                      <span>{option.label}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
 
           <!-- Filtro de precio -->
           <div class="mt-6 border-t border-zinc-300 pt-6 dark:border-zinc-800" data-auth-visible="authenticated">
@@ -499,21 +633,66 @@ const showRightDots = endPage < totalPages;
 
         <!-- Grid de productos -->
         <section class="flex-1 flex flex-col gap-8 z-40">
-          <header class="flex flex-col gap-6 rounded-3xl border  border-zinc-300 p-6 shadow-sm dark:border-red-900 dark:bg-zinc-900">
+          <header class="flex flex-col gap-6 rounded-3xl border bg-zinc-100 border-zinc-300 p-6 shadow-sm dark:border-red-900 dark:bg-zinc-900">
             <div class="flex items-center justify-between">
               <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Tienda 
-                <svg fill="#000000" class="h-8 w-8 mx-2 inline-flex" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>store</title> <path d="M0 10.016l4-10.016h24l4 10.016q0 1.664-1.184 2.816t-2.816 1.184-2.816-1.184-1.184-2.816q0 1.664-1.184 2.816t-2.816 1.184-2.816-1.184-1.184-2.816q0 1.664-1.184 2.816t-2.816 1.184-2.816-1.184-1.184-2.816q0 1.664-1.184 2.816t-2.816 1.184-2.816-1.184-1.184-2.816zM2.016 30.016h28v1.984h-28v-1.984zM4 28v-12q2.272 0 4-1.536v9.536h16v-9.536q1.728 1.536 4 1.536v12h-24z"></path> </g></svg>
+                <svg
+                  class="mx-2 inline-flex h-8 w-8 text-zinc-800 dark:text-white"
+                  viewBox="0 0 32 32"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <title>store</title>
+                  <path
+                    d="M0 10.016l4-10.016h24l4 10.016q0 1.664-1.184 2.816t-2.816 1.184-2.816-1.184-1.184-2.816q0 1.664-1.184 2.816t-2.816 1.184-2.816-1.184-1.184-2.816q0 1.664-1.184 2.816t-2.816 1.184-2.816-1.184-1.184-2.816q0 1.664-1.184 2.816t-2.816 1.184-2.816-1.184-1.184-2.816zM2.016 30.016h28v1.984h-28v-1.984zM4 28v-12q2.272 0 4-1.536v9.536h16v-9.536q1.728 1.536 4 1.536v12h-24z"
+                  />
+                </svg>
+
               </h1>
 
             </div>
-            <form method="get" class="flex flex-col gap-4 md:flex-row">
-              <input
-                type="search"
-                name="search"
-                placeholder="Buscar por nombre o código" 
-                value={searchParam}
-                class="flex-1 rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-red-900 dark:bg-zinc-800 dark:text-white"
-              />
+            <form method="get" class="flex flex-col gap-4 md:flex-row md:items-start">
+              <div class="relative flex-1" data-search-suggestions>
+                <input
+                  type="search"
+                  name="search"
+                  placeholder="Buscar por nombre o código"
+                  value={normalizedSearchParam}
+                  autocomplete="off"
+                  class="w-full rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-red-900 dark:bg-zinc-800 dark:text-white"
+                />
+                {searchSuggestions.length > 0 && (
+                  <div
+                    class="absolute left-0 right-0 top-full z-20 mt-2 hidden overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-lg ring-1 ring-black/5 dark:border-red-900 dark:bg-zinc-900 dark:ring-white/10"
+                    data-suggestions-panel
+                  >
+                    <div class="flex items-center justify-between px-4 pt-3">
+                      <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                        Sugerencias
+                      </p>
+                      <span class="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary dark:bg-red-900/40 dark:text-red-200">
+                        Productos
+                      </span>
+                    </div>
+                    <ul class="flex max-h-64 flex-col gap-1 overflow-y-auto px-2 pb-3 pt-2" data-suggestions-list>
+                      {searchSuggestions.map((suggestion) => (
+                        <li data-suggestion-item data-suggestion-value={suggestion.value.toLowerCase()}>
+                          <a
+                            href={Astro.url.pathname + buildQueryString({ search: suggestion.value, page: 1 })}
+                            class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-zinc-700 transition hover:-translate-y-px hover:bg-primary/10 hover:text-primary hover:shadow-sm dark:text-zinc-200 dark:hover:bg-red-900/40 dark:hover:text-red-200"
+                          >
+                            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-[11px] font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                              {suggestion.label.slice(0, 2).toUpperCase()}
+                            </span>
+                            <span class="font-medium">{suggestion.label}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="page" value="1" />
               <button
@@ -521,13 +700,58 @@ const showRightDots = endPage < totalPages;
                 class="rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110"
               >
                 Buscar
-                <svg viewBox="0 0 24 24" class="h-6 w-6 mx-2 inline-flex" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11 6C13.7614 6 16 8.23858 16 11M16.6588 16.6549L21 21M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
               </button>
             </form>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400">
+            <p class="text-sm text-zinc-700 dark:text-zinc-200">
               Mostrando <strong>{productos.length}</strong> de <strong>{totalItems}</strong> productos disponibles.
             </p>
           </header>
+
+          <script is:inline>
+            const suggestionScope = document.querySelector("[data-search-suggestions]");
+            if (suggestionScope) {
+              const input = suggestionScope.querySelector("input[type='search']");
+              const panel = suggestionScope.querySelector("[data-suggestions-panel]");
+              const items = Array.from(suggestionScope.querySelectorAll("[data-suggestion-item]"));
+              const maxVisible = 6;
+              const form = suggestionScope.closest("form");
+              let lastQuery = input?.value.trim().toLowerCase() ?? "";
+
+              const updateSuggestions = () => {
+                if (!panel || !input) return;
+                const query = input.value.trim().toLowerCase();
+                const terms = query.split(/\s+/).filter(Boolean);
+                let visibleCount = 0;
+
+                items.forEach((item) => {
+                  const value = item.getAttribute("data-suggestion-value") || "";
+                  const matches =
+                    terms.length > 0 && terms.every((term) => value.includes(term));
+                  const show = matches && visibleCount < maxVisible;
+                  item.classList.toggle("hidden", !show);
+                  if (show) {
+                    visibleCount += 1;
+                  }
+                });
+
+                panel.classList.toggle("hidden", query.length === 0 || visibleCount === 0);
+
+                if (query.length === 0 && lastQuery.length > 0) {
+                  form?.requestSubmit();
+                }
+
+                lastQuery = query;
+              };
+
+              input?.addEventListener("input", updateSuggestions);
+              input?.addEventListener("focus", updateSuggestions);
+              input?.addEventListener("blur", () => {
+                if (panel) {
+                  setTimeout(() => panel.classList.add("hidden"), 150);
+                }
+              });
+            }
+          </script>
 
           {productos.length > 0 ? (
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full">

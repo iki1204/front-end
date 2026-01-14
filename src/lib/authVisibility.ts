@@ -1,27 +1,4 @@
-const SESSION_STORAGE_KEY = "usuarioSesion";
-const SESSION_EVENT = "usuarioSesion:cambio";
-
-type SessionUser = { confirmed?: boolean | null } | null;
-type SessionPayload = {
-  jwt?: string | null;
-  user?: SessionUser;
-} | null;
-
-const parseStoredSession = (): SessionPayload => {
-  try {
-    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch (error) {
-    console.warn("No se pudo leer la sesión almacenada", error);
-    return null;
-  }
-};
-
-const hasActiveSession = (session: SessionPayload = parseStoredSession()) => {
-  const user = session?.user;
-  return Boolean(session?.jwt && user && user.confirmed !== false);
-};
+import { SESSION_EVENT, SESSION_STORAGE_KEY, hasActiveSession } from "./sessionUser";
 
 const refreshAuthVisibility = () => {
   const isLoggedIn = hasActiveSession();

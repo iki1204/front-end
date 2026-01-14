@@ -1,9 +1,9 @@
 ---
-import Container from "./Container.astro"
-import { getPageData } from "../lib/api";
+import Container from "./Container.astro";
+const { pageData } = Astro.props;
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
-const response = await getPageData("home-page");
+const response = pageData;
 
 const sliderMarcasSection = response?.data?.[0]?.Secciones?.find(
   (s) => s.__component === "shared.slider"
@@ -36,8 +36,8 @@ const img = sliderMarcasSection?.files?.map((img) => `${API_URL}${img.url}`) ?? 
         </div>
         
      </div>
-      <div class="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-gray-950 dark:via-gray-950/80"></div>
-      <div class="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white via-white/80 to-transparent dark:from-gray-950 dark:via-gray-950/80"></div>
+      <div class="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-gray-900 dark:via-gray-900/80"></div>
+      <div class="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white via-white/80 to-transparent dark:from-gray-900 dark:via-gray-900/80"></div>
 
   </div>  
 
