@@ -4,6 +4,7 @@ import Features from '../components/Features.astro';
 import HeroSection from '../components/HeroSection.astro';
 import SliderMarcas from '../components/SliderMarcas.astro';
 import SliderBanner from '../components/SliderBanner.astro';
+import ProductCarousel from '../components/ProductCarousel.astro';
 import Layout from '../layouts/LayoutIndex.astro';
 import Testimonials from '../components/Testimonials.astro';
 import CallToAction from '../components/CallToAction.astro';
@@ -20,6 +21,7 @@ const pageData = await getPageData("home-page");
 		<About/>
 		<SliderBanner pageData={pageData}/>
 		<SliderMarcas pageData={pageData}/>
+		<ProductCarousel />
 		<Features/>
 		<Stats/>
 		<Testimonials/>
