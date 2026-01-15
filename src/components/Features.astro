@@ -3,28 +3,22 @@ import Container from "./Container.astro"
 
 const features = [
   {
-    title: "First feature",
-    description: "Neque Dolor, fugiat non cum doloribus aperiam voluptates nostrum.",
-    image: "https://cdn-icons-png.flaticon.com/512/4341/4341139.png",
+    title: "Pioneros en Fibra Óptica",
+    description: "Estamos comprometidos con la innovación que transforma la conectividad",
+    image: "https://cdn-icons-png.flaticon.com/512/1048/1048943.png",
     variant: "default",
   },
   {
-    title: "Second feature",
-    description: "Neque Dolor, fugiat non cum doloribus aperiam voluptates nostrum.",
-    image: "https://cdn-icons-png.flaticon.com/512/4341/4341134.png",
+    title: "Socio Estratégico para Tu Éxito Continuo",
+    description: "Productos excepcionales y un equipo comprometido",
+    image: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
     variant: "default",
   },
   {
-    title: "Third feature",
-    description: "Neque Dolor, fugiat non cum doloribus aperiam voluptates nostrum.",
-    image: "https://cdn-icons-png.flaticon.com/512/4341/4341160.png",
+    title: "Garantía de Calidad",
+    description: "La confianza se construye sobre una base de calidad inquebrantable",
+    image: "https://cdn-icons-png.flaticon.com/512/190/190411.png",
     variant: "default",
-  },
-  {
-    title: "More features",
-    description: "Neque Dolor, fugiat non cum doloribus aperiam voluptates nostrum.",
-    image: "https://cdn-icons-png.flaticon.com/512/4341/4341025.png",
-    variant: "accent",
   },
 ];
 
@@ -32,18 +26,23 @@ const features = [
 
 <div id="features">
   <Container>
-    <div class="md:w-2/3 lg:w-1/2">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-secondary">
+      <div class="align-text-top">
+        <h1 class="text-3xl font-semibold uppercase tracking-widest text-[#f05a28]">
+          ¿Porque Elegirnos?
+        </h1>
+      </div>
+    <div class="md:w-2/3 lg:w-1/2 inline-flex pt-10 gap-5">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 text-secondary">
         <path fill-rule="evenodd" d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813A3.75 3.75 0 007.466 7.89l.813-2.846A.75.75 0 019 4.5zM18 1.5a.75.75 0 01.728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 010 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 01-1.456 0l-.258-1.036a2.625 2.625 0 00-1.91-1.91l-1.036-.258a.75.75 0 010-1.456l1.036-.258a2.625 2.625 0 001.91-1.91l.258-1.036A.75.75 0 0118 1.5zM16.5 15a.75.75 0 01.712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 010 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 01-1.422 0l-.395-1.183a1.5 1.5 0 00-.948-.948l-1.183-.395a.75.75 0 010-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0116.5 15z" clip-rule="evenodd" />
       </svg>
-      
-      <h2 class="my-8 text-2xl font-bold text-gray-700 dark:text-white md:text-4xl">
-        Porque confiar en nosotros?
-      </h2>
-      <p class="text-gray-600 dark:text-gray-300">Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus ad ipsum pariatur autem, fugit laborum in atque amet obcaecati? Nisi minima aspernatur, quidem nulla cupiditate nam consequatur eligendi magni adipisci.</p>
+      <p class="text-gray-600 dark:text-gray-300">
+        En el vasto panorama de opciones, destacamos como la opción evidente cuando se trata de
+        importación, comercialización y distribución de equipos para fibra óptica. Aquí te presentamos
+        tres poderosas razones por las cuales escogernos es la elección inteligente:
+      </p>
     </div>
     <div
-      class="mt-16 grid divide-x divide-y divide-gray-100 dark:divide-gray-700 overflow-hidden rounded-3xl border border-gray-100 text-gray-600 dark:border-gray-700 sm:grid-cols-2 lg:grid-cols-4 lg:divide-y-0 xl:grid-cols-4"
+      class="mt-16 grid divide-x divide-y divide-gray-100 dark:divide-gray-700 overflow-hidden rounded-3xl border border-gray-100 text-gray-600 dark:border-gray-700 lg:grid-cols-3 lg:divide-y-0"
     >
       {features.map((feature) => {
         const cardClass =

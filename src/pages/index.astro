@@ -6,10 +6,7 @@ import SliderMarcas from '../components/SliderMarcas.astro';
 import SliderBanner from '../components/SliderBanner.astro';
 import ProductCarousel from '../components/ProductCarousel.astro';
 import Layout from '../layouts/LayoutIndex.astro';
-import Testimonials from '../components/Testimonials.astro';
-import CallToAction from '../components/CallToAction.astro';
-import ProductCarousel from '../components/ProductCarrusel.astro';
-import Blog from '../components/Blog.astro';
+import Ubicacion from '../components/Ubicacion.astro';
 import About from '../components/About.astro';
 import { getPageData } from '../lib/api';
 
@@ -19,15 +16,12 @@ const pageData = await getPageData("home-page");
 <Layout title="Unicom - Inicio">
 	<main class="space-y-30 mb-40 ">
 		<HeroSection pageData={pageData}/>
+		<SliderMarcas pageData={pageData}/>
 		<About/>
 		<SliderBanner pageData={pageData}/>
-		<SliderMarcas pageData={pageData}/>
-		<ProductCarousel />
 		<Features/>
 		<ProductCarousel/>
 		<Stats/>
-		<Testimonials/>
-		<CallToAction/>
-		<Blog/>
+		<Ubicacion/>
 	</main>
 </Layout>

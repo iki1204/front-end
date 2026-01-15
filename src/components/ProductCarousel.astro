@@ -17,12 +17,6 @@ const shuffle = (items: any[]) => {
   return list;
 };
 
-const priceFormatter = new Intl.NumberFormat("es-PE", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-});
-
 const params = new URLSearchParams({
   "pagination[page]": "1",
   "pagination[pageSize]": String(FETCH_COUNT),
@@ -59,19 +53,16 @@ const getProductImage = (producto: any) => {
   return path ? `${API_URL}${path}` : "/images/placeholder.svg";
 };
 
-const getFormattedPrice = (price: number | null | undefined) =>
-  typeof price === "number" ? priceFormatter.format(price) : "Consultar";
 ---
 
 <Container>
   <section class="space-y-8" data-product-carousel>
     <div class="text-center">
-      <p class="text-sm font-semibold uppercase tracking-[0.28em] text-primary">Explora</p>
-      <h2 class="mt-2 text-3xl font-bold text-zinc-900 dark:text-white">
-        Explora compra y venta
-      </h2>
+        <h1 class="text-3xl font-semibold uppercase tracking-widest text-[#f05a28]">
+          Mira Algunos de Nuestros Productos
+        </h1>
       <p class="mt-2 text-zinc-500 dark:text-zinc-400">
-        Productos destacados seleccionados al azar desde nuestro catálogo.
+        Productos destacados seleccionados de nuestro catálogo.
       </p>
     </div>
 
@@ -96,14 +87,14 @@ const getFormattedPrice = (price: number | null | undefined) =>
       </button>
 
       <div
-        class="flex gap-6 overflow-x-auto scroll-smooth pb-4 pt-2"
+        class="flex gap-6 overflow-x-auto scroll-smooth pb-4 pt-2 no-scrollbar"
         data-carousel-track
         data-loop={productosAleatorios.length > 1 ? "true" : "false"}
       >
         {productosAleatorios.length ? (
-          loopItems.map((producto) => {
+          <>
+            {loopItems.map((producto) => {
             const slug = producto?.ID_Nombre ?? producto?.slug ?? producto?.id;
-            const price = getFormattedPrice(producto?.precio);
             const image = getProductImage(producto);
 
             return (
@@ -115,12 +106,12 @@ const getFormattedPrice = (price: number | null | undefined) =>
                   <img
                     src={image}
                     alt={producto?.nombre ?? "Producto"}
-                    class="h-full w-full object-cover"
+                    class="h-full w-full object-fit"
                     loading="lazy"
                     decoding="async"
                   />
-                  <span class="absolute left-4 top-4 rounded-full bg-amber-400 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-900">
-                    Nuevo
+                  <span class="absolute -left-12 top-4 rotate-[-25deg] bg-yellow-500 px-12 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-md">
+                    Ultimas unidades
                   </span>
                 </div>
                 <div class="flex flex-1 flex-col gap-3 p-5">
@@ -131,7 +122,6 @@ const getFormattedPrice = (price: number | null | undefined) =>
                     Código: {producto?.codigo ?? "N/A"}
                   </p>
                   <div class="mt-auto flex items-center justify-between gap-3">
-                    <span class="text-lg font-bold text-primary">{price}</span>
                     <a
                       href={`/producto/${slug}`}
                       class="rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:brightness-110"
@@ -142,7 +132,20 @@ const getFormattedPrice = (price: number | null | undefined) =>
                 </div>
               </article>
             );
-          })
+          })}
+            <article
+              class="flex w-[260px] shrink-0 flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-zinc-300 bg-white p-6 text-center text-zinc-700 shadow-sm transition hover:-translate-y-1 hover:border-primary hover:text-primary hover:shadow-lg dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"
+              aria-label="Ver más productos"
+            >
+              <span class="text-lg font-semibold uppercase tracking-wide">Ver más</span>
+              <a
+                href="/tienda"
+                class="rounded-full border border-primary px-4 py-2 text-xs font-semibold uppercase tracking-wide text-primary transition hover:bg-primary hover:text-white"
+              >
+                Ir a tienda
+              </a>
+            </article>
+          </>
         ) : (
           <div class="rounded-2xl border border-dashed border-zinc-300 p-6 text-center text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
             No encontramos productos para mostrar en este momento.
@@ -178,7 +181,6 @@ const getFormattedPrice = (price: number | null | undefined) =>
     const track = carousel.querySelector("[data-carousel-track]");
     const prevButton = carousel.querySelector("[data-carousel-prev]");
     const nextButton = carousel.querySelector("[data-carousel-next]");
-    const shouldLoop = track?.dataset.loop === "true";
     let loopWidth = 0;
 
     const getScrollStep = () => {
@@ -192,23 +194,7 @@ const getFormattedPrice = (price: number | null | undefined) =>
       return cardWidth + (Number.isNaN(gap) ? 24 : gap);
     };
 
-    const updateLoopWidth = () => {
-      if (!track || !shouldLoop) return;
-      loopWidth = track.scrollWidth / 2;
-      if (!loopWidth) return;
-      if (track.scrollLeft < loopWidth * 0.5 || track.scrollLeft > loopWidth * 1.5) {
-        track.scrollLeft = loopWidth;
-      }
-    };
-
-    const handleLoop = () => {
-      if (!track || !shouldLoop || !loopWidth) return;
-      if (track.scrollLeft <= loopWidth * 0.5) {
-        track.scrollLeft += loopWidth;
-      } else if (track.scrollLeft >= loopWidth * 1.5) {
-        track.scrollLeft -= loopWidth;
-      }
-    };
+  
 
     const scrollByStep = (direction) => {
       if (!track) return;
@@ -218,13 +204,5 @@ const getFormattedPrice = (price: number | null | undefined) =>
 
     prevButton?.addEventListener("click", () => scrollByStep(-1));
     nextButton?.addEventListener("click", () => scrollByStep(1));
-    if (shouldLoop && track) {
-      requestAnimationFrame(() => {
-        updateLoopWidth();
-        handleLoop();
-      });
-      window.addEventListener("resize", updateLoopWidth);
-      track.addEventListener("scroll", handleLoop);
-    }
   }
 </script>
