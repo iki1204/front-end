@@ -62,7 +62,10 @@ const formattedPrices = {
 };
 ---
 
-<article class="group flex h-full flex-col rounded-2xl border border-zinc-300 bg-zinc-100 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg  dark:border-red-900 dark:bg-zinc-900">
+<article
+  class="group flex h-full flex-col rounded-2xl border border-zinc-300 bg-zinc-100 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg  dark:border-red-900 dark:bg-zinc-900"
+  data-product-card
+>
   <a href={`/producto/${slug}`} class="flex flex-1 flex-col">
     <div class="relative overflow-hidden rounded-xl bg-zinc-100  dark:border-red-900 transition duration-300 group-hover:scale-105">
       {isOutOfStock ? (

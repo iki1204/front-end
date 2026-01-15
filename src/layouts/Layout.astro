@@ -7,6 +7,7 @@ import cartWidgetScript from "../lib/carritoWidget.ts?url";
 import loginWidgetScript from "../lib/sesionWidget.ts?url";
 import authVisibilityScript from "../lib/authVisibility.ts?url";
 import priceByUserScript from "../lib/precioPorUsuario.ts?url";
+import NotFoundContent from "../components/NotFound.astro";
 import { getGlobalData } from "../lib/api";
 import "../css/tailus.css"
 import "../styles/global.css";
@@ -18,20 +19,23 @@ const {
     metaDescription: metaDescriptionOverride,
     metaKeywords: metaKeywordsOverride,
     metaImages: metaImagesOverride,
+    forceNotFound = false,
 } = Astro.props;
 
-const response = await getGlobalData();
-const metaTitle = metaTitleOverride ?? response.data.defaultSeo.metaTitle;
-const metaDescription = metaDescriptionOverride ?? response.data.defaultSeo.metaDescription;
-const metaKeywords = metaKeywordsOverride ?? response.data.defaultSeo.metaKeywords;
-const metaIcon = response.data.favicon?.url ? API_URL + response.data.favicon.url : null;
-const metaImage = response.data.defaultSeo?.shareImage?.url ? API_URL + response.data.defaultSeo.shareImage.url : null;
-const siteName = response.data.siteName;
+const response = await getGlobalData().catch(() => null);
+const metaTitle = metaTitleOverride ?? response?.data?.defaultSeo?.metaTitle ?? "Página no encontrada";
+const metaDescription = metaDescriptionOverride ?? response?.data?.defaultSeo?.metaDescription ?? "";
+const metaKeywords = metaKeywordsOverride ?? response?.data?.defaultSeo?.metaKeywords ?? "";
+const metaIcon = response?.data?.favicon?.url ? API_URL + response.data.favicon.url : null;
+const metaImage = response?.data?.defaultSeo?.shareImage?.url ? API_URL + response.data.defaultSeo.shareImage.url : null;
+const siteName = response?.data?.siteName ?? "Unicom";
 const metaImages = Array.isArray(metaImagesOverride) && metaImagesOverride.length
     ? metaImagesOverride
     : metaImage
       ? [metaImage]
       : [];
+const showNotFound = forceNotFound || !response;
+const showShell = Boolean(response);
 ---
 
 <!DOCTYPE html>
@@ -91,12 +95,12 @@ const metaImages = Array.isArray(metaImagesOverride) && metaImagesOverride.lengt
 
 
             
-            <AppHeader />
+            {showShell && <AppHeader />}
 
-            <slot />
+            {showNotFound ? <NotFoundContent /> : <slot />}
             
-        
-            <AppFooter />
+            {showShell && <AppFooter />}
+
         </div>
 
         <Cart floating />
