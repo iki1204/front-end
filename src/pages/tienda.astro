@@ -223,6 +223,21 @@ const showRightDots = endPage < totalPages;
 
 <BaseLayout global={global}>
 
+  <div
+    class="fixed inset-0 z-[999] flex items-center justify-center bg-white/80 text-zinc-900 backdrop-blur-sm transition-opacity dark:bg-zinc-950/80 dark:text-white"
+    data-preloader
+    role="status"
+    aria-live="polite"
+    aria-busy="true"
+  >
+    <div class="flex flex-col items-center gap-4 rounded-3xl bg-white/90 px-8 py-6 shadow-xl dark:bg-zinc-900/90">
+      <div class="loader"></div>
+      <p class="text-sm font-semibold uppercase tracking-widest text-zinc-600 dark:text-zinc-300">
+        Cargando productos
+      </p>
+    </div>
+  </div>
+
   <Container>
     <article class="flex flex-col gap-10 py-10 w-full">
       <!-- Filtro responsive -->
@@ -824,5 +839,43 @@ const showRightDots = endPage < totalPages;
       </div>
     </article>
   </Container>
-  
+   <script is:inline>
+    const preloader = document.querySelector("[data-preloader]");
+    if (preloader) {
+      const hidePreloader = () => {
+        preloader.classList.add("opacity-0");
+        preloader.setAttribute("aria-busy", "false");
+        setTimeout(() => {
+          preloader.classList.add("hidden");
+        }, 200);
+      };
+
+      const showPreloader = () => {
+        preloader.classList.remove("hidden", "opacity-0");
+        preloader.setAttribute("aria-busy", "true");
+      };
+
+      window.addEventListener("load", hidePreloader);
+
+      document.addEventListener("submit", (event) => {
+        const form = event.target;
+        if (form instanceof HTMLFormElement) {
+          showPreloader();
+        }
+      });
+
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const link = target.closest("a");
+        if (!link || link.target === "_blank" || link.hasAttribute("download")) {
+          return;
+        }
+        const href = link.getAttribute("href") ?? "";
+        if (href.startsWith("#")) return;
+        if (link.hasAttribute("data-no-preloader")) return;
+        showPreloader();
+      });
+    }
+  </script>
 </BaseLayout>

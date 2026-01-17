@@ -8,6 +8,7 @@ import ProductCarousel from '../components/ProductCarousel.astro';
 import Layout from '../layouts/LayoutIndex.astro';
 import Ubicacion from '../components/Ubicacion.astro';
 import About from '../components/About.astro';
+import SliderPromos from '../components/SliderPromos.astro';
 import { getPageData } from '../lib/api';
 
 const pageData = await getPageData("home-page");
@@ -22,6 +23,7 @@ const pageData = await getPageData("home-page");
 		<Features/>
 		<ProductCarousel/>
 		<Stats/>
+		
 		<Ubicacion/>
 	</main>
 </Layout>

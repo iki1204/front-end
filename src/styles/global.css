@@ -58,17 +58,6 @@
     
   }
 
-  @keyframes l1 {
-    0%,10% {
-      background-size: 8px 0,8px 4px,8px 4px;
-      background-position: 0 50%,0 calc(50% - 2px),0 calc(50% + 2px),50% 50%,50% calc(50% - 2px),50% calc(50% + 2px),100% 50%,100% calc(50% - 2px),100% calc(50% + 2px);
-    }
-    90%,100% {
-        background-size: 8px 100%,8px 4px, 8px 4px;
-        background-position: 0 50%,0 -2px,0 calc(100% + 2px),50% 50%,50% -2px,50% calc(100% + 2px),100% 50%,100% -2px,100% calc(100% + 2px);
-    }
-  }
-
   .animate-scroll-x {
     animation: scroll-x 14s linear infinite;
   }
@@ -78,18 +67,35 @@
     animation: cart-widget-bounce 0.6s ease;
   }
 
-  .loader {
-    width: 40px;
-    aspect-ratio: 1;
-    --c: linear-gradient(#000 0 0);
-    --r1: radial-gradient(farthest-side at bottom,#000 93%,#0000);
-    --r2: radial-gradient(farthest-side at top   ,#000 93%,#0000);
-    background: 
-      var(--c) ,var(--r1),var(--r2),
-      var(--c) ,var(--r1),var(--r2),
-      var(--c) ,var(--r1),var(--r2);
-    background-repeat: no-repeat;
-    animation: l1 1s infinite alternate;
-  }
+
+
+  
+/* Loader */
+.loader {
+  height: 60px;
+  aspect-ratio: 2;
+  border-bottom: 3px solid #0000;
+  background: 
+    linear-gradient(90deg,#524656 50%,#0000 0)
+    -25% 100%/50% 3px repeat-x border-box;
+  position: relative;
+  animation: l3-0 .75s linear infinite;
+}
+.loader:before {
+  content: "";
+  position: absolute;
+  inset: auto 42.5% 0;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #CF4647;
+  animation: l3-1 .75s cubic-bezier(0,900,1,900) infinite;
+}
+@keyframes l3-0 {
+  to {background-position: -125% 100%}
+}
+@keyframes l3-1 {
+  0%,2% {bottom: 0%}
+  98%,to {bottom:.1%}
+}
 
 }
