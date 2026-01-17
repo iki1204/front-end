@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_STRAPI_URL + "/api";
+const API_URL = `${import.meta.env.VITE_STRAPI_URL ?? "http://localhost:1337"}/api`;
 const API_TOKEN = import.meta.env.VITE_STRAPI_API_TOKEN;
 
 type QueryParams =
@@ -62,7 +62,7 @@ async function fetchAPI(endpoint: string, params: QueryParams = "") {
 async function postAPI(endpoint: string, body: unknown = {}, params: QueryParams = "") {
   const query = buildQuery(params);
 
-  const res = await fetch(`http://192.168.5.55:1337/api/auth/${endpoint}${query}`, {
+  const res = await fetch(`${API_URL}/auth/${endpoint}${query}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

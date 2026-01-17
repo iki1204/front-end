@@ -220,6 +220,7 @@ const showRightDots = endPage < totalPages;
 
 ---
 
+
 <BaseLayout global={global}>
 
   <Container>
@@ -339,10 +340,10 @@ const showRightDots = endPage < totalPages;
               <input type="hidden" name="brand" value={brandParam} />
               <input type="hidden" name="stock" value={stockParam} />
               <input type="hidden" name="page" value="1" />
-              <label for="priceRange" class="text-sm text-zinc-600 dark:text-zinc-300">Ajusta el rango de precio:</label>
-              <div class="flex flex-col gap-3">
+              <label for="priceRangeMobile" class="text-sm text-zinc-600 dark:text-zinc-300">Ajusta el rango de precio:</label>
+              <div class="flex flex-col gap-3" data-price-range>
                 <input
-                  id="priceRange"
+                  id="priceRangeMobile"
                   type="range"
                   min={MIN_PRICE}
                   max={MAX_PRICE}
@@ -350,12 +351,12 @@ const showRightDots = endPage < totalPages;
                   name="price"
                   value={priceFilterValue}
                   class="w-full cursor-pointer accent-primary"
-                  oninput="document.getElementById('priceRangeOutput').textContent = new Intl.NumberFormat('es-PE',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(this.value)"
+                  oninput="const scope = this.closest('[data-price-range]'); const output = scope?.querySelector('[data-price-range-output]'); if (output) { output.textContent = new Intl.NumberFormat('es-PE',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(this.value); }"
                   onchange="this.form.requestSubmit()"
                 />
                 <div class="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300">
                   <span>{priceFormatter.format(MIN_PRICE)}</span>
-                  <span id="priceRangeOutput">{priceFormatter.format(priceFilterValue)}</span>
+                  <span data-price-range-output aria-live="polite">{priceFormatter.format(priceFilterValue)}</span>
                 </div>
               </div>
             </form>
@@ -607,10 +608,10 @@ const showRightDots = endPage < totalPages;
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="brand" value={brandParam} />
               <input type="hidden" name="page" value="1" />
-              <label for="priceRange" class="text-sm text-zinc-600 dark:text-zinc-300">Ajusta el rango de precio:</label>
-              <div class="flex flex-col gap-3">
+              <label for="priceRangeDesktop" class="text-sm text-zinc-600 dark:text-zinc-300">Ajusta el rango de precio:</label>
+              <div class="flex flex-col gap-3" data-price-range>
                 <input
-                  id="priceRange"
+                  id="priceRangeDesktop"
                   type="range"
                   min={MIN_PRICE}
                   max={MAX_PRICE}
@@ -618,12 +619,12 @@ const showRightDots = endPage < totalPages;
                   name="price"
                   value={priceFilterValue}
                   class="w-full cursor-pointer accent-primary"
-                  oninput="document.getElementById('priceRangeOutput').textContent = new Intl.NumberFormat('es-PE',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(this.value)"
+                  oninput="const scopeDesktop = this.closest('[data-price-range]'); const outputDesktop = scopeDesktop?.querySelector('[data-price-range-output]'); if (outputDesktop) { outputDesktop.textContent = new Intl.NumberFormat('es-PE',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(this.value); }"
                   onchange="this.form.requestSubmit()"
                 />
                 <div class="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300">
                   <span>{priceFormatter.format(MIN_PRICE)}</span>
-                  <span id="priceRangeOutput">{priceFormatter.format(priceFilterValue)}</span>
+                  <span data-price-range-output aria-live="polite">{priceFormatter.format(priceFilterValue)}</span>
                 </div>
               </div>
             </form>
@@ -632,7 +633,7 @@ const showRightDots = endPage < totalPages;
         </aside>
 
         <!-- Grid de productos -->
-        <section class="flex-1 flex flex-col gap-8 z-40">
+        <section class="flex-1 flex flex-col gap-8 z-40" data-products-section aria-busy="true">
           <header class="flex flex-col gap-6 rounded-3xl border bg-zinc-100 border-zinc-300 p-6 shadow-sm dark:border-red-900 dark:bg-zinc-900">
             <div class="flex items-center justify-between">
               <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Tienda 

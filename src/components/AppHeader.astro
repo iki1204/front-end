@@ -3,8 +3,6 @@ import Container from "./Container.astro";
 import { getGlobalData } from "../lib/api";  
 import headerAuthScript from "../lib/headerAuthToggle.ts?url";
 
-
-
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 const response = await getGlobalData();
 const siteName = response.data.header.Etiqueta;
@@ -30,7 +28,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                             <div class="h-6 w-2 bg-primary"></div>
                         </div>
                         <div>
-                            {logoUrl ? <img src={logoUrl[0]} alt={siteName} class="h-14 w-auto object-contain" /> : null}
+                            {logoUrl ? <img src={logoUrl[0]} alt={siteName} class="h-12 w-auto object-contain" /> : null}
                         </div>
                     </a>
                     <a href="/#home" aria-label="logo" class="hidden dark:flex items-center space-x-2">

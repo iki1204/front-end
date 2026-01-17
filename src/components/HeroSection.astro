@@ -31,24 +31,58 @@ const botones = heroSection?.boton_link ?? [];
                 {mainSubtitulo}
                 <span class="text-primary ">{lastSubtitulo}</span>
               </p>
-              <div class="mt-16 flex flex-wrap group justify-center gap-y-4 gap-x-6">
+
+              <div class="mt-16 gap-5 flex flex-col sm:flex-row sm:justify-center">
                 {botones.map((btn, index) => {
-                  const isEven = index % 2 === 0;
+                  const isPrimary = index % 2 === 0;
+
                   const baseClasses =
-                    'relative flex h-11 w-full items-center justify-center px-6 before:absolute before:inset-0 before:rounded-full before:transition before:duration-300 active:duration-75 sm:w-max';
-                  const colorClasses = isEven
-                    ? 'before:bg-primary hover:before:scale-105 active:before:scale-95'
-                    : 'before:border before:border-transparent before:bg-gradient-to-b group hover:before:scale-105 active:before:scale-95 before:border-gray-700 before:bg-gray-800';
-                  const textClasses = isEven
-                    ? 'relative text-base font-semibold text-white'
-                    : 'relative text-base font-semibold text-white';
+                    "group relative inline-flex h-12 w-full items-center justify-center rounded-full px-6 text-base font-semibold transition " +
+                    "active:scale-[0.97] sm:w-auto sm:min-w-[180px] " +
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black " +
+                    "shadow-sm hover:shadow-md";
+
+                  const primaryClasses =
+                    "bg-primary text-white ring-1 ring-white/15 hover:ring-white/30 hover:bg-red-800";
+
+                  const secondaryClasses =
+                    "bg-gray-900 text-white ring-1 ring-red/15 hover:ring-red/30 hover:bg-gray-800";
+
+                  const shineEffect =
+                    "before:pointer-events-none before:absolute before:inset-0 before:rounded-full before:opacity-0 before:transition " +
+                    "before:bg-[radial-gradient(120px_circle_at_30%_30%,rgba(255,255,255,0.25),transparent_60%)] " +
+                    "group-hover:before:opacity-100";
+
                   return (
-                    <a href={btn.url} class={`${baseClasses} ${colorClasses}`}>
-                      <span class={textClasses}>{btn.etiqueta}</span>
+                    <a
+                      href={btn.url}
+                      class={`${baseClasses} ${shineEffect} ${
+                        isPrimary ? primaryClasses : secondaryClasses
+                      }`}
+                    >
+                      <span class="relative flex items-center gap-2">
+                        {btn.etiqueta}
+                        
+                        <svg
+                          class="h-4 w-4 translate-x-0 transition group-hover:translate-x-2"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M13 5l7 7-7 7M20 12H4"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </span>
                     </a>
                   );
                 })}
               </div>
+                
             </div>
             
           </div>
