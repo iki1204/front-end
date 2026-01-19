@@ -1,4 +1,4 @@
-const API_URL = `${import.meta.env.VITE_STRAPI_URL ?? "http://localhost:1337"}/api`;
+const API_URL = `${import.meta.env.VITE_STRAPI_URL ?? "http://69.6.203.228:1337"}/api`;
 const API_TOKEN = import.meta.env.VITE_STRAPI_API_TOKEN;
 
 type QueryParams =
@@ -70,6 +70,7 @@ async function postAPI(endpoint: string, body: unknown = {}, params: QueryParams
     body: JSON.stringify(body ?? {}),
     cache: "no-store",
   });
+  console.log("API_URL:", API_URL);
 
   let payload: any = null;
   try {

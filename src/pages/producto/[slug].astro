@@ -176,6 +176,13 @@ const formattedPrices = {
 const precio = formattedPrices.default;
 
 var descripcion = producto?.descripcion;
+
+const asesorContactLinks = [
+  "https://wa.me/593967302450?text=hola, necesito mas informacion sobre sus productos",
+  "https://wa.me/593989372276?text=hola, necesito mas informacion sobre sus productos",
+  "https://wa.me/593991046279?text=hola, necesito mas informacion sobre sus productos",
+  "https://wa.me/593989538349?text=hola, necesito mas informacion sobre sus productos"
+];
 ---
 
 <BaseLayout
@@ -422,7 +429,7 @@ var descripcion = producto?.descripcion;
               Añadir al carrito
             </button>
             <a
-              href="/tienda#contacto"
+              href={asesorContactLinks[Math.floor(Math.random() * asesorContactLinks.length)]}
               class="w-full rounded-full border border-primary/40 px-6 py-3 text-center text-sm font-semibold text-primary transition hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20"
             >
               Contactar un asesor

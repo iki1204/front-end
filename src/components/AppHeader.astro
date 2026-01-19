@@ -17,7 +17,7 @@ const botones = response.data.header.Botones.map((boton) => ({
 }));
 ---
 
-<header id="site-header" class="sticky w-screen top-0 z-60 border-b border-black/10 dark:border-white/5 bg-transparent transition-all duration-500 ease-in-out">
+<header id="site-header" class="sticky w-full top-0 z-60 border-b border-black/10 dark:border-white/5 bg-transparent transition-all duration-500 ease-in-out">
     <nav id="nav" class="group/nav top-0 z-50 w-full  dark:border-white/5 lg:border-transparent">
         <Container>
             <div class="relative flex flex-wrap items-center justify-between gap-6 py-3 md:gap-0 md:py-4">
@@ -51,7 +51,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                         </div>
                     </div>
                 </div>
-                <div id="navLayer" aria-hidden="true" class="fixed inset-0 z-10 h-screen w-screen origin-bottom scale-y-0 bg-white/70 backdrop-blur-2xl transition duration-500 group-data-[state=active]/nav:origin-top group-data-[state=active]/nav:scale-y-100 dark:bg-gray-950/70 lg:hidden"></div>
+                <div id="navLayer" aria-hidden="true" class="fixed inset-0 z-10 h-screen w-full origin-bottom scale-y-0 bg-white/70 backdrop-blur-2xl transition duration-500 group-data-[state=active]/nav:origin-top group-data-[state=active]/nav:scale-y-100 dark:bg-gray-950/70 lg:hidden"></div>
                 <div id="navlinks" class="invisible absolute top-full  justify-center left-0 z-20 w-full origin-top-right translate-y-1 scale-90 flex-col flex-wrap gap-6 rounded-3xl border border-gray-100 bg-white p-8 opacity-0 shadow-2xl shadow-gray-600/10 transition-all duration-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none lg:visible lg:relative lg:flex lg:w-fit lg:translate-y-0 lg:scale-100 lg:flex-row lg:items-center lg:gap-0 lg:border-none lg:bg-transparent lg:p-0 lg:opacity-100 lg:shadow-none lg:dark:bg-transparent group-data-[state=active]/nav:visible group-data-[state=active]/nav:scale-100 group-data-[state=active]/nav:opacity-100 lg:group-data-[state=active]/nav:translate-y-0">
                   <div class="relative mt-6 w-full text-gray-600 dark:text-gray-200 lg:mt-0 lg:w-auto lg:pr-4 lg:pt-0 group/menu" data-nav-dropdown>
                       <button
