@@ -519,6 +519,8 @@ const setupCheckout = (root: QueryRoot) => {
   const list = container.querySelector<HTMLUListElement>("[data-checkout-list]");
   const empty = container.querySelector<HTMLElement>("[data-checkout-empty]");
   const subtotal = root.querySelector<HTMLElement>("[data-checkout-subtotal]");
+  const tax = root.querySelector<HTMLElement>("[data-checkout-tax]");
+  const totalAmount = root.querySelector<HTMLElement>("[data-checkout-total]");
   const count = root.querySelector<HTMLElement>("[data-checkout-count]");
   const clearButton = root.querySelector<HTMLButtonElement>("[data-checkout-clear]");
   const proceedButton = root.querySelector<HTMLButtonElement>("[data-checkout-proceed]");
@@ -526,6 +528,9 @@ const setupCheckout = (root: QueryRoot) => {
   const unsubscribe = subscribeToCart((items) => {
     const total = getCartTotal();
     if (subtotal) subtotal.textContent = formatMoney(total);
+    const taxAmount = total * 0.15;
+    if (tax) tax.textContent = formatMoney(taxAmount);
+    if (totalAmount) totalAmount.textContent = formatMoney(total + taxAmount);
     if (count) {
       const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
       count.textContent = `${itemCount} ${itemCount === 1 ? "artículo" : "artículos"}`;
