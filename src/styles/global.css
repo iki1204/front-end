@@ -6,6 +6,19 @@
 @custom-variant group-hover (.group:hover &);
 @custom-variant peer-hover (.peer:hover ~ &);
 
+html,
+body {
+  width: 100%;
+  overflow-x: clip;
+}
+
+@supports not (overflow: clip) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+}
+
 @layer components {
   .slider .slide {
     opacity: 0;

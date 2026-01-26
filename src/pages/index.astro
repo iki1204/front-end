@@ -15,15 +15,41 @@ const pageData = await getPageData("home-page");
 ---
 
 <Layout title="Unicom - Inicio">
-	<main class="space-y-30 mb-40 ">
-		<HeroSection pageData={pageData}/>
-		<SliderMarcas pageData={pageData}/>
-		<About/>
-		<SliderBanner pageData={pageData}/>
-		<Features/>
-		<ProductCarousel/>
-		<Stats/>
-		<SliderPromos pageData={pageData}/>
-		<Ubicacion/>
-	</main>
+  <main class="space-y-30 mb-40">
+    <section id="home">
+      <HeroSection pageData={pageData} />
+    </section>
+
+    <section id="marcas">
+      <SliderMarcas pageData={pageData} />
+    </section>
+
+    <section id="about">
+      <About />
+    </section>
+
+    <section id="banner">
+      <SliderBanner pageData={pageData} />
+    </section>
+
+    <section id="features">
+      <Features />
+    </section>
+
+    <section id="productos">
+      <ProductCarousel />
+    </section>
+
+    <section id="stats">
+      <Stats />
+    </section>
+
+    <section id="promos">
+      <SliderPromos pageData={pageData} />
+    </section>
+
+    <section id="ubicacion">
+      <Ubicacion />
+    </section>
+  </main>
 </Layout>

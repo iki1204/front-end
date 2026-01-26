@@ -10,6 +10,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/node": "^9.5.2",
     "@astrojs/react": "^4.4.2",
     "@iconify-json/mdi": "^1.2.3",
     "@strapi/blocks-react-renderer": "^1.0.2",

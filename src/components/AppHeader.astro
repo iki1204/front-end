@@ -7,14 +7,26 @@ const API_URL = import.meta.env.VITE_STRAPI_URL;
 const response = await getGlobalData();
 const siteName = response.data.header.Etiqueta;
 const logoUrl = response.data.header.Logo.map((img) => `${API_URL}${img.url}`) ?? [];
+
+const isHome = Astro.url.pathname === "/";
+const normalizeLink = (url) => {
+    if (!url) return url;
+    if (url.startsWith("/#")) return url;
+    if (url.startsWith("#/")) return `/#${url.slice(2)}`;
+    if (url.startsWith("#")) return `${isHome ? "" : "/"}#${url.slice(1)}`;
+    return url;
+};
+
 const links = response.data.header.subitem.map((link) => ({
     label: link.etiqueta,
-    to: link.url,
+    to: normalizeLink(link.url),
 }));
 const botones = response.data.header.Botones.map((boton) => ({
     label: boton.title,
-    to: boton.body,
+    to: normalizeLink(boton.body),
 }));
+
+
 ---
 
 <header id="site-header" class="sticky w-full top-0 z-60 border-b border-black/10 dark:border-white/5 bg-transparent transition-all duration-500 ease-in-out">
@@ -183,6 +195,20 @@ const botones = response.data.header.Botones.map((boton) => ({
 
 <script>
   const header = document.getElementById("site-header");
+  const HOME_PATH = "/";
+  const normalizeHash = (value) => {
+    if (!value) return null;
+    if (value.startsWith("/#")) return value.slice(2);
+    if (value.startsWith("#/")) return value.slice(2);
+    if (value.startsWith("#")) return value.slice(1);
+    return null;
+  };
+
+  const scrollToHash = (hashValue) => {
+    const target = document.getElementById(hashValue);
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const updateHeaderState = () => {
     if (!header) return;
@@ -197,6 +223,29 @@ const botones = response.data.header.Botones.map((boton) => ({
 
   updateHeaderState();
   window.addEventListener("scroll", updateHeaderState);
+  if (window.location.pathname === HOME_PATH) {
+    const initialHash = normalizeHash(window.location.hash || window.location.pathname);
+    if (initialHash) {
+      requestAnimationFrame(() => scrollToHash(initialHash));
+    }
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    const link = target.closest("a");
+    if (!link) return;
+    const href = link.getAttribute("href") ?? "";
+    const hashValue = normalizeHash(href);
+    if (!hashValue) return;
+    const isHome = window.location.pathname === HOME_PATH;
+    if (isHome) {
+      event.preventDefault();
+      scrollToHash(hashValue);
+      window.history.replaceState({}, "", `/#${hashValue}`);
+    }
+  }); 
+
 </script>
 
 
