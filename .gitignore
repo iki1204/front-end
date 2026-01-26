@@ -20,3 +20,13 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# Archivos generados por Astro
+.astro/data-store.json
+
+# Config local de Astro (si varía por entorno)
+astro.config.mjs
+
+# Dependencias / lockfiles (si no quieres versionarlos)
+package.json
+package-lock.json
