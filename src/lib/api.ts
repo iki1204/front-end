@@ -1,4 +1,4 @@
-const API_URL = `${import.meta.env.VITE_STRAPI_URL ?? "http://69.6.203.228:1337"}/api`;
+const API_URL = `${import.meta.env.VITE_STRAPI_URL ?? "https://api.unicomec.com"}/api`;
 const API_TOKEN = import.meta.env.VITE_STRAPI_API_TOKEN;
 
 type QueryParams =
@@ -70,7 +70,6 @@ async function postAPI(endpoint: string, body: unknown = {}, params: QueryParams
     body: JSON.stringify(body ?? {}),
     cache: "no-store",
   });
-  console.log("API_URL:", API_URL);
 
   let payload: any = null;
   try {
@@ -126,7 +125,7 @@ export async function getUsuarios(params?: QueryParams) {
 }
 
 export async function postUsuarioLogin(data: Record<string, string>) {
-  return postAPI("local", data);
+  return postAPI("local-with-profile", data);
 }
 
 export async function postUsuarioRegister(data: Record<string, string>) {

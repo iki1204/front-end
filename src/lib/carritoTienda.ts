@@ -1,4 +1,5 @@
 const STORAGE_KEY = "tienda-cart";
+const SESSION_STORAGE_KEY = "usuarioSesion";
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 const currencyFormatter = new Intl.NumberFormat("es-PE", {
   style: "currency",
@@ -22,6 +23,30 @@ type CartInput = Partial<Omit<CartItem, "id" | "quantity" | "price">> & {
   quantity?: number | string | null;
   price?: number | string | null;
 };
+
+type SessionUser = Record<string, unknown> & {
+  asesor?: string | number | null;
+  nombre?: string | null;
+  apellido?: string | null;
+  correo?: string | null;
+  direccion?: string | null;
+  fecha?: string | null;
+  telefono?: string | null;
+};
+
+type SessionPayload = {
+  jwt?: string | null;
+  user?: SessionUser | null;
+} | null;
+
+const asesorContactLinks: Record<string, string> = {
+  Edison: "https://wa.me/593967302450?text=hola, necesito mas informacion sobre sus productos",
+  Moises: "https://wa.me/593989372276?text=hola, necesito mas informacion sobre sus productos",
+  Katya: "https://wa.me/593991046279?text=hola, necesito mas informacion sobre sus productos",
+  Samantha: "https://wa.me/593989538349?text=hola, necesito mas informacion sobre sus productos",
+};
+
+const DEFAULT_ASESOR_LINK = asesorContactLinks.Edison;
 
 let loaded = false;
 let cartItems: CartItem[] = [];
@@ -125,6 +150,76 @@ export const formatMoney = (value: number | null | undefined): string => {
 
 export const formatPrice = (value: number | null | undefined): string => {
   return formatMoney(value);
+};
+
+const parseStoredSession = (): SessionPayload => {
+  try {
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    const data = parsed as Record<string, unknown>;
+    const user = (data.user as SessionUser | null | undefined) ?? null;
+    const jwt = typeof data.jwt === "string" ? data.jwt : null;
+    return { jwt, user };
+  } catch (error) {
+    console.warn("No se pudo leer la sesión almacenada", error);
+    return null;
+  }
+};
+
+const resolveAsesorLink = (usuario: SessionUser): string => {
+  const asesorValue = usuario?.asesor;
+  if (typeof asesorValue === "string" && asesorContactLinks[asesorValue]) {
+    return asesorContactLinks[asesorValue];
+  }
+
+  return DEFAULT_ASESOR_LINK;
+};
+
+const formatUserField = (value: unknown, fallback = "No disponible") => {
+  const normalized = typeof value === "string" ? value.trim() : "";
+  return normalized ? normalized : fallback;
+};
+
+const buildWhatsappUrl = (baseLink: string, message: string) => {
+  try {
+    const url = new URL(baseLink);
+    url.searchParams.set("text", message);
+    return url.toString();
+  } catch (error) {
+    return `${baseLink}${baseLink.includes("?") ? "&" : "?"}text=${encodeURIComponent(message)}`;
+  }
+};
+
+const buildQuoteMessage = (items: CartItem[], usuario: SessionUser) => {
+  const subtotal = getCartTotal();
+  const taxAmount = subtotal * 0.15;
+  const total = subtotal + taxAmount;
+  const fullName = `${formatUserField(usuario?.nombre, "")} ${formatUserField(usuario?.apellido, "")}`.trim();
+  const nameLine = fullName ? fullName : "No disponible";
+
+  const lines = [
+    "COTIZACIÓN",
+    `Cliente: ${nameLine}`,
+    `Correo: ${formatUserField(usuario?.correo ?? (usuario as any)?.email)}`,
+    `Dirección: ${formatUserField(usuario?.direccion)}`,
+    `Fecha: ${formatUserField(usuario?.fecha)}`,
+    `Teléfono: ${formatUserField(usuario?.telefono)}`,
+    "",
+    "Detalle de productos:",
+    ...items.map((item, index) => {
+      const priceLabel = formatMoney(item.price);
+      const lineSubtotal = typeof item.price === "number" ? formatMoney(item.price * item.quantity) : "Consultar";
+      return `${index + 1}. ${item.name} | Cantidad: ${item.quantity} | Precio: ${priceLabel} c/u | Subtotal: ${lineSubtotal}`;
+    }),
+    "",
+    `Subtotal: ${formatMoney(subtotal)}`,
+    `IVA (15%): ${formatMoney(taxAmount)}`,
+    `Total: ${formatMoney(total)}`,
+  ];
+
+  return lines.join("\n");
 };
 
 export const subscribeToCart = (callback: CartSubscriber): (() => void) => {
@@ -563,11 +658,39 @@ const setupCheckout = (root: QueryRoot) => {
     clearCart();
   };
 
+  const proceedHandler = async (event: Event) => {
+    event.preventDefault();
+    if (!proceedButton || proceedButton.disabled) return;
+
+    const items = getCartItems();
+    if (items.length === 0) return;
+
+    proceedButton.disabled = true;
+    proceedButton.classList.add("cursor-wait");
+
+    try {
+      const session = parseStoredSession();
+      const usuario = session?.user ?? {};
+      const asesorLink = resolveAsesorLink(usuario);
+      const message = buildQuoteMessage(items, usuario);
+      const whatsappUrl = buildWhatsappUrl(asesorLink, message);
+
+      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      console.warn("No se pudo compartir la cotización", error);
+    } finally {
+      proceedButton.disabled = false;
+      proceedButton.classList.remove("cursor-wait");
+    }
+  };
+
   clearButton?.addEventListener("click", clearHandler);
+  proceedButton?.addEventListener("click", proceedHandler);
 
   checkoutCleanups.set(root, () => {
     unsubscribe();
     clearButton?.removeEventListener("click", clearHandler);
+    proceedButton?.removeEventListener("click", proceedHandler);
   });
 };
 

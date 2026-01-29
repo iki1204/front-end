@@ -1,0 +1,21 @@
+---
+import Container from "./Container.astro";
+---
+
+<Container>
+  <div class="text-center">
+    <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+      Conoce Nuestra Política de <span class="text-primary">Garantía de Energía Solar</span>
+    </p>
+  </div>
+
+  <div class="mt-10">
+    <div class="h-[700px] w-full overflow-hidden rounded-2xl border border-gray-300 bg-white shadow-sm">
+      <iframe
+        src="../public/PDF/doc.pdf"
+        title="Garantía de Energía Solar"
+        class="h-full w-full"
+      ></iframe>
+    </div>
+  </div>
+</Container>

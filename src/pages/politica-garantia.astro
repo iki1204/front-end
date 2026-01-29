@@ -1,0 +1,25 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Container from "../components/Container.astro";
+import Garantia from "../components/Garantia.astro";
+
+const lastUpdated = "2 de enero de 2026";
+---
+
+<Layout title="Política de garantía">
+    <section class="py-5 lg:py-10">
+        <div class="mx-auto flex max-w-4xl flex-col">
+            <header class="space-y-4 rounded-3xl border border-zinc-200 bg-white/80 p-8 shadow-xl backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Unicom EC</p>
+            <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Política de garantía</h1>
+            <p class="text-sm text-zinc-600 dark:text-zinc-300">
+                Esta política explica cómo respaldamos los productos que comercializamos, los plazos de cobertura y el
+                procedimiento para gestionar una solicitud de garantía. Fecha de actualización: <span class="font-semibold">{lastUpdated}</span>.
+            </p>
+            </header>
+        </div>
+    </section>
+    <div class="py-5 lg:py-10">
+        <Garantia />
+    </div>
+</Layout>

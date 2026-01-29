@@ -1,0 +1,89 @@
+---
+import BaseLayout from "../layouts/Layout.astro";
+import Container from "../components/Container.astro";
+import profilePageScript from "../lib/profilePage.ts?url";
+
+const metaTitle = "Perfil de usuario";
+const metaDescription = "Consulta los datos de tu perfil activo.";
+---
+
+<BaseLayout metaTitle={metaTitle} metaDescription={metaDescription}>
+  <main class="pb-16 pt-24">
+    <Container>
+      <div class="mx-auto flex max-w-5xl flex-col gap-8">
+        <header class="space-y-2 text-center">
+          <p class="text-3xl font-semibold uppercase tracking-[0.3em] text-primary">Mi Cuenta</p>
+        </header>
+
+        <section
+          data-auth-visible="authenticated"
+          class="rounded-3xl border border-gray-200 bg-white/80 p-6 shadow-xl shadow-gray-600/10 backdrop-blur dark:border-gray-800 dark:bg-gray-900/70"
+        >
+          <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div class="flex items-center gap-5">
+              <div class="size-40 overflow-hidden rounded-full border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+                <img
+                  data-profile-avatar
+                  alt="Foto de perfil"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+                </div>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">Sesión activa</p>
+                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white" data-profile-name>
+                  Tu cuenta
+                </h2>
+              </div>
+            </div>
+            <div class="rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm text-gray-600 dark:border-gray-800 dark:bg-gray-800/80 dark:text-gray-300">
+              Si la información es incorrecta, por favor contacta a nuestros asesores para mas ayuda.
+            </div>
+          </div>
+
+          <div class="mt-8 grid gap-4 md:grid-cols-2">
+            <div data-profile-row class="flex flex-col gap-1 rounded-2xl border border-gray-100 bg-white/70 p-4 text-sm dark:border-gray-800 dark:bg-gray-900/60">
+              <span class="text-xs uppercase tracking-[0.2em] text-gray-400">Nombre</span>
+              <span class="font-semibold text-gray-900 dark:text-white" data-profile-name data-fallback="Sin nombre"></span>
+            </div>
+            <div data-profile-row class="flex flex-col gap-1 rounded-2xl border border-gray-100 bg-white/70 p-4 text-sm dark:border-gray-800 dark:bg-gray-900/60">
+              <span class="text-xs uppercase tracking-[0.2em] text-gray-400">Usuario</span>
+              <span class="font-semibold text-gray-900 dark:text-white" data-profile-username></span>
+            </div>
+            <div data-profile-row class="flex flex-col gap-1 rounded-2xl border border-gray-100 bg-white/70 p-4 text-sm dark:border-gray-800 dark:bg-gray-900/60">
+              <span class="text-xs uppercase tracking-[0.2em] text-gray-400">Correo</span>
+              <span class="font-semibold text-gray-900 dark:text-white" data-profile-email></span>
+            </div>
+            <div data-profile-row class="flex flex-col gap-1 rounded-2xl border border-gray-100 bg-white/70 p-4 text-sm dark:border-gray-800 dark:bg-gray-900/60">
+              <span class="text-xs uppercase tracking-[0.2em] text-gray-400">Cuenta confirmada</span>
+              <span class="font-semibold text-gray-900 dark:text-white" data-profile-confirmed></span>
+            </div>
+          </div>
+
+          <div class="mt-8 rounded-2xl border border-gray-100 bg-white/70 p-5 dark:border-gray-800 dark:bg-gray-900/60">
+            <h3 class="text-sm font-semibold uppercase tracking-[0.2em] text-gray-400">Datos adicionales</h3>
+            <div class="mt-4" data-profile-extra></div>
+          </div>
+        </section>
+
+        <section
+          data-auth-visible="anonymous"
+          class="rounded-3xl border border-dashed border-gray-200 bg-white/70 p-8 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900/60"
+        >
+          <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">No hay sesión activa</h2>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            Inicia sesión para ver tu perfil y los datos asociados a tu cuenta.
+          </p>
+          <a
+            href="/login"
+            class="mt-6 inline-flex items-center justify-center rounded-full border border-primary/40 bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-primary/90"
+          >
+            Iniciar sesión
+          </a>
+        </section>
+      </div>
+    </Container>
+  </main>
+
+  <script type="module" src={profilePageScript}></script>
+</BaseLayout>

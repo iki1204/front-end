@@ -1,5 +1,19 @@
 ---
 import Container from "../components/Container.astro";
+const { pageData } = Astro.props;
+
+const API_URL = import.meta.env.VITE_STRAPI_URL;
+const response = pageData;
+
+const sliders = response?.data?.[0]?.Secciones?.filter(
+  (s) => s.__component === "shared.slider"
+) ?? [];
+
+const sliderPromos = sliders.find(
+  (s) => (s.Titulo ?? "").toLowerCase() === "promos"
+);
+
+const img = sliderPromos?.files?.map((img) => `${API_URL}${img.url}`) ?? [];
 ---
 <Container>
 <section id="events" class="events">
@@ -9,25 +23,20 @@ import Container from "../components/Container.astro";
 
 
         <div class="text-center">
-            <h1 class="text-3xl font-semibold uppercase pb-10 tracking-widest text-[#f05a28]">
-            Cotiza nuestras ofertas con nuestros asesores    
-            </h1>
+            <h2 class="text-3xl font-semibold tracking-wide uppercase text-gray-900 dark:text-white">
+                Cotiza nuestras ofertas con <span class="text-[#f05a28]">nuestros asesores</span>
+            </h2>
         </div>
 
-        <div class="flex justify-center items-center">
+        <div class="flex justify-center items-center pt-20">
 
           <div class="content-all">
             <div class="content-carrousel">
-                <figure><img src="../images/promos/promo1.jpg" loading="lazy"></figure>
-                <figure><img src="../images/promos/promo2.jpg" loading="lazy"></figure>
-                <figure><img src="../images/promos/promo3.jpg" loading="lazy"></figure>
-                <figure><img src="../images/promos/promo4.jpg" loading="lazy"></figure>
-                <figure><img src="../images/promos/promo5.jpg" loading="lazy"></figure>
-                <figure><img src="../images/promos/promo6.jpg" loading="lazy"></figure>
-                <figure><img src="../images/promos/promo7.jpg" loading="lazy"></figure>
-                <figure><img src="../images/promos/promo8.jpg" loading="lazy"></figure>
-                <figure><img src="../images/promos/promo9.jpg" loading="lazy"></figure>
-                <figure><img src="../images/promos/promo10.jpg" loading="lazy"></figure>
+                {
+                    img.map((link) => (
+                    <figure><a href="/tienda"><img src={link} loading="lazy"></a></figure>
+                    ))
+                }
             </div>
           </div>
 

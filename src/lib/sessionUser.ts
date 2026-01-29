@@ -4,6 +4,7 @@ export const SESSION_EVENT = "usuarioSesion:cambio";
 export type SessionUser = {
   confirmed?: boolean | null;
   tipoUsuario?: number | string | null;
+  asesor?: number | string | null;
   [key: string]: unknown;
 };
 

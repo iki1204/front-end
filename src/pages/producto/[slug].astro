@@ -177,12 +177,13 @@ const precio = formattedPrices.default;
 
 var descripcion = producto?.descripcion;
 
-const asesorContactLinks = [
-  "https://wa.me/593967302450?text=hola, necesito mas informacion sobre sus productos",
-  "https://wa.me/593989372276?text=hola, necesito mas informacion sobre sus productos",
-  "https://wa.me/593991046279?text=hola, necesito mas informacion sobre sus productos",
-  "https://wa.me/593989538349?text=hola, necesito mas informacion sobre sus productos"
-];
+const asesorContactLinks: Record<string, string> = {
+  "Edison": "https://wa.me/593967302450?text=hola, necesito mas informacion sobre sus productos",
+  "Moises": "https://wa.me/593989372276?text=hola, necesito mas informacion sobre sus productos",
+  "Katya": "https://wa.me/593991046279?text=hola, necesito mas informacion sobre sus productos",
+  "Samantha": "https://wa.me/593989538349?text=hola, necesito mas informacion sobre sus productos",
+};
+const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(asesorContactLinks)[0] ?? "#";
 ---
 
 <BaseLayout
@@ -193,7 +194,7 @@ const asesorContactLinks = [
   metaImages={metaImages}
 >
   <Container>
-    <article class="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-10">
+    <article class="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
       <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
         <button
           type="button"
@@ -205,22 +206,23 @@ const asesorContactLinks = [
         <p class="text-xs font-medium uppercase tracking-[0.25em] text-zinc-600 dark:text-zinc-300">Ficha de producto</p>
       </div>
 
-      <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] xl:grid-cols-[1.15fr_0.85fr]">
+      <div class="grid gap-2 lg:grid-cols-[1.15fr_0.85fr] xl:grid-cols-[1.10fr_0.95fr]">
         <section class="relative space-y-5 rounded-3xl sm:p-7 lg:p-8">
           <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div class="flex flex-wrap items-center gap-2">
               <span class="inline-flex items-center gap-2 rounded-full bg-red-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white  dark:bg-primary">
-                <span class="h-2 w-2 rounded-full bg-white"></span>
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ff0000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path opacity="0.4" d="M18.6695 2H16.7695C14.5895 2 13.4395 3.15 13.4395 5.33V7.23C13.4395 9.41 14.5895 10.56 16.7695 10.56H18.6695C20.8495 10.56 21.9995 9.41 21.9995 7.23V5.33C21.9995 3.15 20.8495 2 18.6695 2Z" fill="#ffffff"></path> <path opacity="0.4" d="M7.24 13.4302H5.34C3.15 13.4302 2 14.5802 2 16.7602V18.6602C2 20.8502 3.15 22.0002 5.33 22.0002H7.23C9.41 22.0002 10.56 20.8502 10.56 18.6702V16.7702C10.57 14.5802 9.42 13.4302 7.24 13.4302Z" fill="#ffffff"></path> <path d="M6.29 10.58C8.6593 10.58 10.58 8.6593 10.58 6.29C10.58 3.9207 8.6593 2 6.29 2C3.9207 2 2 3.9207 2 6.29C2 8.6593 3.9207 10.58 6.29 10.58Z" fill="#ffffff"></path> <path d="M17.7099 21.9999C20.0792 21.9999 21.9999 20.0792 21.9999 17.7099C21.9999 15.3406 20.0792 13.4199 17.7099 13.4199C15.3406 13.4199 13.4199 15.3406 13.4199 17.7099C13.4199 20.0792 15.3406 21.9999 17.7099 21.9999Z" fill="#ffffff"></path> </g></svg>
                 {categoriaActual?.nombre ?? "Sin categoría"}
               </span>
               <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-200 dark:text-emerald-900">
-                <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#1a9900" stroke-width="1.032"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M12 16C15.866 16 19 12.866 19 9C19 5.13401 15.866 2 12 2C8.13401 2 5 5.13401 5 9C5 12.866 8.13401 16 12 16ZM12 6C11.7159 6 11.5259 6.34084 11.1459 7.02251L11.0476 7.19887C10.9397 7.39258 10.8857 7.48944 10.8015 7.55334C10.7173 7.61725 10.6125 7.64097 10.4028 7.68841L10.2119 7.73161C9.47396 7.89857 9.10501 7.98205 9.01723 8.26432C8.92945 8.54659 9.18097 8.84072 9.68403 9.42898L9.81418 9.58117C9.95713 9.74833 10.0286 9.83191 10.0608 9.93531C10.0929 10.0387 10.0821 10.1502 10.0605 10.3733L10.0408 10.5763C9.96476 11.3612 9.92674 11.7536 10.1565 11.9281C10.3864 12.1025 10.7318 11.9435 11.4227 11.6254L11.6014 11.5431C11.7978 11.4527 11.8959 11.4075 12 11.4075C12.1041 11.4075 12.2022 11.4527 12.3986 11.5431L12.5773 11.6254C13.2682 11.9435 13.6136 12.1025 13.8435 11.9281C14.0733 11.7536 14.0352 11.3612 13.9592 10.5763L13.9395 10.3733C13.9179 10.1502 13.9071 10.0387 13.9392 9.93531C13.9714 9.83191 14.0429 9.74833 14.1858 9.58118L14.316 9.42898C14.819 8.84072 15.0706 8.54659 14.9828 8.26432C14.895 7.98205 14.526 7.89857 13.7881 7.73161L13.5972 7.68841C13.3875 7.64097 13.2827 7.61725 13.1985 7.55334C13.1143 7.48944 13.0603 7.39258 12.9524 7.19887L12.8541 7.02251C12.4741 6.34084 12.2841 6 12 6Z" fill="#ffffff"></path> <path d="M4.49517 12.9946L2.99206 14.551C2.45194 15.1102 2.18188 15.3898 2.08843 15.6266C1.87548 16.1662 2.05772 16.7648 2.52138 17.0486C2.72486 17.1732 3.09187 17.212 3.82589 17.2897C4.2403 17.3335 4.44755 17.3554 4.6211 17.4219C5.00966 17.5709 5.31191 17.8838 5.45575 18.2861C5.52 18.4658 5.54117 18.6804 5.5835 19.1095C5.65848 19.8695 5.69597 20.2495 5.81628 20.4602C6.09042 20.9403 6.66852 21.129 7.18967 20.9085C7.41837 20.8117 7.68843 20.5321 8.22855 19.9729L10.7106 17.4029C8.01306 16.9924 5.73225 15.314 4.49517 12.9946Z" fill="#ffffff"></path> <path d="M13.2894 17.4029L15.7715 19.9729C16.3116 20.5321 16.5816 20.8117 16.8103 20.9085C17.3315 21.129 17.9096 20.9403 18.1837 20.4602C18.304 20.2495 18.3415 19.8695 18.4165 19.1095C18.4588 18.6804 18.48 18.4658 18.5442 18.2861C18.6881 17.8838 18.9903 17.5709 19.3789 17.4219C19.5525 17.3554 19.7597 17.3335 20.1741 17.2897C20.9081 17.212 21.2751 17.1732 21.4786 17.0486C21.9423 16.7648 22.1245 16.1662 21.9116 15.6266C21.8181 15.3898 21.5481 15.1102 21.0079 14.551L19.5048 12.9946C18.2677 15.314 15.9869 16.9924 13.2894 17.4029Z" fill="#ffffff"></path> </g></svg>
                 {marcaActual?.nombre ?? "Sin marca"}
               </span>
             </div>
-            <p class="text-xs font-semibold text-zinc-500 dark:text-zinc-400"
+            <p class="text-xs inline-flex font-semibold text-zinc-500 dark:text-zinc-400"
               data-auth-visible="authenticated"
             >
+              <svg class="h-4 w-4 pt-0.5" fill="#000000" height="200px" width="200px" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 16"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path class="cls-1" d="M8.04431,2.33785,5.22852,1.75,3,3.97854l.58753,2.816L8.543,11.75,13,7.293Zm-1.545,2.91154a1.08172,1.08172,0,1,1-.01364-1.5159A1.07206,1.07206,0,0,1,6.49934,5.24939ZM12.75,10.043,8.543,14.25,4.25708,9.96411l-.28339-1.369,4.569,4.569L12.20691,9.5Z"></path> </g></svg>
               Código: {producto?.codigo ?? "N/A"}
             </p>
           </header>
@@ -300,29 +302,9 @@ const asesorContactLinks = [
               id="stock-panel"
               data-auth-visible="authenticated"
             >
-              <div class="flex items-center gap-3"
+              <div class="flex items-center gap-3"> 
                 <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <svg
-                    class="h-5 w-5 text-zinc-800 dark:text-white"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M4 7.5H20M6.5 7.5V17.5C6.5 18.6046 7.39543 19.5 8.5 19.5H15.5C16.6046 19.5 17.5 18.6046 17.5 17.5V7.5"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M9.5 11.5H14.5"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-
+                  <svg width="256px" height="256px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#e00000" stroke-width="0.00024000000000000003"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M12 3.66333L20.25 7.7398V17.01L12 21.0865L3.75 17.01V7.7398L12 3.66333ZM5.25 9.41292V16.078L11.25 19.0427V12.3776L5.25 9.41292ZM12.75 12.3776V19.0427L18.75 16.078V9.41292L16.5 10.5247V13.4999L15 14.2499V11.2659L12.75 12.3776ZM17.807 8.20577L15.8527 9.17139C15.8099 9.13606 15.7624 9.10498 15.7106 9.07908L10.1015 6.27454L12 5.33645L17.807 8.20577ZM8.41452 7.1081L14.1871 9.9944L12 11.0751L6.19304 8.20577L8.41452 7.1081Z" fill="#e00000"></path> </g></svg>
                 </span>
                 <div>
                   <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">Stock</p>
@@ -429,7 +411,9 @@ const asesorContactLinks = [
               Añadir al carrito
             </button>
             <a
-              href={asesorContactLinks[Math.floor(Math.random() * asesorContactLinks.length)]}
+              href={defaultAsesorContactLink}
+              data-asesor-contact
+              data-asesor-links={JSON.stringify(asesorContactLinks)}
               class="w-full rounded-full border border-primary/40 px-6 py-3 text-center text-sm font-semibold text-primary transition hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20"
             >
               Contactar un asesor
@@ -442,6 +426,34 @@ const asesorContactLinks = [
 </BaseLayout>
 <script>
   window.addEventListener("DOMContentLoaded", () => {
+    const asesorLink = document.querySelector("[data-asesor-contact]");
+    if (asesorLink instanceof HTMLAnchorElement) {
+      const asesorLinksRaw = asesorLink.getAttribute("data-asesor-links") ?? "{}";
+      const asesorLinks = JSON.parse(asesorLinksRaw) as Record<string, string>;
+      const fallbackLink =
+        asesorLinks["Edison"] ?? Object.values(asesorLinks)[0] ?? asesorLink.getAttribute("href") ?? "#";
+
+
+      try {
+        const rawSession = localStorage.getItem("usuarioSesion");
+        if (rawSession) {
+          const parsedSession = JSON.parse(rawSession);
+          const user = parsedSession?.user ?? parsedSession?.data?.user ?? null;
+          const asesorKey = user?.asesor ?? null;
+          if (asesorKey && asesorLinks[asesorKey]) {
+            asesorLink.setAttribute("href", asesorLinks[asesorKey]);
+          } else {
+            asesorLink.setAttribute("href", fallbackLink);
+          }
+        } else {
+          asesorLink.setAttribute("href", fallbackLink);
+        }
+      } catch (error) {
+        console.warn("No se pudo leer la sesión del usuario", error);
+        asesorLink.setAttribute("href", fallbackLink);
+      }
+    }
+
     const mainImg = document.getElementById("main-image");
     const zoomContainer = document.querySelector("[data-zoom-container]");
     const thumbsRoot = document.getElementById("thumbs");
