@@ -1,5 +1,8 @@
 const STORAGE_KEY = "tienda-cart";
+const SESSION_STORAGE_KEY = "usuarioSesion";
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
+const API_URL = import.meta.env.VITE_STRAPI_URL ?? "http://69.6.203.228:1337";
+const API_TOKEN = import.meta.env.VITE_STRAPI_API_TOKEN;
 const currencyFormatter = new Intl.NumberFormat("es-PE", {
   style: "currency",
   currency: "USD",
@@ -22,6 +25,35 @@ type CartInput = Partial<Omit<CartItem, "id" | "quantity" | "price">> & {
   quantity?: number | string | null;
   price?: number | string | null;
 };
+
+type SessionUser = Record<string, unknown> & {
+  asesor?: string | number | null;
+  nombre?: string | null;
+  apellido?: string | null;
+  correo?: string | null;
+  direccion?: string | null;
+  fecha?: string | null;
+  telefono?: string | null;
+};
+
+type SessionPayload = {
+  jwt?: string | null;
+  user?: SessionUser | null;
+} | null;
+
+type AsesorContact = {
+  nombre: string;
+  telefono: string;
+};
+
+const ASESOR_CONTACTS: Record<string, AsesorContact> = {
+  "1": { nombre: "Asesor 1", telefono: "593967302450" },
+  "2": { nombre: "Asesor 2", telefono: "593989372276" },
+  "3": { nombre: "Asesor 3", telefono: "593991046279" },
+  "4": { nombre: "Asesor 4", telefono: "593989538349" },
+};
+
+const DEFAULT_ASESOR = Object.values(ASESOR_CONTACTS)[0];
 
 let loaded = false;
 let cartItems: CartItem[] = [];
@@ -125,6 +157,155 @@ export const formatMoney = (value: number | null | undefined): string => {
 
 export const formatPrice = (value: number | null | undefined): string => {
   return formatMoney(value);
+};
+
+const normalizeKey = (value: unknown) => {
+  if (value === null || value === undefined) return "";
+  return String(value).trim().toLowerCase();
+};
+
+const parseStoredSession = (): SessionPayload => {
+  try {
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    const data = parsed as Record<string, unknown>;
+    const user = (data.user as SessionUser | null | undefined) ?? null;
+    const jwt = typeof data.jwt === "string" ? data.jwt : null;
+    return { jwt, user };
+  } catch (error) {
+    console.warn("No se pudo leer la sesión almacenada", error);
+    return null;
+  }
+};
+
+const fetchJson = async (url: string, headers?: HeadersInit) => {
+  const response = await fetch(url, {
+    headers: headers ?? {},
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(`No se pudo obtener datos de ${url}`);
+  }
+  return response.json();
+};
+
+const fetchServerUser = async (jwt?: string | null): Promise<SessionUser | null> => {
+  if (!jwt) return null;
+  try {
+    const payload = await fetchJson(`${API_URL}/api/users/me`, {
+      Authorization: `Bearer ${jwt}`,
+    });
+    return (payload as SessionUser) ?? null;
+  } catch (error) {
+    console.warn("No se pudo obtener el usuario del servidor", error);
+    return null;
+  }
+};
+
+const fetchAsesores = async (jwt?: string | null): Promise<SessionUser[]> => {
+  const headers: HeadersInit = {};
+  if (jwt) {
+    headers.Authorization = `Bearer ${jwt}`;
+  } else if (API_TOKEN) {
+    headers.Authorization = `Bearer ${API_TOKEN}`;
+  }
+  try {
+    const payload = await fetchJson(`${API_URL}/api/users?populate=*`, headers);
+    const entries = Array.isArray(payload) ? payload : payload?.data ?? [];
+    return entries.map((entry: any) => entry?.attributes ?? entry).filter(Boolean);
+  } catch (error) {
+    console.warn("No se pudo obtener la lista de asesores", error);
+    return [];
+  }
+};
+
+const resolveAsesorContact = async (usuario: SessionUser, jwt?: string | null): Promise<AsesorContact | null> => {
+  const asesorValue = usuario?.asesor;
+  if (asesorValue === null || asesorValue === undefined) {
+    return DEFAULT_ASESOR ?? null;
+  }
+
+  const normalizedAsesor = normalizeKey(asesorValue);
+  if (normalizedAsesor && ASESOR_CONTACTS[normalizedAsesor]) {
+    return ASESOR_CONTACTS[normalizedAsesor];
+  }
+
+  const asesores = await fetchAsesores(jwt);
+  const matchingAsesor = asesores.find((entry) => {
+    const possibleMatches = [
+      entry?.id,
+      entry?.username,
+      entry?.email,
+      entry?.nombre,
+      entry?.apellido,
+      `${entry?.nombre ?? ""} ${entry?.apellido ?? ""}`.trim(),
+    ]
+      .map(normalizeKey)
+      .filter(Boolean);
+    return possibleMatches.includes(normalizedAsesor);
+  });
+
+  if (!matchingAsesor) {
+    return DEFAULT_ASESOR ?? null;
+  }
+
+  const matchKeys = [
+    matchingAsesor.id,
+    matchingAsesor.username,
+    matchingAsesor.email,
+    matchingAsesor.nombre,
+    matchingAsesor.apellido,
+    `${matchingAsesor.nombre ?? ""} ${matchingAsesor.apellido ?? ""}`.trim(),
+  ]
+    .map(normalizeKey)
+    .filter(Boolean);
+
+  for (const key of matchKeys) {
+    const contact = ASESOR_CONTACTS[key];
+    if (contact) return contact;
+  }
+
+  return DEFAULT_ASESOR ?? null;
+};
+
+const formatUserField = (value: unknown, fallback = "No disponible") => {
+  const normalized = typeof value === "string" ? value.trim() : "";
+  return normalized ? normalized : fallback;
+};
+
+const buildQuoteMessage = (items: CartItem[], usuario: SessionUser) => {
+  const subtotal = getCartTotal();
+  const taxAmount = subtotal * 0.15;
+  const total = subtotal + taxAmount;
+  const imageUrl =
+    typeof window !== "undefined" ? new URL(PLACEHOLDER_IMAGE, window.location.origin).toString() : PLACEHOLDER_IMAGE;
+  const fullName = `${formatUserField(usuario?.nombre, "")} ${formatUserField(usuario?.apellido, "")}`.trim();
+  const nameLine = fullName ? fullName : "No disponible";
+
+  const lines = [
+    "COTIZACIÓN",
+    `Cliente: ${nameLine}`,
+    `Correo: ${formatUserField(usuario?.correo ?? (usuario as any)?.email)}`,
+    `Dirección: ${formatUserField(usuario?.direccion)}`,
+    `Fecha: ${formatUserField(usuario?.fecha)}`,
+    `Teléfono: ${formatUserField(usuario?.telefono)}`,
+    `Imagen de referencia: ${imageUrl}`,
+    "",
+    "Detalle de productos:",
+    ...items.map((item, index) => {
+      const priceLabel = formatMoney(item.price);
+      const lineSubtotal = typeof item.price === "number" ? formatMoney(item.price * item.quantity) : "Consultar";
+      return `${index + 1}. ${item.name} | Cantidad: ${item.quantity} | Precio: ${priceLabel} c/u | Subtotal: ${lineSubtotal}`;
+    }),
+    "",
+    `Subtotal estimado: ${formatMoney(subtotal)}`,
+    `IVA (15%): ${formatMoney(taxAmount)}`,
+    `Total estimado: ${formatMoney(total)}`,
+  ];
+
+  return lines.join("\n");
 };
 
 export const subscribeToCart = (callback: CartSubscriber): (() => void) => {
@@ -563,11 +744,42 @@ const setupCheckout = (root: QueryRoot) => {
     clearCart();
   };
 
+  const proceedHandler = async (event: Event) => {
+    event.preventDefault();
+    if (!proceedButton || proceedButton.disabled) return;
+
+    const items = getCartItems();
+    if (items.length === 0) return;
+
+    proceedButton.disabled = true;
+    proceedButton.classList.add("cursor-wait");
+
+    try {
+      const session = parseStoredSession();
+      const serverUser = await fetchServerUser(session?.jwt ?? null);
+      const usuario = { ...(session?.user ?? {}), ...(serverUser ?? {}) };
+      const asesorContact = await resolveAsesorContact(usuario, session?.jwt ?? null);
+      const phone = asesorContact?.telefono ?? DEFAULT_ASESOR?.telefono ?? "";
+
+      const message = buildQuoteMessage(items, usuario);
+      const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      console.warn("No se pudo compartir la cotización", error);
+    } finally {
+      proceedButton.disabled = false;
+      proceedButton.classList.remove("cursor-wait");
+    }
+  };
+
   clearButton?.addEventListener("click", clearHandler);
+  proceedButton?.addEventListener("click", proceedHandler);
 
   checkoutCleanups.set(root, () => {
     unsubscribe();
     clearButton?.removeEventListener("click", clearHandler);
+    proceedButton?.removeEventListener("click", proceedHandler);
   });
 };
 
