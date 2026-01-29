@@ -12,7 +12,10 @@ export default defineConfig({
     { mode: "middleware" }
   ),
   alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
-  vite: { plugins: [tailwindcss()] },
+  vite: { plugins: [tailwindcss()], server:{
+    allowedHosts: ["sistema.unicomec.com", "unicomec.com", "www.unicomec.com", "www.sistema.unicomec.com"],  
+    }	 
+  },
   integrations: [
     react(),
     icon({ sets: { mdi: () => import("@iconify-json/mdi/icons.json") } }),
