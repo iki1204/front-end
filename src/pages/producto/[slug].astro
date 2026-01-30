@@ -130,19 +130,14 @@ const datasheetEntries: any[] = [
   ...(producto?.datasheets?.data?.attributes ? [producto.datasheets.data.attributes] : []),
 ].filter(Boolean);
 
-const MAX_DATASHEET_LABEL_LENGTH = 15;
-
-const truncateLabel = (label: string, maxLength = MAX_DATASHEET_LABEL_LENGTH) =>
-  label.length > maxLength ? `${label.slice(0, maxLength - 1)}…` : label;
-
 const datasheetLinks = datasheetEntries
-  .map((item) => {
+  .map((item, index) => {
     const url = item?.url ?? item?.formats?.pdf?.url ?? null;
     if (!url) return null;
 
     const absoluteUrl = url.startsWith("http") ? url : `${API_URL ?? ""}${url}`;
-    const label = item?.name ?? item?.alternativeText ?? item?.caption ?? "Ficha técnica";
-    const displayLabel = truncateLabel(label);
+    const label = item?.name ?? item?.alternativeText ?? item?.caption;
+    const displayLabel = index === 0 ? "DataSheet" : `Ficha Tecnica ${index}`;
 
     return { url: absoluteUrl, label, displayLabel };
   })
@@ -380,8 +375,7 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
                       class="flex-1 min-w-0 truncate font-semibold text-primary hover:underline"
                       title={file.label}
                     >
-                      <span class="block truncate sm:hidden">{file.displayLabel}</span>
-                      <span class="hidden sm:block break-words">{file.label}</span>
+                      <span class="block truncate">{file.displayLabel}</span>
                     </a>
                     <span class="text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">PDF</span>
                   </li>
