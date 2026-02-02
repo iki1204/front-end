@@ -44,6 +44,7 @@ const slug = producto?.ID_Nombre ?? producto?.slug ?? producto?.id;
 const stockCount = Number(producto?.cantidad_stock ?? 0);
 const fewStockThreshold = 10;
 const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.cantidad_stock;
+
 const rawPrices = {
   default: typeof producto?.precio === "number" ? producto.precio : null,
   pvp1: typeof producto?.precio === "number" ? producto.precio : null,
@@ -63,11 +64,11 @@ const formattedPrices = {
 ---
 
 <article
-  class="group flex h-full flex-col rounded-2xl border border-zinc-300 bg-zinc-100 p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg  dark:border-red-900 dark:bg-zinc-900"
+  class="group flex h-full flex-col overflow-hidden rounded-3xl border border-zinc-300 bg-zinc-100 p-4 shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg dark:border-red-900 dark:bg-zinc-900"
   data-product-card
 >
   <a href={`/producto/${slug}`} class="flex flex-1 flex-col">
-    <div class="relative overflow-hidden rounded-xl bg-zinc-100  dark:border-red-900 transition duration-300 group-hover:scale-105">
+    <div class="relative overflow-hidden rounded-xl bg-white  dark:border-red-900 transition duration-300 group-hover:scale-105">
       {isOutOfStock ? (
         <div
           data-auth-visible="authenticated"
@@ -95,7 +96,7 @@ const formattedPrices = {
         loading="lazy"
       />
     </div>
-    <div class="mt-4 flex flex-1 flex-col gap-2">
+    <div class="mt-4 flex flex-1 flex-col gap-3">
       <h3 class="line-clamp-2 text-lg font-semibold text-zinc-900 dark:text-white">
         {producto?.nombre}
       </h3>
@@ -121,10 +122,10 @@ const formattedPrices = {
     </div>
     
  </a>
-  <div class="mt-4 flex items-center justify-between gap-2">
+  <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
     <a
       href={`/producto/${slug}`}
-      class="rounded-full border border-transparent sm:px-1 px-5 py-2 flex text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary/10"
+      class="flex items-center justify-center rounded-full border border-transparent px-5 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary/10"
     >
       Ver detalles
     </a>

@@ -3,6 +3,7 @@ import BaseLayout from "../../layouts/Layout.astro";
 import Container from "../../components/Container.astro";
 import { BlocksRenderer} from "@strapi/blocks-react-renderer";
 import { getProductoBySlug, getGlobalData, getCategorias, getProductos, getMarcas } from "../../lib/api";
+import ProductCard from "../../components/ProductCard.astro";
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 
@@ -82,6 +83,74 @@ const categoriaActual = categorias.find((categoria) =>
 const marcaActual = marcas.find((marca) =>
   marca?.ID_Marca === producto?.ID_Marca || null
 )
+
+const currentProductKey =
+  producto?.id ??
+  producto?.ID_Producto ??
+  producto?.codigo ??
+  producto?.ID_Nombre ??
+  producto?.slug ??
+  null;
+
+const recommendationPageSize = 6;
+const baseRecommendationParams = new URLSearchParams({
+  "pagination[page]": "1",
+  "pagination[pageSize]": String(recommendationPageSize),
+  populate: "*",
+  sort: "createdAt:desc",
+});
+
+const buildRecommendationParams = (filters: Record<string, string | null>) => {
+  const params = new URLSearchParams(baseRecommendationParams);
+  Object.entries(filters).forEach(([key, value]) => {
+    if (!value) return;
+    params.set(key, value);
+  });
+  return params;
+};
+
+const categoriaFiltro = producto?.ID_Categoria ? String(producto.ID_Categoria) : null;
+const marcaFiltro = producto?.ID_Marca ? String(producto.ID_Marca) : null;
+
+const fetchRecommendations = async (filters: Record<string, string | null>) => {
+  const params = buildRecommendationParams(filters);
+  const response = await getProductos(params);
+  return normalizeCollection(response?.data ?? []);
+};
+
+const getProductKey = (item: any) =>
+  item?.id ?? item?.ID_Producto ?? item?.codigo ?? item?.ID_Nombre ?? item?.slug ?? null;
+
+const uniqueRecommendations: any[] = [];
+const seenKeys = new Set<string | number>();
+
+const addUniqueRecommendations = (items: any[]) => {
+  items.forEach((item) => {
+    const key = getProductKey(item);
+    if (!key || key === currentProductKey || seenKeys.has(key)) {
+      return;
+    }
+    seenKeys.add(key);
+    uniqueRecommendations.push(item);
+  });
+};
+
+if (categoriaFiltro && marcaFiltro) {
+  const byBrandAndCategory = await fetchRecommendations({
+    "filters[ID_Categoria][$eq]": categoriaFiltro,
+    "filters[ID_Marca][$eq]": marcaFiltro,
+  });
+  addUniqueRecommendations(byBrandAndCategory);
+}
+
+if (categoriaFiltro && uniqueRecommendations.length < 3) {
+  const byCategory = await fetchRecommendations({
+    "filters[ID_Categoria][$eq]": categoriaFiltro,
+  });
+  addUniqueRecommendations(byCategory);
+}
+
+const recommendedProducts = uniqueRecommendations.slice(0, 3);
 
 const identifier = producto?.identifier;
 const stockEndpoint = `${API_URL}/api/productos/${encodeURIComponent(String(identifier))}/stock`;
@@ -416,6 +485,25 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
         </section>
       </div>
     </article>
+    {recommendedProducts.length > 0 ? (
+      <section class="mx-auto mt-4 w-full max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div class="rounded-3xl p-6">
+          <div class="flex flex-col gap-2">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+              Sugerencias
+            </p>
+            <h2 class="text-2xl font-black text-zinc-900 dark:text-white">
+              Te gustarán también
+            </h2>
+          </div>
+          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 border-t border-red-400 pt-6 dark:border-red-800">
+            {recommendedProducts.map((productoRecomendado) => (
+              <ProductCard producto={productoRecomendado} />
+            ))}
+          </div>
+        </div>
+      </section>
+    ) : null}
   </Container>
 </BaseLayout>
 <script>
