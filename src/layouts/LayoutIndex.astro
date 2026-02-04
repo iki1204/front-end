@@ -2,16 +2,22 @@
 import { AstroFont } from 'astro-font';
 import AppFooter from "../components/AppFooter.astro";
 import AppHeader from "../components/AppHeader.astro";
-
 import Cart from "../components/Cart.astro";
+import NotFoundContent from "../components/NotFound.astro";
 import cartWidgetScript from "../lib/carritoWidget.ts?url";
 import loginWidgetScript from "../lib/sesionWidget.ts?url";
 import authVisibilityScript from "../lib/authVisibility.ts?url";
 import priceByUserScript from "../lib/precioPorUsuario.ts?url";
+import pureCounterScript from "../lib/purecounterClient.ts?url";
+import aosScript from "../lib/aosClient.ts?url";
 import { getGlobalData } from "../lib/api";
 import "../css/tailus.css"
 import "../styles/global.css";
-import NotFoundContent from "../components/NotFound.astro";
+import "aos/dist/aos.css";
+
+
+
+
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 
@@ -45,6 +51,8 @@ const showNotFound = !response;
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={siteName} />
 
+
+        
         
         <title>{siteName}</title>
 
@@ -65,6 +73,16 @@ const showNotFound = !response;
     </head>
     
     <body class="relative min-h-screen dark:bg-gray-900">
+
+            <!-- animate on scroll script -->
+        <script>
+            import { aosInit } from "aos";
+
+            // runs on initial page load
+            aosInit();
+            document.addEventListener("astro:after-swap", aosInit);
+
+        </script>
 
         <div class="pointer-events-none absolute inset-x-0 top-0 z-0 h-screen" aria-hidden="true">
             <div class="relative h-full w-full">
@@ -100,6 +118,10 @@ const showNotFound = !response;
         <script type="module" src={cartWidgetScript}></script>
         <script type="module" src={authVisibilityScript}></script>
         <script type="module" src={priceByUserScript}></script>
+        <script type="module" src={aosScript}></script>
+        <script type="module" src={pureCounterScript}></script>
+
+
 
         
     </body>

@@ -260,13 +260,13 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
   <Container>
     <article class="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
       <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <button
-          type="button"
-          onclick="window.history.back()"
+        <a
+          href="/tienda"
+          data-back-to-store
           class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-primary/20 bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:border-primary/40 hover:bg-red-900"
         >
           <span aria-hidden>←</span> Volver a la tienda
-        </button>
+        </a>
         <p class="text-xs font-medium uppercase tracking-[0.25em] text-zinc-600 dark:text-zinc-300">Ficha de producto</p>
       </div>
 
@@ -508,6 +508,29 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
 </BaseLayout>
 <script>
   window.addEventListener("DOMContentLoaded", () => {
+
+     const storeStateKey = "tiendaState";
+    const backToStoreLink = document.querySelector("[data-back-to-store]");
+    const referrer = document.referrer;
+
+    if (referrer) {
+      try {
+        const referrerUrl = new URL(referrer);
+        if (referrerUrl.pathname.startsWith("/tienda")) {
+          localStorage.setItem(storeStateKey, `${referrerUrl.pathname}${referrerUrl.search}`);
+        }
+      } catch (error) {
+        console.warn("No se pudo leer la URL de referencia", error);
+      }
+    }
+
+    if (backToStoreLink instanceof HTMLAnchorElement) {
+      const storedState = localStorage.getItem(storeStateKey);
+      if (storedState) {
+        backToStoreLink.setAttribute("href", storedState);
+      }
+    }
+
     const asesorLink = document.querySelector("[data-asesor-contact]");
     if (asesorLink instanceof HTMLAnchorElement) {
       const asesorLinksRaw = asesorLink.getAttribute("data-asesor-links") ?? "{}";

@@ -2,10 +2,10 @@
 import Container from "./Container.astro";
 
 const stats = [
-  { value: "+1500", label: "Clientes" },
-  { value: "+2000", label: "Ventas" },
-  { value: "+5000", label: "Horas de soporte" },
-  { value: "+130", label: "Trabajadores" },
+  { value: 1500, label: "Clientes" },
+  { value: 2000, label: "Ventas" },
+  { value: 5000, label: "Horas de soporte" },
+  { value: 130, label: "Trabajadores" },
 ];
 
 ---
@@ -24,8 +24,24 @@ const stats = [
 
       <div class="mt-12 grid gap-8 text-center text-white sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <div class="space-y-2">
-            <p class="text-4xl font-semibold md:text-5xl">{stat.value}</p>
+          <div class="space-y-2"
+            data-aos="fade-up"
+            data-aos-duration="1000"
+            data-aos-anchor-placement="center-center"
+          >
+          <div class="inline-flex gap-2">
+            <p class="text-2xl uppercase tracking-[0.2em] text-red-500">
+              +
+            </p>
+            <p
+              class="purecounter text-2xl uppercase tracking-[0.2em] text-red-500"
+              data-purecounter-start="0"
+              data-purecounter-end={stat.value}
+              data-purecounter-duration="5"
+            >
+              0
+            </p>
+          </div>
             <p class="text-sm uppercase tracking-[0.2em] text-slate-200">{stat.label}</p>
           </div>
         ))}

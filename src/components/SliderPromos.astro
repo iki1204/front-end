@@ -30,7 +30,11 @@ const img = sliderPromos?.files?.map((img) => `${API_URL}${img.url}`) ?? [];
 
         <div class="flex justify-center items-center pt-20">
 
-          <div class="content-all">
+          <div class="content-all"
+                data-aos="fade-up"
+                data-aos-duration="1000"
+                data-aos-anchor-placement="bottom-bottom"
+          >
             <div class="content-carrousel">
                 {
                     img.map((link) => (
