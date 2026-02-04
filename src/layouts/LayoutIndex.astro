@@ -70,6 +70,26 @@ const showNotFound = !response;
                 },
             ]}
         />
+
+        <script type="module" is:inline>
+            import PureCounter from "@srexi/purecounterjs";
+
+            function init() {
+                // Opcional: reiniciar para que siempre anime
+                document.querySelectorAll(".purecounter").forEach((el) => (el.textContent = "0"));
+                new PureCounter();
+            }
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", init, { once: true });
+            } else {
+                init();
+            }
+
+            document.addEventListener("astro:after-swap", init);
+            </script>
+
+
     </head>
     
     <body class="relative min-h-screen dark:bg-gray-900">
@@ -82,14 +102,6 @@ const showNotFound = !response;
             aosInit();
             document.addEventListener("astro:after-swap", aosInit);
 
-        </script>
-
-        <script>
-            import {pureCounterInit } from "@srexi/purecounterjs";
-
-            // runs on initial page load
-            pureCounterInit();
-            document.addEventListener("astro:after-swap", pureCounterInit);
         </script>
 
         <div class="pointer-events-none absolute inset-x-0 top-0 z-0 h-screen" aria-hidden="true">
