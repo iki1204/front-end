@@ -1,6 +1,6 @@
 ---
+import { animate, splitText, stagger } from 'animejs';
 const { pageData } = Astro.props;
-const API_URL = import.meta.env.VITE_STRAPI_URL;
 const responseHome = pageData;
 
 const heroSection =
@@ -15,6 +15,8 @@ const lastSubtitulo = subtitulo.slice(-7);
 
 const botones = heroSection?.boton_link ?? [];
 
+
+
 ---
   
 <div class="relative z-40 h-screen w-full" id="hero">
@@ -24,17 +26,20 @@ const botones = heroSection?.boton_link ?? [];
           <div class="relative h-screen w-screen pt-28 ml-auto flex items-start gap-5">
             <div class="lg:w-9/10 text-center mx-auto">
               <h1 class="text-balance text-white font-bold text-6xl md:text-6xl xl:text-8xl"
-                data-aos="flip-up"
-                data-aos-duration="1000"
-                data-aos-anchor-placement="top-center"
+                data-anime="text"
               >
                 {mainTitulo}
                 <span class="text-primary">{lastTitulo}</span>
               </h1>
-              <p class="mt-8 text-white text-xl md:text-4xl xl:text-6xl">
+              <p class="mt-8 text-white text-xl md:text-4xl xl:text-6xl whitespace-normal break-normal hyphens-none"
+                data-anime="typewriter"
+              >
                 {mainSubtitulo}
-                <span class="text-primary ">{lastSubtitulo}</span>
+                <span class="text-primary">{lastSubtitulo}</span>
               </p>
+
+
+
 
               <div class="mt-16 gap-5 flex flex-col sm:flex-row sm:justify-center">
                 {botones.map((btn, index) => {
@@ -60,11 +65,13 @@ const botones = heroSection?.boton_link ?? [];
                   return (
                     <a
                       href={btn.url}
-                      class={`${baseClasses} ${shineEffect} ${
+                      class= {`${baseClasses} ${shineEffect} ${
                         isPrimary ? primaryClasses : secondaryClasses
                       }`}
                     >
-                      <span class="relative flex items-center gap-2">
+                      <span class="relative flex items-center gap-2"
+                        data-anime="split"
+                      >
                         {btn.etiqueta}
                         
                         <svg

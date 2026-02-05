@@ -9,6 +9,7 @@ import loginWidgetScript from "../lib/sesionWidget.ts?url";
 import authVisibilityScript from "../lib/authVisibility.ts?url";
 import priceByUserScript from "../lib/precioPorUsuario.ts?url";
 import pureCounterScript from "../lib/pureCounterClient.ts?url";
+import animateJS from "../lib/animeJS.ts?url";
 import aosScript from "../lib/aosClient.ts?url";
 import { getGlobalData } from "../lib/api";
 import "../css/tailus.css"
@@ -71,24 +72,6 @@ const showNotFound = !response;
             ]}
         />
 
-        <script type="module" is:inline>
-            import PureCounter from "@srexi/purecounterjs";
-
-            function init() {
-                // Opcional: reiniciar para que siempre anime
-                document.querySelectorAll(".purecounter").forEach((el) => (el.textContent = "0"));
-                new PureCounter();
-            }
-
-            if (document.readyState === "loading") {
-                document.addEventListener("DOMContentLoaded", init, { once: true });
-            } else {
-                init();
-            }
-
-            document.addEventListener("astro:after-swap", init);
-            </script>
-
 
     </head>
     
@@ -140,8 +123,9 @@ const showNotFound = !response;
         <script type="module" src={priceByUserScript}></script>
         <script type="module" src={aosScript}></script>
         <script type="module" src={pureCounterScript}></script>
+        <script type="module" src={animateJS}></script> 
 
-
+        
 
         
     </body>

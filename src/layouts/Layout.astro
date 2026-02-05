@@ -8,6 +8,8 @@ import loginWidgetScript from "../lib/sesionWidget.ts?url";
 import authVisibilityScript from "../lib/authVisibility.ts?url";
 import priceByUserScript from "../lib/precioPorUsuario.ts?url";
 import NotFoundContent from "../components/NotFound.astro";
+import pureCounterScript from "../lib/pureCounterClient.ts?url";
+import aosScript from "../lib/aosClient.ts?url";
 import { getGlobalData } from "../lib/api";
 import "../css/tailus.css"
 import "../styles/global.css";
@@ -109,6 +111,8 @@ const showShell = Boolean(response);
         <script type="module" src={cartWidgetScript}></script>
         <script type="module" src={authVisibilityScript}></script>
         <script type="module" src={priceByUserScript}></script>
+        <script type="module" src={aosScript}></script>
+        <script type="module" src={pureCounterScript}></script>
 
         
     </body>
