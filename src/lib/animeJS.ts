@@ -3,7 +3,8 @@ import { animate, stagger, splitText } from "animejs";
 type SplitMode = "chars" | "words" | "lines";
 
 function getSplitTargets(
-  el: HTMLElement
+  el: HTMLElement,
+  fallbackMode: SplitMode = "chars"
 ): HTMLElement[] | null {
 
   // Evita volver a dividir el mismo elemento
@@ -11,7 +12,7 @@ function getSplitTargets(
   el.dataset.animeSplitDone = "1";
 
   const mode = (
-    (el.dataset.animeSplit as SplitMode) ?? "chars"
+    (el.dataset.animeSplit as SplitMode) ?? fallbackMode
   ).toLowerCase() as SplitMode;
 
   const opts = {
@@ -33,20 +34,6 @@ function getSplitTargets(
       ? result.words
       : result.lines;
 
-    if (mode === "words" && targets?.length) {
-    targets.forEach((w) => {
-        w.style.setProperty("display", "inline-block", "important");
-        w.style.setProperty("white-space", "nowrap", "important");
-        w.style.setProperty("word-break", "normal", "important");
-        w.style.setProperty("overflow-wrap", "normal", "important");
-        w.style.setProperty("hyphens", "none", "important");
-    });
-
-    // También fuerza el contenedor
-    el.style.setProperty("word-break", "normal", "important");
-    el.style.setProperty("overflow-wrap", "normal", "important");
-    el.style.setProperty("hyphens", "none", "important");
-    }
 
   return targets ?? null;
 }
@@ -63,29 +50,32 @@ function presetGameAnimation(): void {
         document.querySelectorAll<HTMLElement>('[data-anime="split"]')
     );
 
-    const allTargets: HTMLElement[] = [];
+    if (!els.length) return;
 
     for (const el of els) {
-        const targets = getSplitTargets(el);
-        if (targets) allTargets.push(...targets);
+        if (el.dataset.animeHoverBound === "1") continue;
+
+        const targets = getSplitTargets(el, "chars");
+        if (!targets?.length) continue;
+
+        const runHoverAnimation = () => {
+            animate(targets, {
+                y: [
+                    { to: "-2.75rem", ease: "outExpo", duration: 600 },
+                    { to: 0, ease: "outBounce", duration: 800, delay: 100 },
+                ],
+                rotate: {
+                    from: "-1turn",
+                    delay: 0,
+                },
+                delay: stagger(50),
+                ease: "inOutCirc",
+            });
+        };
+
+        el.addEventListener("mouseenter", runHoverAnimation);
+        el.dataset.animeHoverBound = "1";
     }
-
-    if (!allTargets.length) return;
-
-    animate(allTargets, {
-      y: [
-        { to: "-2.75rem", ease: "outExpo", duration: 600 },
-        { to: 0, ease: "outBounce", duration: 800, delay: 100 },
-      ],
-      rotate: {
-        from: "-1turn",
-        delay: 0,
-      },
-      delay: stagger(50),
-      ease: "inOutCirc",
-      loopDelay: 1000,
-      loop: true,
-    });
 }
 
 function presetTextAnimation(): void {
@@ -95,7 +85,7 @@ function presetTextAnimation(): void {
     const allTargets: HTMLElement[] = [];
 
     for (const el of els) {
-        const targets = getSplitTargets(el);
+        const targets = getSplitTargets(el, "chars");
         if (targets) allTargets.push(...targets);
     }
 
@@ -122,14 +112,14 @@ function presetTypewriter(): void {
     const allTargets: HTMLElement[] = [];
 
     for (const el of els) {
-        const targets = getSplitTargets(el);
+        const targets = getSplitTargets(el, "words");
         if (targets) allTargets.push(...targets);
     }
 
     if (!allTargets.length) return;
 
     animate(allTargets, {
-        translateX: [0,30],
+        translateX: [-30,0],
         opacity: [0,1],
         easing: "easeInExpo",
         duration: 1100,

@@ -31,7 +31,7 @@ const botones = heroSection?.boton_link ?? [];
                 {mainTitulo}
                 <span class="text-primary">{lastTitulo}</span>
               </h1>
-              <p class="mt-8 text-white text-xl md:text-4xl xl:text-6xl whitespace-normal break-normal hyphens-none"
+              <p class="mt-8 text-white text-xl md:text-4xl xl:text-6xl "
                 data-anime="typewriter"
               >
                 {mainSubtitulo}
@@ -47,15 +47,14 @@ const botones = heroSection?.boton_link ?? [];
 
                   const baseClasses =
                     "group relative inline-flex h-12 w-full items-center justify-center rounded-full px-6 text-base font-semibold transition " +
-                    "active:scale-[0.97] sm:w-auto sm:min-w-[180px] " +
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black " +
-                    "shadow-sm hover:shadow-md";
+                    "active:scale-[0.97] sm:w-auto sm:min-w-[180px] "
+                    "shadow-lg hover:shadow-md";
 
                   const primaryClasses =
-                    "bg-primary text-white ring-1 ring-white/15 hover:ring-white/30 hover:bg-red-800";
+                    "bg-red-800 text-white ring-2 ring-white/40 hover:ring-white hover:bg-primary";
 
                   const secondaryClasses =
-                    "bg-gray-900 text-white ring-1 ring-red/15 hover:ring-red/30 hover:bg-gray-800";
+                    "bg-gray-900 text-white ring-2 ring-red/40 hover:ring-red hover:bg-gray-600";
 
                   const shineEffect =
                     "before:pointer-events-none before:absolute before:inset-0 before:rounded-full before:opacity-0 before:transition " +
@@ -65,13 +64,13 @@ const botones = heroSection?.boton_link ?? [];
                   return (
                     <a
                       href={btn.url}
+                      data-anime="split"
                       class= {`${baseClasses} ${shineEffect} ${
                         isPrimary ? primaryClasses : secondaryClasses
+                        
                       }`}
                     >
-                      <span class="relative flex items-center gap-2"
-                        data-anime="split"
-                      >
+                      <span class="relative flex items-center gap-2">
                         {btn.etiqueta}
                         
                         <svg
