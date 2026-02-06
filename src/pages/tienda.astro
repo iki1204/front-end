@@ -39,28 +39,30 @@ const applySearchFilters = (params: URLSearchParams, terms: string[]) => {
   });
 };
 
-if (categoryParam !== "all") {
-  strapiParams.set("filters[ID_Categoria][$eq]", categoryParam);
-}
+const hasSearch = searchTerms.length > 0;
 
-if (brandParam !== "all") {
-  strapiParams.set("filters[ID_Marca][$eq]", brandParam);
-}
-
-if (stockParam === "in") {
-  strapiParams.set("filters[cantidad_stock][$gt]", "0");
-}
-
-if (stockParam === "out") {
-  strapiParams.set("filters[cantidad_stock][$lte]", "0");
-}
-
-if (searchTerms.length > 0) {
+if (hasSearch) {
   applySearchFilters(strapiParams, searchTerms);
-}
+} else {
+  if (categoryParam !== "all") {
+    strapiParams.set("filters[ID_Categoria][$eq]", categoryParam);
+  }
 
-if (priceFilterValue < MAX_PRICE) {
-  strapiParams.set("filters[precio][$lte]", String(priceFilterValue));
+  if (brandParam !== "all") {
+    strapiParams.set("filters[ID_Marca][$eq]", brandParam);
+  }
+
+  if (stockParam === "in") {
+    strapiParams.set("filters[cantidad_stock][$gt]", "0");
+  }
+
+  if (stockParam === "out") {
+    strapiParams.set("filters[cantidad_stock][$lte]", "0");
+  }
+
+  if (priceFilterValue < MAX_PRICE) {
+    strapiParams.set("filters[precio][$lte]", String(priceFilterValue));
+  }
 }
 
 const getAllProductsForSuggestions = async () => {
