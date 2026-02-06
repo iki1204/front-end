@@ -39,28 +39,30 @@ const applySearchFilters = (params: URLSearchParams, terms: string[]) => {
   });
 };
 
-if (categoryParam !== "all") {
-  strapiParams.set("filters[ID_Categoria][$eq]", categoryParam);
-}
+const hasSearch = searchTerms.length > 0;
 
-if (brandParam !== "all") {
-  strapiParams.set("filters[ID_Marca][$eq]", brandParam);
-}
-
-if (stockParam === "in") {
-  strapiParams.set("filters[cantidad_stock][$gt]", "0");
-}
-
-if (stockParam === "out") {
-  strapiParams.set("filters[cantidad_stock][$lte]", "0");
-}
-
-if (searchTerms.length > 0) {
+if (hasSearch) {
   applySearchFilters(strapiParams, searchTerms);
-}
+} else {
+  if (categoryParam !== "all") {
+    strapiParams.set("filters[ID_Categoria][$eq]", categoryParam);
+  }
 
-if (priceFilterValue < MAX_PRICE) {
-  strapiParams.set("filters[precio][$lte]", String(priceFilterValue));
+  if (brandParam !== "all") {
+    strapiParams.set("filters[ID_Marca][$eq]", brandParam);
+  }
+
+  if (stockParam === "in") {
+    strapiParams.set("filters[cantidad_stock][$gt]", "0");
+  }
+
+  if (stockParam === "out") {
+    strapiParams.set("filters[cantidad_stock][$lte]", "0");
+  }
+
+  if (priceFilterValue < MAX_PRICE) {
+    strapiParams.set("filters[precio][$lte]", String(priceFilterValue));
+  }
 }
 
 const getAllProductsForSuggestions = async () => {
@@ -248,7 +250,23 @@ const showRightDots = endPage < totalPages;
   <Container>
     <article class="flex flex-col gap-10 py-10 w-full">
       <!-- Filtro responsive -->
-      <div class="flex flex-col gap-6 md:hidden">
+      <div class="md:hidden">
+        <details class="group rounded-3xl border border-zinc-200 bg-white/90 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/90">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl bg-zinc-100 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-zinc-800 transition hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700">
+            <span class="inline-flex items-center gap-2">
+              <svg class="h-5 w-5 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M3 6H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M7 12H17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M10 18H14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+              Filtros de búsqueda
+            </span>
+            <svg class="h-5 w-5 shrink-0 text-zinc-500 transition-transform duration-300 group-open:rotate-180 dark:text-zinc-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z" clip-rule="evenodd"/>
+            </svg>
+          </summary>
+
+          <div class="mt-4 flex flex-col gap-6">
 
         <div class="group relative block">
           <label for="mobileCategory" class="text-base font-semibold text-zinc-900 dark:text-white mb-4">
@@ -383,6 +401,8 @@ const showRightDots = endPage < totalPages;
               </div>
             </form>
         </div>
+          </div>
+        </details>
       </div>
 
       <!-- Contenido principal -->
