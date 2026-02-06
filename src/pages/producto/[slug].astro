@@ -242,10 +242,10 @@ const precio = formattedPrices.default;
 var descripcion = producto?.descripcion;
 
 const asesorContactLinks: Record<string, string> = {
-  "Edison": "https://wa.me/593967302450?text=hola, necesito mas informacion sobre sus productos",
-  "Moises": "https://wa.me/593989372276?text=hola, necesito mas informacion sobre sus productos",
-  "Katya": "https://wa.me/593991046279?text=hola, necesito mas informacion sobre sus productos",
-  "Samantha": "https://wa.me/593989538349?text=hola, necesito mas informacion sobre sus productos",
+  "Edison": "https://wa.me/593967302450?text=Hola, necesito mas informacion sobre su producto " + producto?.nombre + " con codigo: " + (producto?.codigo ?? ""),
+  "Moises": "https://wa.me/593989372276?text=Hola, necesito mas informacion sobre su producto " + producto?.nombre + " con codigo: " + (producto?.codigo ?? ""),
+  "Katya": "https://wa.me/593991046279?text=Hola, necesito mas informacion sobre su producto " + producto?.nombre + " con codigo: " + (producto?.codigo ?? ""),
+  "Samantha": "https://wa.me/593989538349?text=Hola, necesito mas informacion sobre su producto " + producto?.nombre + " con codigo: " + (producto?.codigo ?? ""),
 };
 const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(asesorContactLinks)[0] ?? "#";
 ---

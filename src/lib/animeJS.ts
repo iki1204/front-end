@@ -30,7 +30,7 @@ function getSplitTargets(
   const targets =
     mode === "chars"
       ? result.chars
-      : mode === "words"
+    : mode === "words"
       ? result.words
       : result.lines;
 
@@ -45,7 +45,6 @@ function getSplitTargets(
 
 
 function presetGameAnimation(): void {
-
     const els = Array.from(
         document.querySelectorAll<HTMLElement>('[data-anime="split"]')
     );
@@ -58,17 +57,22 @@ function presetGameAnimation(): void {
         const targets = getSplitTargets(el, "chars");
         if (!targets?.length) continue;
 
+        for (const target of targets) {
+            target.style.padding = "0";
+        }
+
+
         const runHoverAnimation = () => {
             animate(targets, {
                 y: [
-                    { to: "-2.75rem", ease: "outExpo", duration: 600 },
+                    { to: "-2.50rem", ease: "outExpo", duration: 600 },
                     { to: 0, ease: "outBounce", duration: 800, delay: 100 },
                 ],
                 rotate: {
                     from: "-1turn",
                     delay: 0,
                 },
-                delay: stagger(50),
+                delay: stagger(10),
                 ease: "inOutCirc",
             });
         };
