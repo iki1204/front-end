@@ -4,6 +4,10 @@ import ProductCard from "../components/ProductCard.astro";
 import Container from "../components/Container.astro";
 import { getCategorias, getGlobalData, getMarcas, getProductos } from "../lib/api";
 
+const ua = Astro.request.headers.get("user-agent") ?? "";
+const isCrawler = /meta-externalagent|facebookexternalhit|WhatsApp|Twitterbot|Slackbot/i.test(ua);
+
+
 const ITEMS_PER_PAGE = 24;
 const MAX_PRICE = 5000;
 const MIN_PRICE = 0;
@@ -94,7 +98,7 @@ const [productosResponse, categoriasResponse, marcasResponse, global, suggestion
   getCategorias(),
   getMarcas(),
   getGlobalData(),
-  getAllProductsForSuggestions(),
+  isCrawler ? Promise.resolve([]) : getAllProductsForSuggestions(),
 ]);
 
 const getStrapiFileUrl = (file: any) => {
