@@ -22,9 +22,10 @@ const {
     metaKeywords: metaKeywordsOverride,
     metaImages: metaImagesOverride,
     forceNotFound = false,
+    global: globalProp,
 } = Astro.props;
 
-const response = await getGlobalData().catch(() => null);
+const response = globalProp ?? (await getGlobalData().catch(() => null));
 const metaTitle = metaTitleOverride ?? response?.data?.defaultSeo?.metaTitle ?? "Página no encontrada";
 const metaDescription = metaDescriptionOverride ?? response?.data?.defaultSeo?.metaDescription ?? "";
 const metaKeywords = metaKeywordsOverride ?? response?.data?.defaultSeo?.metaKeywords ?? "";
@@ -97,11 +98,11 @@ const showShell = Boolean(response);
 
 
             
-            {showShell && <AppHeader />}
+            {showShell && <AppHeader global={response} />}
 
             {showNotFound ? <NotFoundContent /> : <slot />}
             
-            {showShell && <AppFooter />}
+            {showShell && <AppFooter global={response} />}
 
         </div>
 

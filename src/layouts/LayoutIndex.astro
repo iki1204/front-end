@@ -22,7 +22,8 @@ import "aos/dist/aos.css";
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 
-const response = await getGlobalData().catch(() => null);
+const { global: globalProp } = Astro.props;
+const response = globalProp ?? (await getGlobalData().catch(() => null));
 const metaTitle = response?.data?.defaultSeo?.metaTitle ?? "Página no encontrada";
 const metaDescription = response?.data?.defaultSeo?.metaDescription ?? "";
 const metaKeywords = response?.data?.defaultSeo?.metaKeywords ?? "";
@@ -106,12 +107,12 @@ const showNotFound = !response;
 
 
             
-            {response && <AppHeader />}
+            {response && <AppHeader global={response} />}
 
 
             {showNotFound ? <NotFoundContent /> : <slot />}
             
-            {response && <AppFooter />}
+            {response && <AppFooter global={response} />}
         
         </div>
 
