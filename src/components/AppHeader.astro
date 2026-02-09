@@ -4,7 +4,8 @@ import { getGlobalData } from "../lib/api";
 import headerAuthScript from "../lib/headerAuthToggle.ts?url";
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
-const response = await getGlobalData();
+const { global } = Astro.props;
+const response = global ?? (await getGlobalData());
 const siteName = response.data.header.Etiqueta;
 const logoUrl = response.data.header.Logo.map((img) => `${API_URL}${img.url}`) ?? [];
 

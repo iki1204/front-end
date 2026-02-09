@@ -2,7 +2,8 @@
 import { getGlobalData } from "../lib/api";   
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
-const response = await getGlobalData();
+const { global } = Astro.props;
+const response = global ?? (await getGlobalData());
 const textoDerechos = response.data.footer.texto_derechos;
 const links = response.data.footer.Columna.map((link) => ({
     label: link.etiqueta,
