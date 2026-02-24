@@ -167,10 +167,16 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
   const formData = new FormData(form);
   const username = String(formData.get("username") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
+  const DNI = String(formData.get("DNI") ?? "").trim();
+  const nombre = String(formData.get("name") ?? "").trim();
+  const apellido = String(formData.get("lastname") ?? "").trim();
+  const direccion = String(formData.get("direccion") ?? "").trim();
+  const fecha = String(formData.get("fechaNacimiento") ?? "").trim();
+  const telefono = String(formData.get("telefono") ?? "").trim();
   const password = String(formData.get("password") ?? "").trim();
 
 
-  if (!username || !password || !email) {
+  if (!username || !password || !email || !nombre || !apellido || !direccion || !fecha || !telefono || !DNI) {
     setFeedbackMessage(feedback, "Completa los campos para registrarte.", "error");
     return;
   }
@@ -184,7 +190,7 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
   setFeedbackMessage(feedback, "Creando tu cuenta...", "neutral");
 
   try {
-    const response = await postUsuarioRegister({ username, email, password });
+    const response = await postUsuarioRegister({ username, email, password, nombre, apellido, direccion, fecha, telefono, DNI });
     setFeedbackMessage(feedback, "Registro exitoso. redirigiendo ...", "success");
     window.location.assign("/success-register");
   } catch (error) {

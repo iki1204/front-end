@@ -23,6 +23,7 @@ const {
     metaImages: metaImagesOverride,
     forceNotFound = false,
     global: globalProp,
+    stopIndexing = false,
 } = Astro.props;
 
 const response = globalProp ?? (await getGlobalData().catch(() => null));
@@ -46,6 +47,7 @@ const showShell = Boolean(response);
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
+        <meta http-equiv="Cache-Control" content="public, max-age=86400, s-maxage=86400" />
         <link rel="icon" type="image/svg+xml" href={metaIcon} />
         <meta name="generator" content={Astro.generator} />
         <meta name="description" content={metaDescription} />
@@ -55,13 +57,16 @@ const showShell = Boolean(response);
         <!-- Open Graph / Facebook -->
         <meta property="og:title" content={metaTitle} />
         <meta property="og:description" content={metaDescription} />
-        {metaImages.map((image) => (
-            <meta property="og:image" content={image} />
-        ))}
+        {metaImages[0] && <meta property="og:image" content={metaImages[0]} />}
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={siteName} />
 
-        
+        {stopIndexing && (
+            <>
+                <meta name="robots" content="noindex, nofollow" />
+                <link rel="canonical" href="https://sistema.unicomec.com/tienda" />
+            </>
+        )}
         <title>{metaTitle ?? siteName}</title>
 
 

@@ -3,8 +3,8 @@ import AOS from "aos";
 function init() {
   AOS.init({
     duration: 800,
-    easing: "ease-out-cubic",
-    once: false,
+    easing: "ease-in-out-quart",
+    once: true,
     offset: 50,
   });
 }

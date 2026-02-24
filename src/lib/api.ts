@@ -129,7 +129,7 @@ export async function postUsuarioLogin(data: Record<string, string>) {
 }
 
 export async function postUsuarioRegister(data: Record<string, string>) {
-  return postAPI("local/register", data);
+  return postAPI("register-params", data);
 }
 
 

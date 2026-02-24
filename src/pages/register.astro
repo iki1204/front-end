@@ -48,7 +48,99 @@ import sesionScript from "../lib/sesionWidget.ts?url";
               class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
             />
           </div>
+
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+
+            <div>
+              <label for="DNI" class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+                Cedula o RUC
+              </label>
+              <input
+                type="text"
+                id="DNI"
+                name="DNI"
+                required
+                placeholder="1234567890"
+                class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label for="telefono" class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+                Teléfono
+              </label>
+              <input
+                type="text"
+                id="telefono"
+                name="telefono"
+                required
+                placeholder="1234567890"
+                class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+              />
+            </div>
+
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label for="name" class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+                Nombres
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                placeholder="Nombres Completos"
+                class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label for="lastname" class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+                Apellidos
+              </label>
+              <input
+                type="text"
+                id="lastname"
+                name="lastname"
+                required
+                placeholder="Apellidos Completos"
+                class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+              />
+            </div>
+          </div>
+          
+          <div class="flex gap-2">
+             <div class="w-85 flex-auto">
+                <label for="direccion" class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+                  Dirección
+                </label>
+                <input
+                  type="text"
+                  id="direccion"
+                  name="direccion"
+                  required
+                  placeholder="Ejemplo: Av.Shyris y 6 de Diciembre"
+                  class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                />
+              </div>
+              
+              <div class="w-15 flex-auto">
+                  <label for="fechaNacimiento" class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+                    Fecha de Nacimiento
+                  </label>
+                  <input
+                    type="date"
+                    id="fechaNacimiento"
+                    name="fechaNacimiento"
+                    required
+                    class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                  />
+              </div>
+          </div>
+
          
+
           <div>
             <label for="password" class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
               Contraseña
@@ -59,7 +151,7 @@ import sesionScript from "../lib/sesionWidget.ts?url";
               name="password"
               required
               placeholder="••••••••"
-              class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+              class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-xl text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
             />
           </div>
           <div class="flex flex-col gap-3 sm:flex-row">

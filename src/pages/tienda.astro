@@ -16,6 +16,9 @@ const normalizeWithAttributes = (item: any) => (item?.attributes ? { id: item.id
 const normalizeCollection = (collection: any[] = []) => collection.map(normalizeWithAttributes);
 
 const url = new URL(Astro.request.url);
+const hasQuery = Array.from(url.searchParams.keys()).length > 0;
+
+const stopIndexing = isCrawler && hasQuery;
 
 const searchParam = url.searchParams.get("search")?.toLowerCase().trim() ?? "";
 const searchTerms = searchParam.split(/\s+/).filter(Boolean);
@@ -234,7 +237,14 @@ const showRightDots = endPage < totalPages;
 ---
 
 
-<BaseLayout global={global}>
+<BaseLayout global={global} stopIndexing={stopIndexing}>
+
+  {stopIndexing ? (
+    <>
+      <meta name="robots" content="noindex, nofollow" slot="head" />
+      <link rel="canonical" href="https://sistema.unicomec.com/tienda" slot="head" />
+    </>
+  ) : null}
 
   <div
     class="fixed inset-0 z-[999] flex items-center justify-center bg-white/80 text-zinc-900 backdrop-blur-sm transition-opacity dark:bg-zinc-950/80 dark:text-white"
