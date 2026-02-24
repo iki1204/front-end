@@ -2,6 +2,16 @@
 const { producto } = Astro.props;
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 
+const asesorContactLinks: Record<string, string> = {
+  "Edison": "https://wa.me/593967302450?text=Hola, necesito mas informacion sobre su producto " + producto?.nombre + " con codigo: " + (producto?.codigo ?? ""),
+  "Moises": "https://wa.me/593989372276?text=Hola, necesito mas informacion sobre su producto " + producto?.nombre + " con codigo: " + (producto?.codigo ?? ""),
+  "Katya": "https://wa.me/593991046279?text=Hola, necesito mas informacion sobre su producto " + producto?.nombre + " con codigo: " + (producto?.codigo ?? ""),
+  "Samantha": "https://wa.me/593989538349?text=Hola, necesito mas informacion sobre su producto " + producto?.nombre + " con codigo: " + (producto?.codigo ?? ""),
+  "Lizeth": "https://wa.me/593980373798?text=Hola, necesito mas informacion sobre su producto " + producto?.nombre + " con codigo: " + (producto?.codigo ?? ""),
+};
+
+const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(asesorContactLinks)[0] ?? "#";
+
 const medias: any[] = [
   // imagen como array de media
   ...(Array.isArray(producto?.imagen) ? producto.imagen : []),
@@ -123,7 +133,9 @@ const formattedPrices = {
   </a>
   <div class="mt-4 grid grid-cols-2 gap-1 sm:items-center sm:justify-between">
     <a
-      href={"https://wa.me/593989372276?text=hola, necesito mas informacion sobre este producto: \n"  + producto.nombre + " con codigo: " + (producto?.codigo )}
+      href={defaultAsesorContactLink}
+      data-asesor-contact
+      data-asesor-links={JSON.stringify(asesorContactLinks)}
       class="flex items-center justify-center rounded-full border border-transparent px-2 py-2 text-xs font-semibold text-primary transition hover:border-primary hover:bg-primary/10"
     >
       Ver con Asesor
@@ -148,3 +160,35 @@ const formattedPrices = {
       Añadir al carrito
     </button>
   </div>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const asesorLink = document.querySelector("[data-asesor-contact]");
+      if (asesorLink instanceof HTMLAnchorElement) {
+        const asesorLinksRaw = asesorLink.getAttribute("data-asesor-links") ?? "{}";
+        const asesorLinks = JSON.parse(asesorLinksRaw) as Record<string, string>;
+        const fallbackLink =
+          asesorLinks["Edison"] ?? Object.values(asesorLinks)[0] ?? asesorLink.getAttribute("href") ?? "#";
+
+
+        try {
+          const rawSession = localStorage.getItem("usuarioSesion");
+          if (rawSession) {
+            const parsedSession = JSON.parse(rawSession);
+            const user = parsedSession?.user ?? parsedSession?.data?.user ?? null;
+            const asesorKey = user?.asesor ?? null;
+            if (asesorKey && asesorLinks[asesorKey]) {
+              asesorLink.setAttribute("href", asesorLinks[asesorKey]);
+            } else {
+              asesorLink.setAttribute("href", fallbackLink);
+            }
+          } else {
+            asesorLink.setAttribute("href", fallbackLink);
+          }
+        } catch (error) {
+          console.warn("No se pudo leer la sesión del usuario", error);
+          asesorLink.setAttribute("href", fallbackLink);
+        }
+      }
+    });
+  </script>
