@@ -31,10 +31,10 @@ const botones = response.data.header.Botones.map((boton) => ({
 ---
 
 <header id="site-header" class="sticky w-full top-0 z-60 border-b border-black/10 dark:border-white/5 bg-transparent transition-all duration-500 ease-in-out">
-    <nav id="nav" class="group/nav top-0 z-50 w-full  dark:border-white/5 lg:border-transparent">
-        <Container>
-            <div class="relative flex flex-wrap items-center justify-between gap-6 py-3 md:gap-0 md:py-4">
-                <div class="relative z-20 flex w-full justify-between md:px-0 lg:w-fit">
+  <nav id="nav" class="group/nav top-0 z-50 w-full  dark:border-white/5 lg:border-transparent">
+    <Container>
+        <div class="relative flex flex-wrap items-center justify-between gap-6 py-3 md:gap-0 md:py-4">
+              <div class="relative z-20 flex w-full justify-between md:px-0 lg:w-fit">
                     <a href="/#home" aria-label="logo" class="flex dark:hidden items-center space-x-2">
                         <div aria-hidden="true" class="flex space-x-1">
                             <div class="size-4 rounded-full bg-gray-900 dark:bg-white"></div>
@@ -66,7 +66,7 @@ const botones = response.data.header.Botones.map((boton) => ({
                 </div>
                 <div id="navLayer" aria-hidden="true" class="fixed inset-0 z-10 h-screen w-full origin-bottom scale-y-0 bg-white/70 backdrop-blur-2xl transition duration-500 group-data-[state=active]/nav:origin-top group-data-[state=active]/nav:scale-y-100 dark:bg-gray-950/70 lg:hidden"></div>
                 <div id="navlinks" class="invisible absolute top-full  justify-center left-0 z-20 w-full origin-top-right translate-y-1 scale-90 flex-col flex-wrap gap-6 rounded-3xl border border-gray-100 bg-white p-8 opacity-0 shadow-2xl shadow-gray-600/10 transition-all duration-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none lg:visible lg:relative lg:flex lg:w-fit lg:translate-y-0 lg:scale-100 lg:flex-row lg:items-center lg:gap-0 lg:border-none lg:bg-transparent lg:p-0 lg:opacity-100 lg:shadow-none lg:dark:bg-transparent group-data-[state=active]/nav:visible group-data-[state=active]/nav:scale-100 group-data-[state=active]/nav:opacity-100 lg:group-data-[state=active]/nav:translate-y-0">
-                  <div class="relative mt-6 w-full text-gray-600 dark:text-gray-200 lg:mt-0 lg:w-auto lg:pr-4 lg:pt-0 group/menu" data-nav-dropdown>
+                  <div class="relative mt-6 w-full text-gray-600 dark:text-gray-200 lg:mt-0 lg:w-auto lg:pr-2 lg:pt-0 group/menu" data-nav-dropdown>
                       <button
                         type="button"
                         class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
@@ -89,10 +89,10 @@ const botones = response.data.header.Botones.map((boton) => ({
                           </div>
                       </div>
                   </div>            
-                  <div class="relative mt-6 w-full lg:mt-0 lg:w-auto group/menu" data-nav-dropdown>
+                  <div class="relative mt-6 w-full text-gray-600 dark:text-gray-200 lg:mt-0 lg:w-auto lg:pr-2 lg:pt-0 group/menu" data-nav-dropdown>
                     <button
                       type="button"
-                      class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
+                      class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 group-hover:text-black px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
                       aria-haspopup="true"
                     >
                       <span>Páginas</span>

@@ -143,14 +143,14 @@ if (categoriaFiltro && marcaFiltro) {
   addUniqueRecommendations(byBrandAndCategory);
 }
 
-if (categoriaFiltro && uniqueRecommendations.length < 3) {
+if (categoriaFiltro && uniqueRecommendations.length < 4) {
   const byCategory = await fetchRecommendations({
     "filters[ID_Categoria][$eq]": categoriaFiltro,
   });
   addUniqueRecommendations(byCategory);
 }
 
-const recommendedProducts = uniqueRecommendations.slice(0, 3);
+const recommendedProducts = uniqueRecommendations.slice(0, 4);
 
 const identifier = producto?.identifier;
 const stockEndpoint = `${API_URL}/api/productos/${encodeURIComponent(String(identifier))}/stock`;
@@ -258,8 +258,8 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
   metaKeywords={metaKeywords}
   metaImages={metaImages}
 >
-  <Container>
-    <article class="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+
+    <article class="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
         <a
           href="/tienda"
@@ -487,7 +487,7 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
       </div>
     </article>
     {recommendedProducts.length > 0 ? (
-      <section class="mx-auto mt-4 w-full max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
+      <section class="mx-auto mt-4 w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
         <div class="rounded-3xl p-6">
           <div class="flex flex-col gap-2">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
@@ -497,7 +497,7 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
               Te gustarán también
             </h2>
           </div>
-          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 border-t border-red-400 pt-6 dark:border-red-800">
+          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-1 lg:grid-cols-4 border-t border-red-400 pt-6 dark:border-red-800">
             {recommendedProducts.map((productoRecomendado) => (
               <ProductCard producto={productoRecomendado} />
             ))}
@@ -505,7 +505,6 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
         </div>
       </section>
     ) : null}
-  </Container>
 </BaseLayout>
 <script>
   window.addEventListener("DOMContentLoaded", () => {
