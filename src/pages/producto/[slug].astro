@@ -189,6 +189,9 @@ const metaDescription =
     : fallbackDescription;
 const metaKeywords = [productoNombre, categoriaNombre, marcaNombre].filter(Boolean).join(", ");
 const metaImages = [mainImage, ...galleryItems].filter(Boolean);
+const siteOrigin = Astro.url.origin;
+const encodedSlug = encodeURIComponent(String(slug));
+const canonicalUrl = new URL(`/producto/${encodedSlug}`, siteOrigin).toString();
 
   
 const datasheetEntries: any[] = [
@@ -257,6 +260,8 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
   metaDescription={metaDescription}
   metaKeywords={metaKeywords}
   metaImages={metaImages}
+  metaCanonical={canonicalUrl}
+  metaOgType="product"
 >
 
     <article class="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
