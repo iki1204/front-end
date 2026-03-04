@@ -368,13 +368,13 @@ const showRightDots = endPage < totalPages;
             onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
           >
             <option
-              value={Astro.url.pathname + buildQueryString({ stock: "all", page: 1, search: null })}
+              value={Astro.url.pathname + buildQueryString({ stock: "all", page: 1, search: null})}
               selected={stockParam === "all"}
             >
               TODOS
             </option>
             <option
-              value={Astro.url.pathname + buildQueryString({ stock: "in", page: 1 })}
+              value={Astro.url.pathname + buildQueryString({ stock: "in", page: 1, search: null })}
               selected={stockParam === "in"}
             >
               En stock
@@ -393,7 +393,6 @@ const showRightDots = endPage < totalPages;
         >
             <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-4">Precio máximo</h3>
             <form method="get" class="flex flex-col gap-4">
-              <input type="hidden" name="search" value={searchParam} />
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="brand" value={brandParam} />
               <input type="hidden" name="stock" value={stockParam} />
@@ -441,7 +440,7 @@ const showRightDots = endPage < totalPages;
             <ul class="flex flex-col gap-3 pb-2">
               <li class="relative">
                 <a
-                  href={Astro.url.pathname + buildQueryString({ category: "all", page: 1 })}
+                  href={Astro.url.pathname + buildQueryString({ category: "all", page: 1, search: null })}
                   class={`block w-full rounded-lg border px-4 py-2 text-sm font-medium text-left transition ${
                     categoryParam === "all"
                       ? "border-primary bg-primary text-white"
@@ -503,7 +502,7 @@ const showRightDots = endPage < totalPages;
                                   return (
                                     <li>
                                       <a
-                                        href={Astro.url.pathname + buildQueryString({ category: child.value, page: 1 })}
+                                        href={Astro.url.pathname + buildQueryString({ category: child.value, page: 1, search: null })}
                                         class={`flex items-center gap-3 rounded-2xl border px-3 py-2 font-medium transition ${
                                           isChildActive
                                             ? "border-primary bg-primary/10 text-primary"
@@ -655,7 +654,7 @@ const showRightDots = endPage < totalPages;
                 return (
                   <li>
                     <a
-                      href={Astro.url.pathname + buildQueryString({ stock: option.value, page: 1 })}
+                      href={Astro.url.pathname + buildQueryString({ stock: option.value, page: 1, search: null })}
                       class={`flex items-center justify-between rounded-2xl border px-4 py-2 font-medium transition ${
                         isActive
                           ? "border-primary bg-primary/10 text-primary"
@@ -678,7 +677,6 @@ const showRightDots = endPage < totalPages;
               Precio
             </h2>
             <form method="get" class="flex flex-col gap-4">
-              <input type="hidden" name="search" value={searchParam} />
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="brand" value={brandParam} />
               <input type="hidden" name="stock" value={stockParam} />
@@ -776,7 +774,7 @@ const showRightDots = endPage < totalPages;
                   </div>
                 )}
               </div>
-              <input type="hidden" name="category" value={categoryParam} />
+              
               <input type="hidden" name="page" value="1" />
               <button
                 type="submit"

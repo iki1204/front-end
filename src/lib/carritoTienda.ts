@@ -323,7 +323,7 @@ const renderMiniCartItem = (item: CartItem): HTMLLIElement => {
   decrement.dataset.cartDecrement = item.id;
   decrement.className =
     "flex h-7 w-7 items-center justify-center rounded-full border border-zinc-200 text-sm text-zinc-600 transition hover:border-primary hover:text-primary dark:border-red-700 dark:text-zinc-300";
-  decrement.textContent = "−";
+  decrement.textContent = "-";
 
   const quantity = document.createElement("span");
   quantity.className =
@@ -353,10 +353,10 @@ const renderMiniCartItem = (item: CartItem): HTMLLIElement => {
 const renderCheckoutItem = (item: CartItem): HTMLLIElement => {
   const li = document.createElement("li");
   li.className =
-    "flex flex-col gap-4 rounded-3xl border border-zinc-200 p-6 shadow-sm dark:border-red-800 dark:bg-zinc-900/40 sm:flex-row sm:items-start";
+    "flex flex-col gap-4  rounded-3xl border border-zinc-200 p-6 shadow-sm dark:border-red-800 dark:bg-zinc-900/40 sm:flex-row items-start";
 
   const imageWrapper = document.createElement("div");
-  imageWrapper.className = "h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800";
+  imageWrapper.className = "h-full w-full sm:h-24 sm:w-24 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800";
   const image = document.createElement("img");
   image.src = item.image;
   image.alt = item.name;
@@ -367,7 +367,7 @@ const renderCheckoutItem = (item: CartItem): HTMLLIElement => {
   const info = document.createElement("div");
   info.className = "flex-1";
   const title = document.createElement("h3");
-  title.className = "text-lg font-semibold text-zinc-900 dark:text-white";
+  title.className = "text-xs sm:text-lg font-semibold text-zinc-900 dark:text-white";
   title.textContent = item.name;
   const price = document.createElement("p");
   price.className = "text-sm text-zinc-500 dark:text-zinc-400";
@@ -380,7 +380,7 @@ const renderCheckoutItem = (item: CartItem): HTMLLIElement => {
   decrement.dataset.cartDecrement = item.id;
   decrement.className =
     "cursor-pointer flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-lg text-zinc-600 transition hover:border-primary hover:text-primary dark:border-zinc-700 dark:text-zinc-300";
-  decrement.textContent = "−";
+  decrement.textContent = "-";
 
   const quantity = document.createElement("span");
   quantity.className = "min-w-[3rem] text-center text-sm font-semibold text-zinc-700 dark:text-white";
@@ -402,8 +402,6 @@ const renderCheckoutItem = (item: CartItem): HTMLLIElement => {
 
   const lineTotal = document.createElement("p");
   lineTotal.className = "pt-2 text-sm font-semibold text-zinc-900 dark:text-white";
-  const subtotal = typeof item.price === "number" ? item.price * item.quantity : null;
-  lineTotal.textContent = `Subtotal: ${subtotal === null ? "--" : formatMoney(subtotal)}`;
 
   controls.append(decrement, quantity, increment, remove);
   info.append(title, price, controls, lineTotal);
