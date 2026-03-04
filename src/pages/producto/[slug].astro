@@ -156,28 +156,60 @@ const identifier = producto?.identifier;
 const stockEndpoint = `${API_URL}/api/productos/${encodeURIComponent(String(identifier))}/stock`;
 
 
-const galeriasPosibles = [producto?.imagen, producto?.imagenes?.data];
+const toAbsoluteMediaUrl = (path: string | null) => {
+  if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
+  return API_URL ? `${API_URL}${path}` : path;
+};
 
-const firstArray = galeriasPosibles.find(a => Array.isArray(a) && a.length);
-const firstItem = firstArray?.[0] ?? null;
-const mainPath =
-  firstItem?.formats?.medium?.url ??
-  firstItem?.formats?.large?.url ??
-  firstItem?.url ??
-  firstItem?.attributes?.formats?.medium?.url ??
-  firstItem?.attributes?.url ??
-  null;
-const mainImage = mainPath ? `${API_URL}${mainPath}` : "/images/placeholder.svg";
-const galleryItems = galeriasPosibles
-  .flat()
-  .filter(Boolean)
-  .map((item) => {
-    const url = item?.url ?? item?.attributes?.url ?? item?.attributes?.formats?.medium?.url ?? null;
-    return url && API_URL ? `${API_URL}${url}` : null;
+const getMediaUrl = (item: any) => {
+  const media = item?.attributes ?? item;
+  const path =
+    media?.formats?.medium?.url ??
+    media?.formats?.large?.url ??
+    media?.formats?.small?.url ??
+    media?.formats?.thumbnail?.url ??
+    media?.url ??
+    null;
+
+  return toAbsoluteMediaUrl(path);
+};
+
+const mediaGroups = [
+  producto?.imagen,
+  producto?.imagenes,
+  producto?.imagenes?.data,
+];
+
+const imageCandidates = mediaGroups
+  .flatMap((group) => {
+    if (!group) return [];
+    if (Array.isArray(group)) return group;
+    if (Array.isArray(group?.data)) return group.data;
+    return [group];
   })
-  .filter((value, index, array) => Boolean(value) && array.indexOf(value) === index)
-  .filter((imageUrl) => imageUrl !== mainImage);
+  .filter(Boolean);
 
+const seenMediaKeys = new Set<string | number>();
+const uniqueImages = imageCandidates
+  .map((item) => {
+    const media = item?.attributes ?? item;
+    const key = media?.id ?? item?.id ?? null;
+    const imageUrl = getMediaUrl(item);
+
+    return { key, imageUrl };
+  })
+  .filter(({ imageUrl }) => Boolean(imageUrl))
+  .filter(({ key, imageUrl }) => {
+    const dedupeKey = key ?? imageUrl;
+    if (seenMediaKeys.has(dedupeKey)) return false;
+    seenMediaKeys.add(dedupeKey);
+    return true;
+  })
+  .map(({ imageUrl }) => imageUrl as string);
+
+const mainImage = uniqueImages[0] ?? "/images/placeholder.svg";
+const galleryItems = uniqueImages.slice(1);
 
 const productoNombre = producto?.nombre ?? "Producto";
 const categoriaNombre = categoriaActual?.nombre ?? "Sin categoría";

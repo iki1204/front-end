@@ -797,7 +797,7 @@ const showRightDots = endPage < totalPages;
               const items = Array.from(suggestionScope.querySelectorAll("[data-suggestion-item]"));
               const maxVisible = 6;
               const form = suggestionScope.closest("form");
-              let lastQuery = input?.value.trim().toLowerCase() ?? "";
+              let lastNonEmptyQuery = input?.value.trim().toLowerCase() ?? "";
 
               const updateSuggestions = () => {
                 if (!panel || !input) return;
@@ -818,14 +818,18 @@ const showRightDots = endPage < totalPages;
 
                 panel.classList.toggle("hidden", query.length === 0 || visibleCount === 0);
 
-                if (query.length === 0 && lastQuery.length > 0) {
-                  form?.requestSubmit();
+                if (query.length > 0) {
+                  lastNonEmptyQuery = query;
                 }
-
-                lastQuery = query;
               };
 
               input?.addEventListener("input", updateSuggestions);
+              input?.addEventListener("search", () => {
+                const query = input.value.trim().toLowerCase();
+                if (query.length === 0 && lastNonEmptyQuery.length > 0) {
+                  form?.requestSubmit();
+                }
+              });
               input?.addEventListener("focus", updateSuggestions);
               input?.addEventListener("blur", () => {
                 if (panel) {
