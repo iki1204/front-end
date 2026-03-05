@@ -80,8 +80,6 @@ const getAllProductsForSuggestions = async () => {
   const suggestionParams = new URLSearchParams({
     "pagination[page]": "1",
     "pagination[pageSize]": "100",
-    "fields[0]": "nombre",
-    "fields[1]": "codigo",
     sort: "nombre:asc",
   });
 
@@ -113,7 +111,7 @@ const getStrapiFileUrl = (file: any) => {
   const url = data?.attributes?.url ?? data?.url;
 
   if (!url) return null;
-  if (url.startsWith("http")) return url;
+  if (url.startsWith("https")) return url;
 
   return `${import.meta.env.VITE_STRAPI_URL ?? ""}${url}`;
 };
@@ -198,6 +196,12 @@ const searchSuggestions = Array.from(
         const value = nombre || codigo;
         const searchValue = [nombre, codigo].filter(Boolean).join(" ").toLowerCase();
         const key = (codigo || nombre).toLowerCase();
+        const slugRaw = producto?.ID_Nombre ?? producto?.slug ?? producto?.id;
+        const slug = slugRaw ? encodeURIComponent(String(slugRaw)) : "";
+
+        if (!slug) {
+          return null;
+        }
 
         return [
           key,
@@ -206,6 +210,7 @@ const searchSuggestions = Array.from(
             value,
             searchValue,
             code: codigo,
+            slug,
           },
         ];
       })
@@ -758,7 +763,7 @@ const showRightDots = endPage < totalPages;
                       {searchSuggestions.map((suggestion) => (
                         <li data-suggestion-item data-suggestion-value={suggestion.searchValue}>
                           <a
-                            href={Astro.url.pathname + buildQueryString({ search: suggestion.value, page: 1, category: null, brand: null, stock: null, price: null })}
+                            href={`/producto/${suggestion.slug}`}
                             class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-zinc-700 transition hover:-translate-y-px hover:bg-primary/10 hover:text-primary hover:shadow-sm dark:text-zinc-200 dark:hover:bg-red-900/40 dark:hover:text-red-200"
                           >
                             <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-[11px] font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
