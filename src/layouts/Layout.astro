@@ -61,14 +61,23 @@ const showShell = Boolean(response);
         <!-- Open Graph / Facebook -->
         <link rel="canonical" href={metaCanonical} />
         <meta property="og:url" content={metaCanonical} />
-
         <meta property="og:title" content={metaTitle} />
         <meta property="og:description" content={metaDescription} />
         {metaImages[0] && <meta property="og:image" content={metaImages[0]} />}
+        {metaImages[0] && <meta property="og:image:secure_url" content={metaImages[0]} />}
+        {metaImages[0] && <meta property="og:image:alt" content={metaTitle} />}
         <meta property="og:type" content={metaOgType} />
         <meta property="og:site_name" content={siteName} />
-
+        
+        <!-- Twitter -->
+        <meta name="twitter:card" content={metaImages[0] ? "summary_large_image" : "summary"} />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        {metaImages[0] && <meta name="twitter:image" content={metaImages[0]} />}
         {stopIndexing && <meta name="robots" content="noindex, nofollow" />}
+
+
+
         <title>{siteName}</title>
 
 
