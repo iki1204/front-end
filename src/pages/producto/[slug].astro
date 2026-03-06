@@ -191,13 +191,24 @@ const imageCandidates = mediaGroups
   .filter(Boolean);
 
 const seenMediaKeys = new Set<string | number>();
+
 const uniqueImages = imageCandidates
   .map((item) => {
     const media = item?.attributes ?? item;
     const key = media?.id ?? item?.id ?? null;
     const imageUrl = getMediaUrl(item);
 
-    return { key, imageUrl };
+    return {
+      key,
+      imageUrl,
+      mime: media?.mime ?? null,
+      width: media?.width ?? null,
+      height: media?.height ?? null,
+      ext: media?.ext ?? null,
+      name: media?.name ?? null,
+      alternativeText: media?.alternativeText ?? null,
+      formats: media?.formats ?? null,
+    };
   })
   .filter(({ imageUrl }) => Boolean(imageUrl))
   .filter(({ key, imageUrl }) => {
@@ -205,11 +216,20 @@ const uniqueImages = imageCandidates
     if (seenMediaKeys.has(dedupeKey)) return false;
     seenMediaKeys.add(dedupeKey);
     return true;
-  })
-  .map(({ imageUrl }) => imageUrl as string);
+  });
 
-const mainImage = uniqueImages[0] ?? "/images/placeholder.svg";
-const galleryItems = uniqueImages.slice(1);
+const mainImageData = uniqueImages[0] ?? null;
+const mainImage = mainImageData?.imageUrl ?? "/images/placeholder.svg";
+
+const galleryItems = uniqueImages.slice(1).map((img) => img.imageUrl as string);
+
+const ogImageType = mainImageData?.mime ?? null;
+const ogImageWidth = mainImageData?.width ? String(mainImageData.width) : null;
+const ogImageHeight = mainImageData?.height ? String(mainImageData.height) : null;
+const ogImageAlt =
+  mainImageData?.alternativeText ??
+  mainImageData?.name ??
+  "Imagen del producto";
 
 const productoNombre = producto?.nombre ?? "Producto";
 const categoriaNombre = categoriaActual?.nombre ?? "Sin categoría";
@@ -292,6 +312,10 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
   metaDescription={metaDescription}
   metaKeywords={metaKeywords}
   metaImages={metaImages}
+  ogImageType={ogImageType}
+  ogImageWidth={ogImageWidth}
+  ogImageHeight={ogImageHeight}
+  ogImageAlt={ogImageAlt}
   metaCanonical={canonicalUrl}
   metaOgType="product"
 >
@@ -357,7 +381,7 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
               <p class="text-xs px-3 font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Galería</p>
               <div
                 id="thumbs"
-                class="grid grid-flow-col auto-cols-[minmax(110px,1fr)] gap-3 overflow-x-auto rounded-2xl border border-dashed border-zinc-200 bg-white/80 p-2 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60 sm:grid-flow-row sm:grid-cols-4 sm:overflow-visible"
+                class="grid grid-flow-col auto-cols-[minmax(110px,1fr)] gap-3 overflow-x-auto grid-cols-3 rounded-2xl p-2 shadow-sm sm:grid-flow-row sm:grid-cols-4 sm:overflow-visible"
               >
                 {galleryItems.map((imageUrl) => (
                   <button
@@ -664,7 +688,7 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
         .map(
           (src) => `
           <button
-            class="thumb relative h-24 min-w-[96px] cursor-pointer overflow-hidden rounded-2xl border border-zinc-300 bg-white p-2 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:h-28"
+            class="thumb relative h-24 w-full cursor-pointer overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 p-2 transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 sm:h-28"
             data-src="${src}"
             type="button"
             aria-label="Cambiar imagen"
