@@ -12,7 +12,7 @@ const normalizeCollection = (collection: any[] = []) =>
   collection.map((item) => (item?.attributes ? { id: item.id, ...item.attributes } : item));
 
 export async function getStaticPaths() {
-  const PAGE_SIZE = 100;
+  const PAGE_SIZE = 700;
   const productos: Record<string, unknown>[] = [];
   let page = 1;
   let pageCount = 1;
@@ -221,7 +221,7 @@ const metaDescription =
     : fallbackDescription;
 const metaKeywords = [productoNombre, categoriaNombre, marcaNombre].filter(Boolean).join(", ");
 const metaImages = [mainImage, ...galleryItems].filter(Boolean);
-const siteOrigin = Astro.url.origin;
+const siteOrigin = Astro.url.origin.replace("http://", "https://");
 const encodedSlug = encodeURIComponent(String(slug));
 const canonicalUrl = new URL(`/producto/${encodedSlug}`, siteOrigin).toString();
 
@@ -296,7 +296,7 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
   metaOgType="product"
 >
 
-    <article class="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <article class="mx-auto max-w-2xl sm:max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
         <a
           href="/tienda"
