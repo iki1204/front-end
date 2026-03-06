@@ -221,7 +221,7 @@ const metaDescription =
     : fallbackDescription;
 const metaKeywords = [productoNombre, categoriaNombre, marcaNombre].filter(Boolean).join(", ");
 const metaImages = [mainImage, ...galleryItems].filter(Boolean);
-const siteOrigin = Astro.url.origin;
+const siteOrigin = Astro.url.origin.replace(/^http:/, "https:");
 const encodedSlug = encodeURIComponent(String(slug));
 const canonicalUrl = new URL(`/producto/${encodedSlug}`, siteOrigin).toString();
 
