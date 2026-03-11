@@ -1,0 +1,146 @@
+[
+  {
+      "nombre": "Azuay",
+      "lat": -2.8827,
+      "lng": -78.9903,
+      "horas_sol": 4.8
+  },
+  {
+      "nombre": "Bolívar",
+      "lat": -1.7096,
+      "lng": -79.0453,
+      "horas_sol": 4.9
+  },
+  {
+      "nombre": "Cañar",
+      "lat": -2.5589,
+      "lng": -78.9389,
+      "horas_sol": 4.7
+  },
+  {
+      "nombre": "Carchi",
+      "lat": 0.6682,
+      "lng": -77.9419,
+      "horas_sol": 4.2
+  },
+  {
+      "nombre": "Chimborazo",
+      "lat": -1.7999,
+      "lng": -78.7324,
+      "horas_sol": 4.5
+  },
+  {
+      "nombre": "Cotopaxi",
+      "lat": -0.9349,
+      "lng": -78.6156,
+      "horas_sol": 4.6
+  },
+  {
+      "nombre": "El Oro",
+      "lat": -3.4813,
+      "lng": -79.9144,
+      "horas_sol": 5.4
+  },
+  {
+      "nombre": "Esmeraldas",
+      "lat": 0.9682,
+      "lng": -79.6517,
+      "horas_sol": 5.1
+  },
+  {
+      "nombre": "Galápagos",
+      "lat": -0.9538,
+      "lng": -90.9656,
+      "horas_sol": 5.8
+  },
+  {
+      "nombre": "Guayas",
+      "lat": -2.1894,
+      "lng": -79.8891,
+      "horas_sol": 5.2
+  },
+  {
+      "nombre": "Imbabura",
+      "lat": 0.3497,
+      "lng": -78.136,
+      "horas_sol": 4.3
+  },
+  {
+      "nombre": "Loja",
+      "lat": -3.9931,
+      "lng": -79.2042,
+      "horas_sol": 5.0
+  },
+  {
+      "nombre": "Los Ríos",
+      "lat": -1.4238,
+      "lng": -79.4633,
+      "horas_sol": 5.0
+  },
+  {
+      "nombre": "Manabí",
+      "lat": -1.0546,
+      "lng": -80.4522,
+      "horas_sol": 5.1
+  },
+  {
+      "nombre": "Morona Santiago",
+      "lat": -2.5626,
+      "lng": -78.1108,
+      "horas_sol": 4.6
+  },
+  {
+      "nombre": "Napo",
+      "lat": -0.9956,
+      "lng": -77.8129,
+      "horas_sol": 4.4
+  },
+  {
+      "nombre": "Orellana",
+      "lat": -0.7949,
+      "lng": -76.441,
+      "horas_sol": 4.5
+  },
+  {
+      "nombre": "Pastaza",
+      "lat": -1.7133,
+      "lng": -77.8543,
+      "horas_sol": 4.3
+  },
+  {
+      "nombre": "Pichincha",
+      "lat": -0.2299,
+      "lng": -78.5249,
+      "horas_sol": 4.5
+  },
+  {
+      "nombre": "Santa Elena",
+      "lat": -2.2267,
+      "lng": -80.8589,
+      "horas_sol": 5.3
+  },
+  {
+      "nombre": "Santo Domingo de los Tsáchilas",
+      "lat": -0.2522,
+      "lng": -79.1759,
+      "horas_sol": 4.9
+  },
+  {
+      "nombre": "Sucumbíos",
+      "lat": 0.0884,
+      "lng": -76.8893,
+      "horas_sol": 4.4
+  },
+  {
+      "nombre": "Tungurahua",
+      "lat": -1.2635,
+      "lng": -78.6278,
+      "horas_sol": 4.6
+  },
+  {
+      "nombre": "Zamora Chinchipe",
+      "lat": -4.0659,
+      "lng": -78.9507,
+      "horas_sol": 4.7
+  }
+]

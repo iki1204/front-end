@@ -1,0 +1,367 @@
+[
+    {
+        "id": "1",
+        "nombre": "Refrigerador",
+        "potencia": 120,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "2",
+        "nombre": "Microondas",
+        "potencia": 800,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "3",
+        "nombre": "Licuadora",
+        "potencia": 250,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "4",
+        "nombre": "Horno eléctrico",
+        "potencia": 1000,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "5",
+        "nombre": "Aire acondicionado",
+        "potencia": 1200,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "6",
+        "nombre": "Calefactor",
+        "potencia": 1000,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "7",
+        "nombre": "Televisor",
+        "potencia": 70,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "8",
+        "nombre": "Computadora",
+        "potencia": 250,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "9",
+        "nombre": "Lavadora",
+        "potencia": 400,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "10",
+        "nombre": "Secadora",
+        "potencia": 1500,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "11",
+        "nombre": "Plancha",
+        "potencia": 1000,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "12",
+        "nombre": "Batidora",
+        "potencia": 200,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "13",
+        "nombre": "Tostadora",
+        "potencia": 700,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "14",
+        "nombre": "Cafetera",
+        "potencia": 600,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "15",
+        "nombre": "Freidora",
+        "potencia": 1000,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "16",
+        "nombre": "Extractor de jugo",
+        "potencia": 300,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "17",
+        "nombre": "Deshumidificador",
+        "potencia": 500,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "18",
+        "nombre": "Purificador de aire",
+        "potencia": 30,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "19",
+        "nombre": "Calentador de agua",
+        "potencia": 1200,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "20",
+        "nombre": "Ventilador",
+        "potencia": 50,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "21",
+        "nombre": "Estufa eléctrica",
+        "potencia": 1500,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "22",
+        "nombre": "Horno de microondas",
+        "potencia": 800,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "23",
+        "nombre": "Cocina eléctrica",
+        "potencia": 1400,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "24",
+        "nombre": "Batidora de mano",
+        "potencia": 120,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "25",
+        "nombre": "Sandwichera",
+        "potencia": 600,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "26",
+        "nombre": "Cocina de inducción",
+        "potencia": 1700,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "27",
+        "nombre": "Freidora de aire",
+        "potencia": 1200,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "28",
+        "nombre": "Cafetera de goteo",
+        "potencia": 600,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "29",
+        "nombre": "Hervidor eléctrico",
+        "potencia": 1000,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "30",
+        "nombre": "Plancha de vapor",
+        "potencia": 1000,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "31",
+        "nombre": "Secador de pelo",
+        "potencia": 1200,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "32",
+        "nombre": "Aspiradora",
+        "potencia": 1000,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "33",
+        "nombre": "Calentador eléctrico",
+        "potencia": 1000,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "34",
+        "nombre": "Despertador",
+        "potencia": 1,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "35",
+        "nombre": "Reproductor de DVD",
+        "potencia": 10,
+        "categoria": "Electrodomésticos"
+    },
+    {
+        "id": "36",
+        "nombre": "ONT Huawei HG8310M",
+        "potencia": 12,
+        "categoria": "ONT"
+    },
+    {
+        "id": "37",
+        "nombre": "ONT Huawei EG8120L",
+        "potencia": 12,
+        "categoria": "ONT"
+    },
+    {
+        "id": "38",
+        "nombre": "OLT Hioso HA7302CST 2PUERTOS EPON",
+        "potencia": 24,
+        "categoria": "OLT"
+    },
+    {
+        "id":"39",
+        "nombre":"OLT Vsol V1600G0-B 4 Puertos",
+        "potencia":35,
+        "categoria": "OLT"
+    },
+    {
+        "id":"40",
+        "nombre":"OLT Vsol V1600G1-B 8 Puertos",
+        "potencia":45,
+        "categoria": "OLT"
+    },
+    {
+        "id":"41",
+        "nombre":"OLT Vsol V1600G2-B 16 Puertos",
+        "potencia":85,
+        "categoria": "OLT"
+    },
+    {
+        "id": "42",
+        "nombre": "OLT Phyhome 8 puertos",
+        "potencia": 20,
+        "categoria": "OLT"
+    },
+    {
+        "id":"43",
+        "nombre":"Mikrotik L009UiGS-RM ",
+        "potencia":40,
+        "categoria": "Mikrotik"
+    },
+    {
+        "id": "44",
+        "nombre": "Mikrotik RB4011iGS+RM",
+        "potencia": 33,
+        "categoria": "Mikrotik"
+    },
+    {
+        "id": "45",
+        "nombre": "Router Mikrotik CCR2004-16G-2S+",
+        "potencia": 48,
+        "categoria": "Mikrotik"
+    },
+    {
+        "id": "46",
+        "nombre": "Mikrotik CCR2116-12G-4S+",
+        "potencia": 128,
+        "categoria": "Mikrotik"
+    },
+    {
+        "id": "47",
+        "nombre": "Router Mikrotik CCR2216-1G-12Xs-2XQ",
+        "potencia": 48,
+        "categoria": "Mikrotik"
+    },
+    {
+        "id": "48",
+        "nombre": "OLT Huawei 5800x7",
+        "potencia": 300,
+        "categoria": "OLT"
+    },
+    {
+        "id": "49",
+        "nombre": "OLT Huawei 5800x15",
+        "potencia": 400,
+        "categoria": "OLT"
+    },
+    {
+        "id": "50",
+        "nombre": "OLT Huawei 5800x17",
+        "potencia": 400,
+        "categoria": "OLT"
+    },
+    {
+        "id": "51",
+        "nombre": "OLT Huawei 5680t",
+        "potencia": 400,
+        "categoria": "OLT"
+    },
+    {
+        "id": "52",
+        "nombre": "OLT Huawei 5683t",
+        "potencia": 300,
+        "categoria": "OLT"
+    },
+    {
+        "id": "53",
+        "nombre": "OLT ZTE C320",
+        "potencia": 100,
+        "categoria": "OLT"
+    },
+    {
+        "id": "54",
+        "nombre": "OLT ZTE 300",
+        "potencia": 400,
+        "categoria": "OLT"
+    },
+
+    
+    {
+        "id": "55",
+        "nombre": "Router LB-Link",
+        "potencia": 8,
+        "categoria": "Router"
+    },
+
+    {
+        "id": "56",
+        "nombre": "ONT BT-PON BT-511XZ",
+        "potencia": 6,
+        "categoria": "ONT"
+    },
+
+    {
+        "id": "57",
+        "nombre": "Foco",
+        "potencia": 20,
+        "categoria": "Electrodomésticos"
+    },
+
+    {
+        "id": "58",
+        "nombre": "Cargador de celular",
+        "potencia": 15,
+        "categoria": "Electrodomésticos"
+    },
+
+
+
+    
+
+
+    {
+        "id": "2000",
+        "nombre": "Otros",
+        "potencia": 0,
+        "categoria": "Otros"
+    }
+]

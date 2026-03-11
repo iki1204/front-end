@@ -270,6 +270,24 @@ const showRightDots = endPage < totalPages;
     </div>
   </div>
 
+  <div class="relative cursor-pointer w-full overflow-hidden" onclick="window.location.href='/ofertas'">
+     <div class="flex whitespace-nowrap bg-red-400 sticky top-0 z-10 w-full h-10 overflow-hidden no-scrollbar">
+        <div class="flex items-center animate-scroll-x justify-center gap-10 transition-transform duration-300 ">
+            <p class="block text-white"> 🔴 LIQUIDACIÓN — Hasta 50% de descuento en equipos seleccionados  • </p> 
+            <p class="block text-white"> 🔴 LIQUIDACIÓN — Hasta 50% de descuento en equipos seleccionados  • </p> 
+            <p class="block text-white"> 🔴 LIQUIDACIÓN — Hasta 50% de descuento en equipos seleccionados  • </p> 
+
+        </div>
+        <div class="flex items-center animate-scroll-x justify-center gap-10 transition-transform duration-300">
+            <p class="block text-white"> 🔴 LIQUIDACIÓN — Hasta 50% de descuento en equipos seleccionados  • </p> 
+            <p class="block text-white"> 🔴 LIQUIDACIÓN — Hasta 50% de descuento en equipos seleccionados  • </p> 
+            <p class="block text-white"> 🔴 LIQUIDACIÓN — Hasta 50% de descuento en equipos seleccionados  • </p> 
+        </div>
+     </div>
+  </div>  
+
+
+
   <Container>
     <article class="flex flex-col gap-10 py-10 w-full">
       <!-- Filtro responsive -->
@@ -845,7 +863,7 @@ const showRightDots = endPage < totalPages;
           </script>
 
           {productos.length > 0 ? (
-            <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4
             
             
              gap-4 md:gap-6 w-full">

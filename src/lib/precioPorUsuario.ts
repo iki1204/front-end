@@ -28,6 +28,13 @@ const refreshPriceDisplays = () => {
     }
   });
 
+  document.querySelectorAll<HTMLElement>("[data-user-offer-price]").forEach((element) => {
+    const priceValue = resolvePriceValue(element, priceKey);
+    if (priceValue !== null) {
+      element.textContent = priceValue;
+    }
+  });
+
   document.querySelectorAll<HTMLElement>("[data-user-price-target]").forEach((element) => {
     const target = element.dataset.userPriceTarget;
     if (!target) return;

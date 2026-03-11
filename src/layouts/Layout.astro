@@ -10,6 +10,7 @@ import priceByUserScript from "../lib/precioPorUsuario.ts?url";
 import NotFoundContent from "../components/NotFound.astro";
 import pureCounterScript from "../lib/pureCounterClient.ts?url";
 import aosScript from "../lib/aosClient.ts?url";
+import animateJS from "../lib/animeJS.ts?url";
 import { getGlobalData } from "../lib/api";
 import "../css/tailus.css"
 import "../styles/global.css";
@@ -93,7 +94,7 @@ const showShell = Boolean(response);
 
         <title>{siteName}</title>
 
-
+        
 
         <AstroFont
             config={[
@@ -112,7 +113,7 @@ const showShell = Boolean(response);
     </head>
 
     
-    <body class="relative min-h-screen dark:bg-gray-950 scroll-smooth">
+    <body class="relative min-h-screen dark:bg-gray-900 scroll-smooth">
 
         <div class="relative z-10 w-full" >
             
@@ -132,7 +133,7 @@ const showShell = Boolean(response);
         <script type="module" src={priceByUserScript}></script>
         <script type="module" src={aosScript}></script>
         <script type="module" src={pureCounterScript}></script>
-
+        <script type="module" src={animateJS}></script> 
         
     </body>
 </html>

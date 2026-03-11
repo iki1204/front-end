@@ -1,4 +1,4 @@
-import { animate, stagger, splitText } from "animejs";
+import { animate, stagger, splitText, svg } from "animejs";
 
 type SplitMode = "chars" | "words" | "lines";
 
@@ -39,7 +39,81 @@ function getSplitTargets(
 }
 
 
+function presetBorderTrace(): void {
+  const els = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-anime="border-trace"]')
+  );
 
+  if (!els.length) return;
+
+  for (const el of els) {
+    if (el.dataset.animeBorderBound === "1") continue;
+
+    const svgEl = el.querySelector<SVGElement>("svg");
+    const path = el.querySelector<SVGRectElement>(".anime-border-path");
+
+    if (!svgEl || !path) continue;
+
+    const syncBorderMetrics = () => {
+      try {
+        const length = path.getTotalLength();
+        path.style.strokeDasharray = `${length}`;
+        path.style.strokeDashoffset = `${length}`;
+      } catch {
+        // fallback silencioso
+      }
+    };
+
+    syncBorderMetrics();
+
+    let hoverAnimation: ReturnType<typeof animate> | null = null;
+    let leaveAnimation: ReturnType<typeof animate> | null = null;
+
+    const runEnterAnimation = () => {
+      syncBorderMetrics();
+
+      hoverAnimation?.pause?.();
+      leaveAnimation?.pause?.();
+
+      svgEl.style.opacity = "0.75";
+
+      const length = path.getTotalLength();
+
+      path.style.strokeDasharray = `${length}`;
+
+      hoverAnimation = animate(path, {
+        strokeDashoffset: [length, 0],
+        duration: 1400,
+        ease: "outExpo",
+      });
+    };
+
+    const runLeaveAnimation = () => {
+      hoverAnimation?.pause?.();
+      leaveAnimation?.pause?.();
+
+      const length = path.getTotalLength();
+
+      leaveAnimation = animate(path, {
+        strokeDashoffset: [Number(path.style.strokeDashoffset || 0), length],
+        duration: 1300,
+        ease: "inOutQuad",
+      });
+    };
+
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => syncBorderMetrics())
+        : null;
+
+    resizeObserver?.observe(el);
+
+    el.addEventListener("mouseenter", runEnterAnimation);
+    el.addEventListener("mouseleave", runLeaveAnimation);
+
+    el.dataset.animeBorderBound = "1";
+  }
+}
 
 
 
@@ -140,6 +214,7 @@ function init(): void {
   presetGameAnimation();
   presetTextAnimation();
   presetTypewriter();
+  presetBorderTrace();
 }
 
 
