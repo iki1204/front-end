@@ -106,6 +106,7 @@ const [productosResponse, categoriasResponse, marcasResponse, global, suggestion
   isCrawler ? Promise.resolve([]) : getAllProductsForSuggestions(),
 ]);
 
+
 const getStrapiFileUrl = (file: any) => {
   const data = file?.data ?? file;
   const url = data?.attributes?.url ?? data?.url;

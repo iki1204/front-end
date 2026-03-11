@@ -74,13 +74,17 @@ const formattedPrices = {
   pvp4: formatPrice(rawPrices.pvp4),
 };
 
+const isOfertaActiva = producto?.oferta?.Activo;
+
 const applyDiscount = (price: number | null) => {
   if (typeof price !== "number") return null;
   if (!porcentajeDescuento || porcentajeDescuento <= 0) return null;
+  if (isOfertaActiva !== true) return null;
   return price * (1 - porcentajeDescuento / 100);
 };
 
 const offerPrices = {
+
   default: applyDiscount(rawPrices.default),
   pvp1: applyDiscount(rawPrices.pvp1),
   pvp2: applyDiscount(rawPrices.pvp2),
@@ -95,6 +99,11 @@ const formattedOfferPrices = {
   pvp3: formatPrice(offerPrices.pvp3),
   pvp4: formatPrice(offerPrices.pvp4),
 };
+
+const activePrices = isOfertaActiva
+  ? offerPrices
+  : rawPrices;
+
 ---
 
 <article
@@ -121,7 +130,7 @@ const formattedOfferPrices = {
           </span>
         </div>
       ) : null}
-      {porcentajeDescuento && porcentajeDescuento > 0 ? (
+      {isOfertaActiva && porcentajeDescuento > 0 ? (
         <div
           data-auth-visible="authenticated"
         >
@@ -149,32 +158,34 @@ const formattedOfferPrices = {
         Código: {producto?.codigo ?? "N/A"}
       </p>
       <div class="mt-auto flex items-center justify-between px-2">
-        {(producto?.oferta?.Porcentaje_de_descuento && producto?.oferta?.Porcentaje_de_descuento > 0) && (
-          <p
-            class="text-lg font-bold text-gray-500 line-through"
-            data-auth-visible="authenticated"
-            data-user-price
-            data-price-default={formattedPrices.default}
-            data-price-pvp1={formattedPrices.pvp1}
-            data-price-pvp2={formattedPrices.pvp2}
-            data-price-pvp3={formattedPrices.pvp3}
-            data-price-pvp4={formattedPrices.pvp4}
-          >
-            {formattedPrices.default}
-          </p>
-          <p
-            class="absolute mt-10 mb-2 text-2xl font-bold text-red-500"
-            data-user-offer-price
-            data-price-default={formattedOfferPrices.default}
-            data-price-pvp1={formattedOfferPrices.pvp1}
-            data-price-pvp2={formattedOfferPrices.pvp2}
-            data-price-pvp3={formattedOfferPrices.pvp3}
-            data-price-pvp4={formattedOfferPrices.pvp4}
-          >
-          {formattedOfferPrices.default}
-        </p>
-        )}
-        {(!producto?.oferta?.Porcentaje_de_descuento || producto?.oferta?.Porcentaje_de_descuento <= 0) && (
+        {isOfertaActiva && porcentajeDescuento > 0 ? (
+          <>
+            <p
+              class="text-lg font-bold text-gray-500 line-through"
+              data-auth-visible="authenticated"
+              data-user-price
+              data-price-default={formattedPrices.default}
+              data-price-pvp1={formattedPrices.pvp1}
+              data-price-pvp2={formattedPrices.pvp2}
+              data-price-pvp3={formattedPrices.pvp3}
+              data-price-pvp4={formattedPrices.pvp4}
+            >
+              {formattedPrices.default}
+            </p>
+
+            <p
+              class="absolute mt-10 mb-2 text-2xl font-bold text-red-500"
+              data-user-offer-price
+              data-price-default={formattedOfferPrices.default}
+              data-price-pvp1={formattedOfferPrices.pvp1}
+              data-price-pvp2={formattedOfferPrices.pvp2}
+              data-price-pvp3={formattedOfferPrices.pvp3}
+              data-price-pvp4={formattedOfferPrices.pvp4}
+            >
+              {formattedOfferPrices.default}
+            </p>
+          </>
+        ) : (
           <p
             class="text-lg font-bold text-red-500"
             data-auth-visible="authenticated"
@@ -206,15 +217,15 @@ const formattedOfferPrices = {
       data-action="add-to-cart"
       data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}
       data-product-name={producto?.nombre ?? "Producto"}
-      data-product-price={rawPrices.default ?? ""}
+      data-product-price={activePrices.default ?? ""}
       data-product-image={imgUrl}
       data-product-url={`/producto/${slug}`}
       data-user-price-target="productPrice"
-      data-price-default={rawPrices.default ?? ""}
-      data-price-pvp1={rawPrices.pvp1 ?? ""}
-      data-price-pvp2={rawPrices.pvp2 ?? ""}
-      data-price-pvp3={rawPrices.pvp3 ?? ""}
-      data-price-pvp4={rawPrices.pvp4 ?? ""}
+      data-price-default={activePrices.default ?? ""}
+      data-price-pvp1={activePrices.pvp1 ?? ""}
+      data-price-pvp2={activePrices.pvp2 ?? ""}
+      data-price-pvp3={activePrices.pvp3 ?? ""}
+      data-price-pvp4={activePrices.pvp4 ?? ""}
       class="cursor-pointer flex min-h-10 items-center justify-center rounded-full bg-primary px-3 py-2 text-xs font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-primary/60"   >
       Añadir al carrito
     </button>
