@@ -1,4 +1,5 @@
 ---
+import { resolveProductSlug } from "../lib/productSlug";
 const { producto } = Astro.props;
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 
@@ -50,8 +51,7 @@ const priceFormatter = new Intl.NumberFormat("es-PE", {
   minimumFractionDigits: 2,
 });
 
-const slugRaw = producto?.slug ?? producto?.ID_Nombre ?? producto?.id;
-const slug = encodeURIComponent(String(slugRaw ?? ""));
+const slug = resolveProductSlug(producto);
 
 
 const rawPrices = {
@@ -71,6 +71,7 @@ const formattedPrices = {
   pvp4: formatPrice(rawPrices.pvp4),
 };
 
+const isOfertaActiva = producto?.oferta?.Activo;
 const porcentajeDescuento = Number(producto?.oferta?.Porcentaje_de_descuento ?? 0);
 
 const applyDiscount = (price: number | null) => {
@@ -94,6 +95,11 @@ const formattedOfferPrices = {
   pvp3: formatPrice(offerPrices.pvp3),
   pvp4: formatPrice(offerPrices.pvp4),
 };
+
+const activePrices = isOfertaActiva
+  ? offerPrices
+  : rawPrices;
+
 ---
 
 <article
@@ -190,17 +196,15 @@ const formattedOfferPrices = {
       data-action="add-to-cart"
       data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}
       data-product-name={producto?.nombre ?? "Producto"}
-      data-product-price={offerPrices.default ?? rawPrices.default ?? ""}
-      data-product-original-price={rawPrices.default ?? ""}
-      data-product-discount={porcentajeDescuento > 0 ? porcentajeDescuento : ""}
+      data-product-price={activePrices.default ?? ""}
       data-product-image={imgUrl}
       data-product-url={`/producto/${slug}`}
       data-user-price-target="productPrice"
-      data-price-default={rawPrices.default ?? ""}
-      data-price-pvp1={rawPrices.pvp1 ?? ""}
-      data-price-pvp2={rawPrices.pvp2 ?? ""}
-      data-price-pvp3={rawPrices.pvp3 ?? ""}
-      data-price-pvp4={rawPrices.pvp4 ?? ""}
+      data-price-default={activePrices.default ?? ""}
+      data-price-pvp1={activePrices.pvp1 ?? ""}
+      data-price-pvp2={activePrices.pvp2 ?? ""}
+      data-price-pvp3={activePrices.pvp3 ?? ""}
+      data-price-pvp4={activePrices.pvp4 ?? ""}
       class="cursor-pointer flex min-h-10 items-center justify-center rounded-full bg-primary px-3 py-2 text-xs font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-primary/60"   >
       Añadir al carrito
     </button>

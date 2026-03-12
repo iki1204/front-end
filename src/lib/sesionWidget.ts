@@ -132,7 +132,7 @@ const handleLoginSubmit = async (event: SubmitEvent) => {
       user,
     };
 
-    if (!tipoUsuario) {
+    if (tipoUsuario === null || normalizedSession === null) {
       setStatusMessage(status, "Cuenta pendiente de verificación.");
       setFeedbackMessage(feedback, "Tu cuenta está pendiente de verificación. Redirigiendo...", "error");
       window.location.assign(PENDING_VERIFICATION_PATH);

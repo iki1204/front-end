@@ -244,6 +244,7 @@ const metaImages = [mainImage, ...galleryItems].filter(Boolean);
 const siteOrigin = Astro.url.origin.replace(/^http:/, "https:");
 const encodedSlug = encodeURIComponent(String(slug));
 const canonicalUrl = new URL(`/producto/${encodedSlug}`, siteOrigin).toString();
+const porcentajeDescuento = Number(producto?.oferta?.Porcentaje_de_descuento ?? 0);
 
   
 const datasheetEntries: any[] = [
@@ -293,6 +294,36 @@ const formattedPrices = {
 };
 
 const precio = formattedPrices.default;
+
+const isOfertaActiva = producto?.oferta?.Activo;
+
+const applyDiscount = (price: number | null) => {
+  if (typeof price !== "number") return null;
+  if (!porcentajeDescuento || porcentajeDescuento <= 0) return null;
+  if (isOfertaActiva !== true) return null;
+  return price * (1 - porcentajeDescuento / 100);
+};
+
+const offerPrices = {
+
+  default: applyDiscount(rawPrices.default),
+  pvp1: applyDiscount(rawPrices.pvp1),
+  pvp2: applyDiscount(rawPrices.pvp2),
+  pvp3: applyDiscount(rawPrices.pvp3),
+  pvp4: applyDiscount(rawPrices.pvp4),
+};
+
+const formattedOfferPrices = {
+  default: formatPrice(offerPrices.default),
+  pvp1: formatPrice(offerPrices.pvp1),
+  pvp2: formatPrice(offerPrices.pvp2),
+  pvp3: formatPrice(offerPrices.pvp3),
+  pvp4: formatPrice(offerPrices.pvp4),
+};
+
+const activePrices = isOfertaActiva
+  ? offerPrices
+  : rawPrices;
 
 var descripcion = producto?.descripcion;
 
@@ -418,24 +449,58 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
 
         <section class="relative flex flex-col gap-6 rounded-3xl border border-zinc-200 bg-white/90 p-6 shadow-xl shadow-primary/5 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/85  lg:top-6 lg:self-start lg:p-8">
           <div class="space-y-3">
-            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Producto</p>
+            <p class="text-xs inline-flex font-semibold uppercase tracking-[0.18em] text-primary">Producto
+              {isOfertaActiva && porcentajeDescuento > 0 && (
+                 <p class="inline-flex ml-2 text-xs font-semibold animate-pulse uppercase tracking-[0.18em] text-green-400"> | {porcentajeDescuento}% OFF </p>
+              )}
+            </p>
+            
             <h1 class="w-full break-words text-3xl font-black leading-tight text-zinc-900 dark:text-white sm:text-4xl">{producto?.nombre}</h1>
           </div>
 
           <div class="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4 shadow-inner dark:border-primary/30 dark:bg-white/10">
-            <p
-              class="hidden text-4xl font-extrabold text-primary"
-              data-auth-visible="authenticated"
-              data-precio-display
-              data-user-price
-              data-price-default={formattedPrices.default}
-              data-price-pvp1={formattedPrices.pvp1}
-              data-price-pvp2={formattedPrices.pvp2}
-              data-price-pvp3={formattedPrices.pvp3}
-              data-price-pvp4={formattedPrices.pvp4}
-            >
-              {precio}
-            </p>
+            {isOfertaActiva && porcentajeDescuento > 0 ? (
+              <>
+                <p
+                  class="text-2xl font-bold text-gray-500 line-through"
+                  data-auth-visible="authenticated"
+                  data-user-price
+                  data-price-default={formattedPrices.default}
+                  data-price-pvp1={formattedPrices.pvp1}
+                  data-price-pvp2={formattedPrices.pvp2}
+                  data-price-pvp3={formattedPrices.pvp3}
+                  data-price-pvp4={formattedPrices.pvp4}
+                >
+                  {formattedPrices.default}
+                </p>
+
+                <p
+                  class="inline-flex text-5xl font-bold animate-pulse text-red-500"
+                  data-auth-visible="authenticated"
+                  data-user-offer-price
+                  data-price-default={formattedOfferPrices.default}
+                  data-price-pvp1={formattedOfferPrices.pvp1}
+                  data-price-pvp2={formattedOfferPrices.pvp2}
+                  data-price-pvp3={formattedOfferPrices.pvp3}
+                  data-price-pvp4={formattedOfferPrices.pvp4}
+                >
+                  {formattedOfferPrices.default}
+                </p>
+              </>
+            ) : (
+              <p
+                class="text-5xl font-bold text-red-500"
+                data-auth-visible="authenticated"
+                data-user-price
+                data-price-default={formattedPrices.default}
+                data-price-pvp1={formattedPrices.pvp1}
+                data-price-pvp2={formattedPrices.pvp2}
+                data-price-pvp3={formattedPrices.pvp3}
+                data-price-pvp4={formattedPrices.pvp4}
+              >
+                {formattedPrices.default}
+              </p>
+            )}
             <p class="text-sm text-primary" data-auth-visible="guest">Inicia sesión para ver mas de este producto.</p>
 
             
@@ -539,15 +604,15 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
               class="w-full cursor-pointer rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30"
               data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}
               data-product-name={producto?.nombre ?? "Producto"}
-              data-product-price={rawPrices.default ?? ""}
+              data-product-price={activePrices.default ?? ""}
               data-product-image={mainImage}
               data-product-url={`/producto/${slug}`}
               data-user-price-target="productPrice"
-              data-price-default={rawPrices.default ?? ""}
-              data-price-pvp1={rawPrices.pvp1 ?? ""}
-              data-price-pvp2={rawPrices.pvp2 ?? ""}
-              data-price-pvp3={rawPrices.pvp3 ?? ""}
-              data-price-pvp4={rawPrices.pvp4 ?? ""}
+              data-price-default={activePrices.default ?? ""}
+              data-price-pvp1={activePrices.pvp1 ?? ""}
+              data-price-pvp2={activePrices.pvp2 ?? ""}
+              data-price-pvp3={activePrices.pvp3 ?? ""}
+              data-price-pvp4={activePrices.pvp4 ?? ""}
             >
               Añadir al carrito
             </button>
@@ -761,7 +826,7 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
       if (stockCount <= 10 && stockCount > 0) {
         el.innerHTML = `
 
-            <svg class="h-4 w-4 animate-pulse text-amber-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Reloj">
+            <svg class="h-4 w-4 animate-pulse text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Reloj">
               <!-- Fondo -->
               <circle cx="100" cy="100" r="92" fill="white" stroke="currentColor" stroke-width="20"/>
 
@@ -808,7 +873,7 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
 
 
 
-          <p class="text-amber-500 animate-pulse font-bold">
+          <p class="text-red-500 animate-pulse font-bold">
             Pocas Unidades
           </p>
         `;
