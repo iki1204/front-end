@@ -100,18 +100,15 @@ const formattedOfferPrices = {
   pvp4: formatPrice(offerPrices.pvp4),
 };
 
-const activePrices = isOfertaActiva
-  ? offerPrices
-  : rawPrices;
 
 ---
 
 <article
-  class="group flex h-full flex-col overflow-hidden rounded-3xl border border-zinc-300 bg-zinc-100 py-2 px-2 shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg dark:border-red-900 dark:bg-zinc-900"
+  class="group flex h-full flex-col overflow-hidden rounded-3xl border border-zinc-300 bg-zinc-100 shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg dark:border-red-900 dark:bg-zinc-900"
   data-product-card
 >
   <a href={`/producto/${slug}`} class="flex flex-1 flex-col">
-    <div class="relative overflow-hidden rounded-xl bg-white dark:border-red-900">
+    <div class="relative h-60 overflow-hidden object-cover rounded-3xl border-red-300 bg-white dark:border-red-900">
       {isOutOfStock ? (
         <div
           data-auth-visible="authenticated"
@@ -143,20 +140,17 @@ const activePrices = isOfertaActiva
         src={imgUrl}
         alt={producto?.nombre ?? "Producto"}
         sizes={srcset ? sizes : undefined}
-        class="h-70 w-full object-contain "
+        class="h-full w-full object-contain "
         decoding="async"
         loading="lazy"
       />
     </div>
-    <div class="mt-4 flex flex-1 flex-col gap-3">
-      <h3 class="line-clamp-2 text-lg font-semibold text-zinc-900 dark:text-white px-2">
+    <div class="mt-4 flex flex-1 flex-col gap-3 py-2 px-1">
+      <h3 class="line-clamp-2 text-lg font-semibold text-zinc-900 dark:text-white px-2"
+        title={producto?.nombre}
+      >
         {producto?.nombre}
       </h3>
-      <p class="text-sm text-zinc-500 dark:text-zinc-400 px-2"
-        data-auth-visible="authenticated"
-      >
-        Código: {producto?.codigo ?? "N/A"}
-      </p>
       <div class="mt-auto flex items-center justify-between px-2">
         {isOfertaActiva && porcentajeDescuento > 0 ? (
           <>
@@ -175,6 +169,7 @@ const activePrices = isOfertaActiva
 
             <p
               class="absolute mt-10 mb-2 text-2xl font-bold text-red-500"
+              data-auth-visible="authenticated"
               data-user-offer-price
               data-price-default={formattedOfferPrices.default}
               data-price-pvp1={formattedOfferPrices.pvp1}
@@ -199,10 +194,15 @@ const activePrices = isOfertaActiva
             {formattedPrices.default}
           </p>
         )}
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 px-2"
+          data-auth-visible="authenticated"
+        >
+          Código: {producto?.codigo ?? "N/A"}
+        </p>
       </div>
     </div>
   </a>
-  <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 sm:items-center sm:justify-between">
+  <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2 sm:items-center sm:justify-between py-2 px-1">
     <a
       href={defaultAsesorContactLink}
       data-asesor-contact
@@ -217,15 +217,17 @@ const activePrices = isOfertaActiva
       data-action="add-to-cart"
       data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}
       data-product-name={producto?.nombre ?? "Producto"}
-      data-product-price={activePrices.default ?? ""}
+      data-product-price={rawPrices.default ?? ""}
+      data-product-discount-price={rawPrices.default ?? ""}
+      data-product-discount={porcentajeDescuento > 0 ? porcentajeDescuento : ""}
       data-product-image={imgUrl}
       data-product-url={`/producto/${slug}`}
       data-user-price-target="productPrice"
-      data-price-default={activePrices.default ?? ""}
-      data-price-pvp1={activePrices.pvp1 ?? ""}
-      data-price-pvp2={activePrices.pvp2 ?? ""}
-      data-price-pvp3={activePrices.pvp3 ?? ""}
-      data-price-pvp4={activePrices.pvp4 ?? ""}
+      data-price-default={rawPrices.default ?? ""}
+      data-price-pvp1={rawPrices.pvp1 ?? ""}
+      data-price-pvp2={rawPrices.pvp2 ?? ""}
+      data-price-pvp3={rawPrices.pvp3 ?? ""}
+      data-price-pvp4={rawPrices.pvp4 ?? ""}
       class="cursor-pointer flex min-h-10 items-center justify-center rounded-full bg-primary px-3 py-2 text-xs font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-primary/60"   >
       Añadir al carrito
     </button>

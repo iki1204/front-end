@@ -73,7 +73,9 @@ const productosOferta = offerItems.filter((producto) => {
     </Container>
   </section>
 
-  <section class="bg-zinc-50 py-14 dark:bg-zinc-950">
+  <section class="bg-zinc-50 py-14 dark:bg-zinc-950"
+    data-auth-visible="authenticated"
+  >
     <Container>
       <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -101,8 +103,20 @@ const productosOferta = offerItems.filter((producto) => {
           <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Vuelve pronto para descubrir nuevas ofertas activas.</p>
         </div>
       )}
+
     </Container>
   </section>
+   <section class="bg-zinc-50 py-14 dark:bg-zinc-950"
+    data-auth-visible="guest"
+  >
+    <Container>
+        <div class="rounded-3xl border border-dashed border-zinc-300 bg-white p-10 text-center dark:border-zinc-700 dark:bg-zinc-900">
+          <p class="text-lg font-semibold text-zinc-800 dark:text-zinc-100">Las Ofertas son irresistibles</p>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Inicia sesión para ver más</p>
+        </div>
+    </Container>
+  </section>
+
 </BaseLayout>
 <script is:inline>
     const preloader = document.querySelector("[data-preloader]");

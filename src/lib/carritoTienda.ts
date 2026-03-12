@@ -353,7 +353,7 @@ const renderMiniCartItem = (item: CartItem): HTMLLIElement => {
 const renderCheckoutItem = (item: CartItem): HTMLLIElement => {
   const li = document.createElement("li");
   li.className =
-    "flex flex-col gap-4  rounded-3xl border border-zinc-200 p-6 shadow-sm dark:border-red-800 dark:bg-zinc-900/40 sm:flex-row items-start";
+    "flex flex-col gap-4 rounded-3xl border border-zinc-200 p-6 shadow-sm dark:border-red-800 dark:bg-zinc-900/40 sm:flex-row items-start";
 
   const imageWrapper = document.createElement("div");
   imageWrapper.className = "h-full w-full sm:h-24 sm:w-24 shrink-0 overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-800";
