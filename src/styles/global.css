@@ -13,6 +13,21 @@ body {
   scroll-padding-top: 6rem;
 }
 
+@property --border-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@theme {
+  --animate-rotate-border: border-rotate 1.5s linear infinite;
+  @keyframes border-rotate {
+    to {
+      --border-angle: 360deg;
+    }
+  }
+}
+
 @supports not (overflow: clip) {
   html,
   body {
