@@ -1,4 +1,4 @@
-import { SESSION_EVENT, SESSION_STORAGE_KEY, hasSessionToken, parseStoredSession } from "./sessionUser";
+import { SESSION_EVENT, SESSION_STORAGE_KEY, clearStoredSession, hasSessionToken, parseStoredSession } from "./sessionUser";
 
 const initHeaderAuthToggle = () => {
   const loginCta = document.querySelector<HTMLElement>("[data-login-button]");
@@ -8,12 +8,7 @@ const initHeaderAuthToggle = () => {
   const logoutConfirmNo = logoutAlert?.querySelector<HTMLButtonElement>("[data-logout-confirm='no']");
 
   const clearSession = () => {
-    try {
-      localStorage.removeItem(SESSION_STORAGE_KEY);
-    } catch (error) {
-      console.warn("No se pudo limpiar la sesión", error);
-    }
-    window.dispatchEvent(new CustomEvent(SESSION_EVENT));
+    clearStoredSession();
   };
 
   const refreshLoginCta = () => {
