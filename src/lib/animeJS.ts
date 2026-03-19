@@ -49,8 +49,8 @@ function presetBorderTrace(): void {
   for (const el of els) {
     if (el.dataset.animeBorderBound === "1") continue;
 
-    const svgEl = el.querySelector<SVGElement>("svg");
-    const path = el.querySelector<SVGRectElement>(".anime-border-path");
+    const svgEl = el.querySelector<SVGSVGElement>("svg");
+    const path = el.querySelector<SVGGeometryElement>(".anime-border-path");
 
     if (!svgEl || !path) continue;
 
@@ -93,9 +93,10 @@ function presetBorderTrace(): void {
       leaveAnimation?.pause?.();
 
       const length = path.getTotalLength();
+      const currentOffset = Number(path.style.strokeDashoffset || 0);
 
       leaveAnimation = animate(path, {
-        strokeDashoffset: [Number(path.style.strokeDashoffset || 0), length],
+        strokeDashoffset: [currentOffset, length],
         duration: 1300,
         ease: "inOutQuad",
       });

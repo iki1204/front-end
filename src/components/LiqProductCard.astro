@@ -109,27 +109,27 @@ const activePrices = isOfertaActiva
 >
   <a href={`/producto/${slug}`} class="flex flex-1 flex-col">
     <!-- SVG del borde animado -->
-   <svg
-    class="anime-border-svg pointer-events-none absolute z-50 inset-0 h-full w-full"
-    viewBox="0 0 100 100"
-    preserveAspectRatio="none"
-    aria-hidden="true"
-  >
-    <rect
-
-      class="anime-border-path"
-      x="1"
-      y="1"
-      width="98"
-      height="98"
-      rx="5"
-      ry="5"
-      fill="none"
-      stroke="gray"
-      stroke-width="1.5"
-      vector-effect="non-scaling-stroke"
-    />
-  </svg>
+<svg
+  class="anime-border-svg pointer-events-none absolute z-50 inset-0 h-full w-full"
+  viewBox="0 0 100 100"
+  preserveAspectRatio="none"
+  aria-hidden="true"
+>
+  <rect
+    class="anime-border-path"
+    x="1.5"
+    y="1.5"
+    width="97"
+    height="97"
+    rx="6"
+    ry="6"
+    fill="none"
+    stroke="gray"
+    stroke-width="1.5"
+    stroke-dasharray="8 4"
+    vector-effect="non-scaling-stroke"
+  />
+</svg>
     <div class="relative overflow-hidden rounded-xl bg-white dark:border-red-900">
       <div
         data-auth-visible="authenticated"
@@ -196,15 +196,17 @@ const activePrices = isOfertaActiva
       data-action="add-to-cart"
       data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}
       data-product-name={producto?.nombre ?? "Producto"}
-      data-product-price={activePrices.default ?? ""}
+      data-product-price={rawPrices.default ?? ""}
+      data-product-discount-price={offerPrices.default ?? ""}
+      data-product-discount={porcentajeDescuento > 0 ? porcentajeDescuento : ""}
       data-product-image={imgUrl}
       data-product-url={`/producto/${slug}`}
       data-user-price-target="productPrice"
-      data-price-default={activePrices.default ?? ""}
-      data-price-pvp1={activePrices.pvp1 ?? ""}
-      data-price-pvp2={activePrices.pvp2 ?? ""}
-      data-price-pvp3={activePrices.pvp3 ?? ""}
-      data-price-pvp4={activePrices.pvp4 ?? ""}
+      data-price-default={rawPrices.default ?? ""}
+      data-price-pvp1={rawPrices.pvp1 ?? ""}
+      data-price-pvp2={rawPrices.pvp2 ?? ""}
+      data-price-pvp3={rawPrices.pvp3 ?? ""}
+      data-price-pvp4={rawPrices.pvp4 ?? ""}
       class="cursor-pointer flex min-h-10 items-center justify-center rounded-full bg-primary px-3 py-2 text-xs font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-primary/60"   >
       Añadir al carrito
     </button>

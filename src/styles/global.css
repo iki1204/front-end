@@ -19,12 +19,15 @@ body {
   initial-value: 0deg;
 }
 
-@theme {
-  --animate-rotate-border: border-rotate 1.5s linear infinite;
+@layer utilities {
   @keyframes border-rotate {
     to {
       --border-angle: 360deg;
     }
+  }
+
+  .animate-rotate-border {
+    animation: border-rotate 1.5s linear infinite;
   }
 }
 
