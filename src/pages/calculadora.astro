@@ -3,24 +3,18 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Unicom - Calculadora Solar">
-  <main class="bg-[linear-gradient(180deg,#f8fbff_0%,#eef5ff_42%,#ffffff_100%)] pb-24 pt-32 dark:bg-[linear-gradient(180deg,#020617_0%,#0f172a_50%,#020617_100%)]">
+  <main class="bg-[linear-gradient(180deg,#FFF9F8_0%,#FFF4EE_42%,#ffffff_100%)] pb-24 pt-10 dark:bg-[linear-gradient(180deg,#170802_0%,#2A0F0F_50%,#170202_100%)]">
     <section class="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
       <div class="mx-auto max-w-3xl text-center">
-        <span class="inline-flex items-center rounded-full border border-cyan-200 bg-cyan-50 px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-700 dark:border-cyan-400/20 dark:bg-cyan-400/10 dark:text-cyan-100">
+        <span class="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-red-700 dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-100">
           Calculadora solar
         </span>
         <h1 class="mt-5 text-balance text-4xl font-black tracking-tight text-slate-950 sm:text-5xl lg:text-6xl dark:text-white">
-          Selecciona primero el tipo de sistema que quieres cotizar
+          Selecciona primero el tipo de sistema que quieres instalar
         </h1>
-        <p class="mt-5 text-base leading-8 text-slate-600 sm:text-lg dark:text-slate-300">
-          La experiencia inicia con una pantalla dividida para que el usuario elija entre un proyecto
-          <strong class="text-slate-950 dark:text-white"> On-Grid </strong>
-          o
-          <strong class="text-slate-950 dark:text-white"> Off-Grid</strong>, y al hacer clic se despliega el contenido correcto con una transición deslizante.
-        </p>
       </div>
 
-      <div class="overflow-hidden rounded-[2.25rem] border border-slate-200/80 bg-white/90 shadow-[0_30px_80px_-32px_rgba(15,23,42,0.35)] backdrop-blur dark:border-white/10 dark:bg-slate-950/80">
+      <div class="overflow-hidden rounded-[2.25rem] border border-slate-200/80 bg-white/90 shadow-[0_30px_80px_-32px_rgba(42,15,15,0.35)] backdrop-blur dark:border-white/10 dark:bg-slate-950/80">
         <div class="grid min-h-[680px] lg:grid-cols-[1fr_auto_1fr]" data-calculator-shell>
           <article
             class="group relative isolate flex min-h-[340px] flex-col items-center justify-between overflow-hidden px-6 py-10 text-center transition duration-300 sm:px-10 lg:min-h-[680px]"
@@ -28,11 +22,11 @@ import Layout from '../layouts/Layout.astro';
             data-mode="on-grid"
           >
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.18),transparent_38%),linear-gradient(180deg,#ffffff_0%,#eff8ff_100%)] dark:bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.22),transparent_38%),linear-gradient(180deg,#082f49_0%,#020617_100%)]"></div>
-            <div class="absolute inset-x-8 bottom-10 h-20 rounded-full bg-cyan-200/45 blur-3xl dark:bg-cyan-400/10"></div>
+            <div class="absolute inset-x-8 bottom-10 h-20 rounded-full bg-rose-200/45 blur-3xl dark:bg-rose-400/10"></div>
             <div class="relative flex w-full justify-center">
               <button
                 type="button"
-                class="inline-flex items-center justify-center rounded-xl bg-gradient-to-b from-cyan-400 to-sky-700 px-8 py-4 text-base font-black uppercase tracking-[0.12em] text-white shadow-lg shadow-cyan-600/30 transition duration-300 hover:-translate-y-1 hover:shadow-cyan-500/40"
+                class="inline-flex items-center justify-center rounded-xl bg-gradient-to-b from-orange-400 to-red-700 px-8 py-4 text-base font-black uppercase tracking-[0.12em] text-white shadow-lg shadow-red-600/30 transition duration-300 hover:-translate-y-1 hover:shadow-red-500/40"
                 data-calculator-trigger
                 data-mode="on-grid"
               >
@@ -73,11 +67,11 @@ import Layout from '../layouts/Layout.astro';
             data-mode="off-grid"
           >
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.18),transparent_38%),linear-gradient(180deg,#ffffff_0%,#f0fdf4_100%)] dark:bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.25),transparent_38%),linear-gradient(180deg,#052e2b_0%,#020617_100%)]"></div>
-            <div class="absolute inset-x-8 bottom-10 h-20 rounded-full bg-emerald-200/45 blur-3xl dark:bg-emerald-400/10"></div>
+            <div class="absolute inset-x-8 bottom-10 h-20 rounded-full bg-amber-200/45 blur-3xl dark:bg-amber-400/10"></div>
             <div class="relative flex w-full justify-center">
               <button
                 type="button"
-                class="inline-flex items-center justify-center rounded-xl bg-gradient-to-b from-cyan-400 to-sky-700 px-8 py-4 text-base font-black uppercase tracking-[0.12em] text-white shadow-lg shadow-cyan-600/30 transition duration-300 hover:-translate-y-1 hover:shadow-cyan-500/40"
+                class="inline-flex items-center justify-center rounded-xl bg-gradient-to-b from-orange-400 to-red-700 px-8 py-4 text-base font-black uppercase tracking-[0.12em] text-white shadow-lg shadow-cyan-600/30 transition duration-300 hover:-translate-y-1 hover:shadow-cyan-500/40"
                 data-calculator-trigger
                 data-mode="off-grid"
               >
