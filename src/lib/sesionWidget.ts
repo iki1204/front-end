@@ -120,24 +120,44 @@ const handleLoginSubmit = async (event: SubmitEvent) => {
 
   toggleLoadingState(submitButton, true);
   setFeedbackMessage(feedback, "Verificando Usuario...", "neutral");
+  setStatusMessage(status, "Validando, espere...");
 
   try {
     const response = await postUsuarioLogin({ identifier, password });
     const normalizedSession = normalizeSessionPayload(response);
-    const user = normalizedSession?.user ?? (response as any)?.user ?? {};
-    const displayName = user?.username;
-    const tipoUsuario = normalizeTipoUsuario(user?.tipoUsuario);
-    const sessionPayload = normalizedSession ?? {
-      jwt: (response as any)?.jwt ?? (response as any)?.token ?? (response as any)?.accessToken ?? null,
-      user,
-    };
+    const rawUser = normalizedSession?.user ?? (response as any)?.user ?? null;
+    const rawToken =
+      normalizedSession?.jwt ??
+      (response as any)?.jwt ??
+      (response as any)?.token ??
+      (response as any)?.accessToken ??
+      null;
 
-    if (tipoUsuario === null || normalizedSession === null) {
+    if (!rawUser || !rawToken) {
+      throw new Error("No se pudo validar el inicio de sesión. Verifica tus credenciales.");
+    }
+    const tipoUsuario = normalizeTipoUsuario(rawUser?.tipoUsuario);
+    const displayName =
+      rawUser?.nombre ??
+      rawUser?.username ??
+      rawUser?.email ??
+      "usuario";
+
+    if (tipoUsuario === null) {
       setStatusMessage(status, "Cuenta pendiente de verificación.");
-      setFeedbackMessage(feedback, "Tu cuenta está pendiente de verificación. Redirigiendo...", "error");
+      setFeedbackMessage(
+        feedback,
+        "Tu cuenta está pendiente de verificación. Redirigiendo...",
+        "error"
+      );
       window.location.assign(PENDING_VERIFICATION_PATH);
       return;
     }
+
+    const sessionPayload = normalizedSession ?? {
+      jwt: rawToken,
+      user: rawUser,
+    };
 
     saveSession(sessionPayload as Record<string, unknown>);
     setStatusMessage(status, `Sesión iniciada como ${displayName}`);
@@ -167,7 +187,8 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
   const formData = new FormData(form);
   const username = String(formData.get("username") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
-  const DNI = String(formData.get("DNI") ?? "").trim();
+  const cedula = String(formData.get("Cedula") ?? "").trim();
+  const ruc = String(formData.get("RUC") ?? "").trim();
   const nombre = String(formData.get("name") ?? "").trim();
   const apellido = String(formData.get("lastname") ?? "").trim();
   const direccion = String(formData.get("direccion") ?? "").trim();
@@ -176,7 +197,7 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
   const password = String(formData.get("password") ?? "").trim();
 
 
-  if (!username || !password || !email || !nombre || !apellido || !direccion || !fecha || !telefono || !DNI) {
+  if (!username || !password || !email || !nombre || !apellido || !direccion || !fecha || !telefono) {
     setFeedbackMessage(feedback, "Completa los campos para registrarte.", "error");
     return;
   }
@@ -186,11 +207,12 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
     return;
   }
 
+
   toggleLoadingState(registerButton, true);
   setFeedbackMessage(feedback, "Creando tu cuenta...", "neutral");
 
   try {
-    const response = await postUsuarioRegister({ username, email, password, nombre, apellido, direccion, fecha, telefono, DNI });
+    const response = await postUsuarioRegister({ username, email, password, nombre, apellido, direccion, fecha, telefono });
     setFeedbackMessage(feedback, "Registro exitoso. redirigiendo ...", "success");
     window.location.assign("/success-register");
   } catch (error) {
