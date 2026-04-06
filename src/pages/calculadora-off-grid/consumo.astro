@@ -132,8 +132,146 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     const totalPotenciaEl = document.querySelector("#total-potencia");
     const totalWhEl = document.querySelector("#total-wh");
 
-    let totalPotencia = 0;
-    let totalWh = 0;
+/**
+     * @typedef {{
+     *  id: number;
+     *  equipo: string;
+     *  cantidad: number;
+     *  potencia: number;
+     *  horas: number;
+     * }} RegistroConsumo
+     */
+
+    /** @type {{ id: string; nombre: string; potencia: number; categoria: string }[]} */
+    let electrodomesticos = [];
+    /** @type {RegistroConsumo[]} */
+    let registros = [];
+    let registroEnEdicionId = null;
+    let contadorRegistros = 0;
+
+    const formatearNumero = (valor) => Number.isInteger(valor) ? `${valor}` : valor.toFixed(2);
+
+    const limpiarFormulario = () => {
+      if (cantidadEl instanceof HTMLInputElement) cantidadEl.value = "1";
+      if (horasEl instanceof HTMLInputElement) horasEl.value = "";
+      if (registroEnEdicionId === null && potenciaEl instanceof HTMLInputElement) {
+        actualizarPotenciaPorEquipo();
+      }
+    };
+
+    const actualizarTotales = () => {
+      const totalPotencia = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia), 0);
+      const totalWh = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia * registro.horas), 0);
+
+      if (totalPotenciaEl) totalPotenciaEl.textContent = `${formatearNumero(totalPotencia)} W`;
+      if (totalWhEl) totalWhEl.textContent = `${formatearNumero(totalWh)} Wh`;
+    };
+
+    const renderTabla = () => {
+      if (!tablaConsumosEl) return;
+
+      tablaConsumosEl.innerHTML = "";
+
+      registros.forEach((registro) => {
+        const consumo = registro.cantidad * registro.potencia * registro.horas;
+        const fila = document.createElement("div");
+        fila.className = "grid grid-cols-6 items-center px-2 py-3 text-base text-slate-700";
+
+        fila.innerHTML = `
+          <span class="px-2">${registro.equipo}</span>
+          <span class="px-2">${registro.cantidad}</span>
+          <span class="px-2">${formatearNumero(registro.potencia)} W</span>
+          <span class="px-2">${formatearNumero(registro.horas)} h</span>
+          <span class="px-2">${formatearNumero(consumo)} Wh</span>
+          <span class="flex gap-2 px-2">
+            <button
+              type="button"
+              class="rounded bg-sky-600 px-3 py-1 text-sm font-semibold text-white transition hover:bg-sky-700"
+              data-action="editar"
+              data-id="${registro.id}"
+            >
+              Editar
+            </button>
+            <button
+              type="button"
+              class="rounded bg-red-600 px-3 py-1 text-sm font-semibold text-white transition hover:bg-red-700"
+              data-action="eliminar"
+              data-id="${registro.id}"
+            >
+              Eliminar
+            </button>
+          </span>
+        `;
+
+        tablaConsumosEl.appendChild(fila);
+      });
+    };
+
+    const cargarElectrodomesticos = async () => {
+      try {
+        const respuesta = await fetch("/json/electrodomesticos.json");
+        if (!respuesta.ok) throw new Error("No se pudo cargar la lista de equipos.");
+        electrodomesticos = await respuesta.json();
+      } catch (error) {
+        console.error(error);
+        electrodomesticos = [];
+      }
+
+      if (!(equipoEl instanceof HTMLSelectElement)) return;
+
+      equipoEl.innerHTML = "";
+
+      electrodomesticos.forEach((equipo) => {
+        const opcion = document.createElement("option");
+        opcion.value = equipo.nombre;
+        opcion.textContent = `${equipo.nombre} (${equipo.potencia} W)`;
+        equipoEl.appendChild(opcion);
+      });
+
+      if (electrodomesticos.length === 0) {
+        const opcion = document.createElement("option");
+        opcion.value = "";
+        opcion.textContent = "Sin equipos disponibles";
+        equipoEl.appendChild(opcion);
+      }
+
+      actualizarPotenciaPorEquipo();
+    };
+
+    const actualizarPotenciaPorEquipo = () => {
+      if (!(equipoEl instanceof HTMLSelectElement) || !(potenciaEl instanceof HTMLInputElement)) return;
+
+      const equipoSeleccionado = electrodomesticos.find((equipo) => equipo.nombre === equipoEl.value);
+      if (!equipoSeleccionado) return;
+      potenciaEl.value = `${equipoSeleccionado.potencia}`;
+    };
+
+    const iniciarEdicionRegistro = (id) => {
+      const registro = registros.find((item) => item.id === id);
+      if (!registro) return;
+
+      registroEnEdicionId = id;
+      if (equipoEl instanceof HTMLSelectElement) equipoEl.value = registro.equipo;
+      if (cantidadEl instanceof HTMLInputElement) cantidadEl.value = `${registro.cantidad}`;
+      if (potenciaEl instanceof HTMLInputElement) potenciaEl.value = `${registro.potencia}`;
+      if (horasEl instanceof HTMLInputElement) horasEl.value = `${registro.horas}`;
+      if (btnCalcularEl instanceof HTMLButtonElement) btnCalcularEl.textContent = "Actualizar";
+    };
+
+    const eliminarRegistro = (id) => {
+      registros = registros.filter((item) => item.id !== id);
+      if (registroEnEdicionId === id) {
+        registroEnEdicionId = null;
+        if (btnCalcularEl instanceof HTMLButtonElement) btnCalcularEl.textContent = "Calcular";
+      }
+      renderTabla();
+      actualizarTotales();
+    };
+
+    equipoEl?.addEventListener("change", () => {
+      if (registroEnEdicionId !== null) return;
+      actualizarPotenciaPorEquipo();
+    });
 
     btnCalcularEl?.addEventListener("click", () => {
       const equipo = equipoEl instanceof HTMLSelectElement ? equipoEl.value : "";
@@ -146,32 +284,40 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         return;
       }
 
-      const consumo = cantidad * potencia * horas;
-      const potenciaTotalEquipo = cantidad * potencia;
-
-      totalPotencia += potenciaTotalEquipo;
-      totalWh += consumo;
-
-      if (tablaConsumosEl) {
-        const fila = document.createElement("div");
-        fila.className = "grid grid-cols-5 px-2 py-3 text-base text-slate-700";
-
-        fila.innerHTML = `
-          <span class="px-2">${equipo}</span>
-          <span class="px-2">${cantidad}</span>
-          <span class="px-2">${potencia} W</span>
-          <span class="px-2">${horas} h</span>
-          <span class="px-2">${consumo} Wh</span>
-        `;
-
-        tablaConsumosEl.appendChild(fila);
+      if (registroEnEdicionId !== null) {
+        registros = registros.map((registro) => {
+          if (registro.id !== registroEnEdicionId) return registro;
+          return { ...registro, equipo, cantidad, potencia, horas };
+        });
+        registroEnEdicionId = null;
+        if (btnCalcularEl instanceof HTMLButtonElement) btnCalcularEl.textContent = "Calcular";
+      } else {
+        contadorRegistros += 1;
+        registros.push({
+          id: contadorRegistros,
+          equipo,
+          cantidad,
+          potencia,
+          horas
+        });
       }
 
-      if (totalPotenciaEl) totalPotenciaEl.textContent = `${totalPotencia} W`;
-      if (totalWhEl) totalWhEl.textContent = `${totalWh} Wh`;
-
-      if (cantidadEl instanceof HTMLInputElement) cantidadEl.value = "1";
-      if (potenciaEl instanceof HTMLInputElement) potenciaEl.value = "";
-      if (horasEl instanceof HTMLInputElement) horasEl.value = "";
+      renderTabla();
+      actualizarTotales();
+      limpiarFormulario();
     });
+
+      tablaConsumosEl?.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const botonAccion = target.closest("button[data-action][data-id]");
+        if (!(botonAccion instanceof HTMLButtonElement)) return;
+
+        const id = Number(botonAccion.dataset.id);
+        const accion = botonAccion.dataset.action;
+
+        if (accion === "editar") iniciarEdicionRegistro(id);
+        if (accion === "eliminar") eliminarRegistro(id);
+    });
+    cargarElectrodomesticos();
   </script>
