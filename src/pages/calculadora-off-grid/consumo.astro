@@ -1,0 +1,177 @@
+---
+import Layout from '../../layouts/LayoutCalculadora.astro';
+---
+
+<Layout title="Unicom - Off Grid">
+  <main class="min-h-screen bg-[#ececec]">
+    <section class="mx-auto grid min-h-screen w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[minmax(340px,40%)_1fr]">
+      <aside class="flex items-center bg-[linear-gradient(180deg,#5a0a0a_0%,#2a0303_100%)] px-[clamp(2.5rem,3.8vw,4rem)] py-10 text-white">
+        <div class="space-y-8 sm:space-y-10">
+          <h1 class="m-0 text-[clamp(2.6rem,4.5vw,5rem)] font-black leading-[0.95] tracking-[-0.07em] text-balance">
+            Simulador de
+            <br />
+            Proyectos
+            <br />
+            Fotovoltaicos
+            <br />
+            Off-Grid.
+            <br />
+            Diseña tu
+            <br />
+            autonomía total
+          </h1>
+
+          <p class="mt-4 max-w-[38ch] text-[clamp(1rem,1.2vw,1.35rem)] font-semibold leading-[1.5] text-red-100">
+            Calcula el sistema solar ideal para operar sin red eléctrica: paneles, inversor y baterías según tu demanda diaria.
+          </p>
+        </div>
+      </aside>
+
+      <section class="mx-auto w-full max-w-5xl rounded-md border border-slate-300 bg-slate-100 shadow-lg">
+        <header class="flex items-center justify-between rounded-t-md bg-[#cc2f1f] px-6 py-4 text-white">
+          <h1 class="font-mono text-xl tracking-wide">Uso diario de Energía</h1>
+          <span aria-hidden="true" class="text-lg">💡</span>
+        </header>
+
+        <div class="space-y-7 px-6 py-7">
+          <div>
+            <label for="equipo" class="mb-2 block text-sm text-slate-700">Seleccione el equipo</label>
+            <select
+              id="equipo"
+              class="h-11 w-full rounded border-2 border-[#2f74df] bg-slate-600 px-3 text-xl text-white outline-none"
+            >
+              <option>Refrigerador</option>
+              <option>Televisor</option>
+              <option>Computadora</option>
+              <option>Lavadora</option>
+            </select>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
+            <label class="block">
+              <span class="mb-2 block text-sm text-slate-700">Cantidad</span>
+              <input
+                id="cantidad"
+                type="number"
+                min="1"
+                value="1"
+                class="h-11 w-full rounded border border-slate-400 bg-slate-100 px-3 text-lg text-slate-700 outline-none"
+              />
+            </label>
+
+            <label class="block">
+              <span class="mb-2 block text-sm text-slate-700">Potencia (W)</span>
+              <input
+                id="potencia"
+                type="number"
+                min="0"
+                class="h-11 w-full rounded border border-slate-400 bg-slate-100 px-3 text-lg text-slate-700 outline-none"
+              />
+            </label>
+
+            <label class="block">
+              <span class="mb-2 block text-sm text-slate-700">Horas al día</span>
+              <input
+                id="horas"
+                type="number"
+                min="0"
+                step="0.1"
+                class="h-11 w-full rounded border border-slate-400 bg-slate-100 px-3 text-lg text-slate-700 outline-none"
+              />
+            </label>
+
+            <button
+              id="btn-calcular"
+              type="button"
+              class="h-11 rounded bg-[#cc3b26] px-8 text-lg font-semibold text-white transition hover:bg-[#b9301d]"
+            >
+              Calcular
+            </button>
+          </div>
+
+          <div class="rounded border border-slate-300 bg-slate-100">
+            <div class="grid grid-cols-5 border-b border-slate-300 px-2 py-3 text-lg text-slate-800">
+              <span class="px-2">Objeto</span>
+              <span class="px-2">Cantidad</span>
+              <span class="px-2">Potencia</span>
+              <span class="px-2">Horas</span>
+              <span class="px-2">Consumo</span>
+            </div>
+
+            <div id="tabla-consumos" class="divide-y divide-slate-300"></div>
+          </div>
+
+          <div class="space-y-5 pb-4 pt-2">
+            <h2 class="font-mono text-3xl text-slate-800">Consumo Total Diario de Energía</h2>
+
+            <div class="grid gap-6 sm:grid-cols-2">
+              <div>
+                <p class="text-3xl text-slate-700">Total Potencia</p>
+                <p id="total-potencia" class="text-5xl text-slate-900">0 W</p>
+              </div>
+
+              <div>
+                <p class="text-3xl text-slate-700">Total Vatios-Hora</p>
+                <p id="total-wh" class="text-5xl text-slate-900">0 Wh</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+</Layout>
+
+  <script>
+    const equipoEl = document.querySelector("#equipo");
+    const cantidadEl = document.querySelector("#cantidad");
+    const potenciaEl = document.querySelector("#potencia");
+    const horasEl = document.querySelector("#horas");
+    const btnCalcularEl = document.querySelector("#btn-calcular");
+    const tablaConsumosEl = document.querySelector("#tabla-consumos");
+    const totalPotenciaEl = document.querySelector("#total-potencia");
+    const totalWhEl = document.querySelector("#total-wh");
+
+    let totalPotencia = 0;
+    let totalWh = 0;
+
+    btnCalcularEl?.addEventListener("click", () => {
+      const equipo = equipoEl instanceof HTMLSelectElement ? equipoEl.value : "";
+      const cantidad = cantidadEl instanceof HTMLInputElement ? Number(cantidadEl.value) : 0;
+      const potencia = potenciaEl instanceof HTMLInputElement ? Number(potenciaEl.value) : 0;
+      const horas = horasEl instanceof HTMLInputElement ? Number(horasEl.value) : 0;
+
+      if (!equipo || cantidad <= 0 || potencia <= 0 || horas <= 0) {
+        alert("Por favor, completa todos los campos con valores válidos.");
+        return;
+      }
+
+      const consumo = cantidad * potencia * horas;
+      const potenciaTotalEquipo = cantidad * potencia;
+
+      totalPotencia += potenciaTotalEquipo;
+      totalWh += consumo;
+
+      if (tablaConsumosEl) {
+        const fila = document.createElement("div");
+        fila.className = "grid grid-cols-5 px-2 py-3 text-base text-slate-700";
+
+        fila.innerHTML = `
+          <span class="px-2">${equipo}</span>
+          <span class="px-2">${cantidad}</span>
+          <span class="px-2">${potencia} W</span>
+          <span class="px-2">${horas} h</span>
+          <span class="px-2">${consumo} Wh</span>
+        `;
+
+        tablaConsumosEl.appendChild(fila);
+      }
+
+      if (totalPotenciaEl) totalPotenciaEl.textContent = `${totalPotencia} W`;
+      if (totalWhEl) totalWhEl.textContent = `${totalWh} Wh`;
+
+      if (cantidadEl instanceof HTMLInputElement) cantidadEl.value = "1";
+      if (potenciaEl instanceof HTMLInputElement) potenciaEl.value = "";
+      if (horasEl instanceof HTMLInputElement) horasEl.value = "";
+    });
+  </script>

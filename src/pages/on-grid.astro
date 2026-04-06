@@ -1,0 +1,64 @@
+---
+import Layout from '../layouts/LayoutCalculadora.astro';
+---
+
+<Layout title="Unicom - On Grid">
+  <main class="min-h-screen bg-[#ececec]">
+    <section class="mx-auto grid min-h-screen w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[minmax(340px,40%)_1fr]">
+      <aside class="flex items-center bg-[linear-gradient(180deg,#5a0a0a_0%,#2a0303_100%)] px-[clamp(2.5rem,3.8vw,4rem)] py-10 text-white">
+        <div class="space-y-10">
+          <h1 class="m-0 text-[clamp(2.6rem,4.5vw,5rem)] font-black leading-[0.95] tracking-[-0.07em] text-balance">
+            Simulador de
+            <br />
+            Proyectos
+            <br />
+            Fotovoltaicos
+            <br />
+            On-Grid.
+            <br />
+            Calcula tu
+            <br />
+            ahorro potencial
+          </h1>
+
+          <p class="max-w-[38ch] mt-4 text-[clamp(1rem,1.2vw,1.35rem)] font-semibold leading-[1.5] text-red-100">
+            Haz tu cálculo de paneles solares para estimar cuánto puedes ahorrar en tu consumo eléctrico al estar
+            conectado a la red.
+          </p>
+        </div>
+      </aside>
+
+      <article class="flex items-center px-[clamp(2.2rem,3.6vw,4rem)] py-10">
+        <div class="w-full max-w-[1000px] space-y-6 text-slate-900">
+          <h2 class="m-0 md:max-w-[25ch] lg:max-w-[40ch] text-[clamp(1.65rem,2.25vw,2.8rem)] font-extrabold leading-[1.2] text-[#7f1d1d]">
+            Calcula el tamaño y dimensionamiento correctos de tu sistema solar para tus necesidades.
+          </h2>
+
+          <ol class="list-decimal mt-2 space-y-2 pl-7 text-[clamp(1.05rem,1.35vw,1.75rem)] font-medium leading-[1.65] marker:font-extrabold marker:text-[#7f1d1d]">
+            <li>Especifica tus consumos detallandolos uno a uno.</li>
+            <li>Indica la localidad de tu instalación</li>
+            <li>Verifica el sistema recomendado</li>
+            <li>Obten el calulo de tu sistema solar</li>
+          </ol>
+
+          <p class="max-w-[80ch] text-[clamp(1rem,1.2vw,1.55rem)] leading-[1.6]">
+            ¡No te preocupes si la información entregada no es completamente exacta! Esta calculadora te dará una proyección
+            inicial útil para tomar decisiones.
+          </p>
+
+          <p class="max-w-[80ch] text-[clamp(1rem,1.2vw,1.55rem)] leading-[1.6]">
+            Al completar este flujo On-Grid, podrás obtener una estimación preliminar del ahorro económico y del tamaño
+            recomendado del sistema.
+          </p>
+
+          <a
+            href="/calculadora"
+            class="inline-flex rounded-full bg-[linear-gradient(90deg,#ef4444_0%,#7f1d1d_100%)] px-10 py-3.5 text-sm font-extrabold uppercase tracking-[0.07em] text-white transition duration-200 hover:-translate-y-px hover:brightness-110"
+          >
+            Inicio
+          </a>
+        </div>
+      </article>
+    </section>
+  </main>
+</Layout>

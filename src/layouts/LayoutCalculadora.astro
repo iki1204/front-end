@@ -1,0 +1,140 @@
+---
+import { AstroFont } from 'astro-font';
+import AppFooter from "../components/AppFooter.astro";
+import AppHeader from "../components/AppHeader.astro";
+import Cart from "../components/Cart.astro";
+import cartWidgetScript from "../lib/carritoWidget.ts?url";
+import loginWidgetScript from "../lib/sesionWidget.ts?url";
+import authVisibilityScript from "../lib/authVisibility.ts?url";
+import priceByUserScript from "../lib/precioPorUsuario.ts?url";
+import NotFoundContent from "../components/NotFound.astro";
+import pureCounterScript from "../lib/pureCounterClient.ts?url";
+import aosScript from "../lib/aosClient.ts?url";
+import animateJS from "../lib/animeJS.ts?url";
+import { ClientRouter } from "astro:transitions";
+import { getGlobalData } from "../lib/api";
+import "../css/tailus.css"
+import "../styles/global.css";
+
+const API_URL = import.meta.env.VITE_STRAPI_URL;
+
+const {
+    metaTitle: metaTitleOverride,
+    metaDescription: metaDescriptionOverride,
+    metaKeywords: metaKeywordsOverride,
+    metaImages: metaImagesOverride,
+    ogImageType: ogImageTypeOverride,
+    ogImageWidth: ogImageWidthOverride,
+    ogImageHeight: ogImageHeightOverride,
+    ogImageAlt: ogImageAltOverride,
+    metaCanonical: metaCanonicalOverride,
+    metaOgType: metaOgTypeOverride,
+    forceNotFound = false,
+    global: globalProp,
+    stopIndexing = false,
+} = Astro.props;
+
+const response = globalProp ?? (await getGlobalData().catch(() => null));
+const metaTitle = metaTitleOverride ?? response?.data?.defaultSeo?.metaTitle ?? "Página no encontrada";
+const metaDescription = metaDescriptionOverride ?? response?.data?.defaultSeo?.metaDescription ?? "";
+const metaKeywords = metaKeywordsOverride ?? response?.data?.defaultSeo?.metaKeywords ?? "";
+const metaIcon = response?.data?.favicon?.url ? API_URL + response.data.favicon.url : null;
+const requestUrl = new URL(Astro.url.href);
+requestUrl.protocol = "https:";
+const metaCanonical = metaCanonicalOverride ?? requestUrl.href.split("?")[0];
+const metaOgType = metaOgTypeOverride ?? "website";
+const metaImage = response?.data?.defaultSeo?.shareImage?.url ? API_URL + response.data.defaultSeo.shareImage.url : null;
+const ogImageType = ogImageTypeOverride ?? response?.data?.defaultSeo?.shareImage?.mime ?? null;
+const ogImageWidth = ogImageWidthOverride ?? response?.data?.defaultSeo?.shareImage?.width ?? null;
+const ogImageHeight = ogImageHeightOverride ?? response?.data?.defaultSeo?.shareImage?.height ?? null;
+const ogImageAlt = ogImageAltOverride ?? response?.data?.defaultSeo?.shareImage?.alternativeText ?? null;
+const siteName = response?.data?.siteName ?? "Unicom";
+const metaImages = Array.isArray(metaImagesOverride) && metaImagesOverride.length
+    ? metaImagesOverride
+    : metaImage
+      ? [metaImage]
+      : [];
+const showNotFound = forceNotFound || !response;
+const showShell = Boolean(response);
+---
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <meta http-equiv="Cache-Control" content="public, max-age=86400, s-maxage=86400" />
+        <link rel="icon" type="image/svg+xml" href={metaIcon} />
+        <meta name="generator" content={Astro.generator} />
+        <meta name="description" content={metaDescription} />
+        <meta name="keywords" content={metaKeywords} />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!-- Open Graph / Facebook -->
+        <link rel="canonical" href={metaCanonical} />
+        <meta property="og:url" content={metaCanonical} />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        {metaImages[0] && <meta property="og:image" content={metaImages[0]} />}
+        {metaImages[0] && <meta property="og:image:secure_url" content={metaImages[0]} />}
+        {metaImages[0] && <meta property="og:image:alt" content={ogImageAlt} />}
+        {ogImageType && <meta property="og:image:type" content={ogImageType} />}
+        {ogImageWidth && <meta property="og:image:width" content={ogImageWidth} />}
+        {ogImageHeight && <meta property="og:image:height" content={ogImageHeight} />}
+        <meta property="og:type" content={metaOgType} />
+        <meta property="og:site_name" content={siteName} />
+
+        <!-- Twitter -->
+        <meta name="twitter:card" content={metaImages[0] ? "summary_large_image" : "summary"} />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        {metaImages[0] && <meta name="twitter:image" content={metaImages[0]} />}
+        {stopIndexing && <meta name="robots" content="noindex, nofollow" />}
+
+
+        <ClientRouter />
+        <title>{siteName}</title>
+
+        
+
+        <AstroFont
+            config={[
+                {
+                    src: [],
+                    name: "Urbanist",
+                    preload: true,
+                    display: "swap",
+                    selector: "html",
+                    fallback: "sans-serif",
+                    googleFontsURL: 'https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap',
+                },
+            ]}
+        />
+        <slot name="head" />
+    </head>
+
+    
+    <body class="relative min-h-screen dark:bg-gray-900 scroll-smooth">
+
+        <div class="relative z-10 w-full" >
+            
+            {showShell && <AppHeader global={response} />}
+
+            {showNotFound ? <NotFoundContent /> : <slot />}
+            
+            {showShell && <AppFooter global={response} />}
+
+        </div>
+
+        <Cart floating />
+        
+        <script type="module" src={loginWidgetScript}></script>
+        <script type="module" src={cartWidgetScript}></script>
+        <script type="module" src={authVisibilityScript}></script>
+        <script type="module" src={priceByUserScript}></script>
+        <script type="module" src={aosScript}></script>
+        <script type="module" src={pureCounterScript}></script>
+        <script type="module" src={animateJS}></script> 
+        
+    </body>
+</html>

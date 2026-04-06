@@ -1,0 +1,64 @@
+---
+import Layout from '../layouts/LayoutCalculadora.astro';
+---
+
+<Layout title="Unicom - Off Grid">
+  <main class="min-h-screen bg-[#ececec]">
+    <section class="mx-auto grid min-h-screen w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[minmax(340px,40%)_1fr]">
+      <aside class="flex items-center bg-[linear-gradient(180deg,#5a0a0a_0%,#2a0303_100%)] px-[clamp(2.5rem,3.8vw,4rem)] py-10 text-white">
+        <div class="space-y-8 sm:space-y-10">
+          <h1 class="m-0 text-[clamp(2.6rem,4.5vw,5rem)] font-black leading-[0.95] tracking-[-0.07em] text-balance">
+            Simulador de
+            <br />
+            Proyectos
+            <br />
+            Fotovoltaicos
+            <br />
+            Off-Grid.
+            <br />
+            Diseña tu
+            <br />
+            autonomía total
+          </h1>
+
+          <p class="max-w-[38ch] mt-4 text-[clamp(1rem,1.2vw,1.35rem)] font-semibold leading-[1.5] text-red-100">
+            Calcula el sistema solar ideal para operar sin red eléctrica: paneles, inversor y baterías según tu demanda
+            diaria.
+          </p>
+        </div>
+      </aside>
+
+      <article class="flex items-center px-6 py-12 sm:px-10 lg:px-[clamp(2.2rem,3.6vw,4rem)]">
+        <div class="w-full max-w-[860px] space-y-6 text-slate-900 sm:space-y-7">
+          <h2 class="m-0 md:max-w-[25ch] lg:max-w-[40ch] text-[clamp(1.65rem,2.25vw,2.8rem)] font-extrabold leading-[1.2] text-[#7f1d1d]">
+            Calcula el tamaño y dimensionamiento correctos de tu sistema solar para tus necesidades.
+          </h2>
+
+          <ol class="list-decimal mt-2 space-y-2 pl-6 text-base font-medium leading-7 marker:font-extrabold marker:text-[#7f1d1d] sm:pl-7 sm:text-lg sm:leading-8 lg:text-[clamp(1.05rem,1.35vw,1.75rem)] lg:leading-[1.65]">
+            <li>La ubicación y condiciones del sitio.</li>
+            <li>Los equipos que deseas alimentar y horas de uso.</li>
+            <li>Los días de respaldo energético requeridos.</li>
+            <li>El crecimiento esperado de consumo futuro.</li>
+          </ol>
+
+          <p class="max-w-[80ch] text-base leading-7 sm:text-lg sm:leading-8 lg:text-[clamp(1rem,1.2vw,1.55rem)] lg:leading-[1.6]">
+            ¡No te preocupes si la información entregada no es completamente exacta! Te ayudaremos con un resultado
+            inicial para comenzar tu proyecto.
+          </p>
+
+          <p class="max-w-[80ch] text-base leading-7 sm:text-lg sm:leading-8 lg:text-[clamp(1rem,1.2vw,1.55rem)] lg:leading-[1.6]">
+            Completando el simulador Off-Grid, podrás obtener una propuesta preliminar de generación, almacenamiento y
+            autonomía energética.
+          </p>
+
+          <a
+            href="/calculadora-off-grid/consumo"
+            class="inline-flex rounded-full bg-[linear-gradient(90deg,#ef4444_0%,#7f1d1d_100%)] px-8 py-3 text-xs font-extrabold uppercase tracking-[0.07em] text-white transition duration-200 hover:-translate-y-px hover:brightness-110 sm:px-10 sm:py-3.5 sm:text-sm"
+          >
+            Inicio
+          </a>
+        </div>
+      </article>
+    </section>
+  </main>
+</Layout>

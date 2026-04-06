@@ -1,5 +1,5 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from '../layouts/LayoutCalculadora.astro';
 ---
 
 <Layout title="Unicom - Calculadora Solar">
@@ -14,44 +14,45 @@ import Layout from '../layouts/Layout.astro';
         </h1>
       </div>
 
-      <div class="overflow-hidden rounded-[2.25rem] border border-slate-200/80 bg-white/90 shadow-[0_30px_80px_-32px_rgba(42,15,15,0.35)] backdrop-blur dark:border-white/10 dark:bg-slate-950/80">
+      <div class="overflow-hidden rounded-[2.25rem] border border-slate-500/20 bg-white/90 shadow-[0_30px_80px_-32px_rgba(42,15,15,0.35)] backdrop-blur dark:border-white/10 dark:bg-slate-950/80">
         <div class="grid min-h-[680px] lg:grid-cols-[1fr_auto_1fr]" data-calculator-shell>
           <article
             class="group relative isolate flex min-h-[340px] flex-col items-center justify-between overflow-hidden px-6 py-10 text-center transition duration-300 sm:px-10 lg:min-h-[680px]"
             data-calculator-option
             data-mode="on-grid"
           >
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.18),transparent_38%),linear-gradient(180deg,#ffffff_0%,#eff8ff_100%)] dark:bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.22),transparent_38%),linear-gradient(180deg,#082f49_0%,#020617_100%)]"></div>
-            <div class="absolute inset-x-8 bottom-10 h-20 rounded-full bg-rose-200/45 blur-3xl dark:bg-rose-400/10"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,141,50,0.18),transparent_38%),linear-gradient(180deg,#ffffff_0%,#fff8f0_100%)] dark:bg-[radial-gradient(circle_at_top,rgba(255,141,50,0.22),transparent_38%),linear-gradient(180deg,#4a0808_0%,#170902_100%)]"></div>
+            <div class="absolute inset-x-8 bottom-10 h-20 rounded-full bg-rose-300/45 blur-3xl dark:bg-rose-400/10"></div>
             <div class="relative flex w-full justify-center">
-              <button
+              <a
                 type="button"
                 class="inline-flex items-center justify-center rounded-xl bg-gradient-to-b from-orange-400 to-red-700 px-8 py-4 text-base font-black uppercase tracking-[0.12em] text-white shadow-lg shadow-red-600/30 transition duration-300 hover:-translate-y-1 hover:shadow-red-500/40"
-                data-calculator-trigger
-                data-mode="on-grid"
+                href="/on-grid"
               >
                 Haz clic aquí
-              </button>
+              </a>
             </div>
 
             <div class="relative flex w-full flex-1 items-center justify-center py-10">
-              <div class="relative h-[320px] w-[220px] rounded-[2rem] border border-slate-200 bg-white shadow-[0_30px_70px_-35px_rgba(8,47,73,0.45)] transition duration-500 group-hover:-translate-y-2 group-hover:rotate-[-1.5deg] dark:border-slate-700 dark:bg-slate-100">
-                <div class="absolute left-4 top-0 h-full w-4 rounded-l-[2rem] bg-slate-800"></div>
-                <div class="absolute right-6 top-10 text-xl font-black tracking-widest text-rose-600">MUST</div>
-                <div class="absolute left-1/2 top-1/2 h-7 w-[4.5rem] -translate-x-1/2 rounded-xl bg-slate-900"></div>
-                <div class="absolute left-1/2 top-[57%] flex -translate-x-1/2 items-center gap-1">
-                  <span class="size-2 rounded-full bg-emerald-400"></span>
-                  <span class="size-2 rounded-full bg-slate-400"></span>
-                  <span class="size-2 rounded-full bg-rose-500"></span>
+              <div class="relative h-[320px] w-[240px] rounded-[2rem] border border-slate-200 bg-white shadow-[0_30px_70px_-35px_rgba(6,95,70,0.45)] transition duration-500 group-hover:-translate-y-2 group-hover:rotate-[-1.5deg] dark:border-slate-700 dark:bg-slate-100">
+                <div class="absolute top-20 left-1/2 h-20 w-16 -translate-x-1/2 rounded-2xl border-[6px] border-slate-900 bg-slate-200 shadow-inner"></div>
+                <div class="absolute left-1/2 top-[7.4rem] flex -translate-x-1/2 items-center gap-2 text-slate-900">
+                  <div class="absolute right-7 bottom-15 text-xl font-black tracking-widest text-cyan-600">FYTEC</div>
+                  <div class="absolute top-20 flex -translate-x-1/2 items-center gap-2 text-slate-900">
+                    <span class="size-3 rounded-full border border-slate-700"></span>
+                    <span class="size-3 rounded-full border border-slate-700"></span>
+                    <span class="size-3 rounded-full border border-slate-700"></span>
+                  </div>
+
                 </div>
-                <div class="absolute bottom-7 left-1/2 h-8 w-24 -translate-x-1/2 rounded-b-2xl rounded-t-lg bg-slate-900"></div>
-                <div class="absolute bottom-[4.25rem] left-1/2 -translate-x-1/2 text-sm font-bold uppercase tracking-[0.2em] text-slate-500">Green Energy</div>
+                <div class="absolute inset-x-0 bottom-0 h-11 rounded-b-[2rem] bg-slate-900"></div>
+                <div class="absolute bottom-11 left-1/2 h-5 w-20 -translate-x-1/2 rounded-t-xl bg-slate-700"></div>
               </div>
               <div class="absolute bottom-2 h-24 w-[72%] rounded-[50%] bg-gradient-to-b from-slate-200/80 to-transparent opacity-75 blur-sm"></div>
             </div>
 
             <div class="relative max-w-md space-y-3">
-              <p class="text-xs font-semibold uppercase tracking-[0.34em] text-cyan-700 dark:text-cyan-200">Conectado a la red</p>
+              <p class="text-xs font-semibold uppercase tracking-[0.34em] text-orange-700 dark:text-cyan-200">Conectado a la red</p>
               <h2 class="text-4xl font-black tracking-tight text-slate-950 dark:text-white sm:text-5xl">On-Grid</h2>
               <p class="text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-base">
                 Optimiza ahorro, retorno de inversión y dimensionamiento para sistemas interconectados.
@@ -69,26 +70,27 @@ import Layout from '../layouts/Layout.astro';
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.18),transparent_38%),linear-gradient(180deg,#ffffff_0%,#f0fdf4_100%)] dark:bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.25),transparent_38%),linear-gradient(180deg,#052e2b_0%,#020617_100%)]"></div>
             <div class="absolute inset-x-8 bottom-10 h-20 rounded-full bg-amber-200/45 blur-3xl dark:bg-amber-400/10"></div>
             <div class="relative flex w-full justify-center">
-              <button
+              <a
                 type="button"
-                class="inline-flex items-center justify-center rounded-xl bg-gradient-to-b from-orange-400 to-red-700 px-8 py-4 text-base font-black uppercase tracking-[0.12em] text-white shadow-lg shadow-cyan-600/30 transition duration-300 hover:-translate-y-1 hover:shadow-cyan-500/40"
-                data-calculator-trigger
-                data-mode="off-grid"
+                class="inline-flex items-center justify-center rounded-xl bg-gradient-to-b from-orange-400 to-red-700 px-8 py-4 text-base font-black uppercase tracking-[0.12em] text-white shadow-lg shadow-red-600/30 transition duration-300 hover:-translate-y-1 hover:shadow-red-500/40"
+                href="/off-grid"
               >
                 Haz clic aquí
-              </button>
+              </a>
             </div>
 
             <div class="relative flex w-full flex-1 items-center justify-center py-10">
-              <div class="relative h-[320px] w-[240px] rounded-[2rem] border border-slate-200 bg-white shadow-[0_30px_70px_-35px_rgba(6,95,70,0.45)] transition duration-500 group-hover:-translate-y-2 group-hover:rotate-[1.5deg] dark:border-slate-700 dark:bg-slate-100">
-                <div class="absolute left-1/2 top-8 h-20 w-16 -translate-x-1/2 rounded-2xl border-[6px] border-slate-900 bg-slate-200 shadow-inner"></div>
-                <div class="absolute left-1/2 top-[7.4rem] flex -translate-x-1/2 items-center gap-2 text-slate-900">
-                  <span class="size-3 rounded-full border border-slate-700"></span>
-                  <span class="size-3 rounded-full border border-slate-700"></span>
-                  <span class="size-3 rounded-full border border-slate-700"></span>
+              <div class="relative h-[320px] w-[220px] rounded-[2rem] border border-slate-200 bg-white shadow-[0_30px_70px_-35px_rgba(8,47,73,0.45)] transition duration-500 group-hover:-translate-y-2 group-hover:rotate-[1.5deg] dark:border-slate-700 dark:bg-slate-100">
+                <div class="absolute left-4 top-0 h-full w-4 rounded-l-[2rem] bg-slate-800"></div>
+                <div class="absolute right-6 top-10 text-xl font-black tracking-widest text-rose-600">MUST</div>
+                <div class="absolute left-1/2 top-1/2 h-7 w-[4.5rem] -translate-x-1/2 rounded-xl bg-slate-900"></div>
+                <div class="absolute left-1/2 top-[57%] flex -translate-x-1/2 items-center gap-1">
+                  <span class="size-2 rounded-full bg-emerald-400"></span>
+                  <span class="size-2 rounded-full bg-slate-400"></span>
+                  <span class="size-2 rounded-full bg-rose-500"></span>
                 </div>
-                <div class="absolute inset-x-0 bottom-0 h-11 rounded-b-[2rem] bg-slate-900"></div>
-                <div class="absolute bottom-11 left-1/2 h-5 w-20 -translate-x-1/2 rounded-t-xl bg-slate-700"></div>
+                <div class="absolute bottom-7 left-1/2 h-8 w-24 -translate-x-1/2 rounded-b-2xl rounded-t-lg bg-slate-900"></div>
+                <div class="absolute bottom-[4.25rem] left-1/2 -translate-x-1/2 text-sm font-bold uppercase tracking-[0.2em] text-slate-500">Green Energy</div>
               </div>
               <div class="absolute bottom-2 h-24 w-[72%] rounded-[50%] bg-gradient-to-b from-slate-200/80 to-transparent opacity-75 blur-sm"></div>
             </div>
@@ -102,248 +104,9 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </article>
         </div>
-
-        <section class="border-t border-slate-200/80 bg-slate-950 px-4 py-4 sm:px-6 dark:border-white/10" aria-live="polite">
-          <div class="overflow-hidden" data-calculator-detail hidden>
-            <div class="grid gap-6 rounded-[1.75rem] bg-[linear-gradient(135deg,#0f172a_0%,#111827_45%,#082f49_100%)] p-6 text-white shadow-2xl shadow-cyan-950/20 lg:grid-cols-[1.2fr_0.8fr] lg:p-8" data-calculator-detail-inner>
-              <div class="space-y-6">
-                <div class="flex flex-wrap items-center gap-3">
-                  <span class="rounded-full border border-white/15 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-100" data-detail-badge>
-                    Selecciona una opción
-                  </span>
-                  <button
-                    type="button"
-                    class="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80 transition hover:border-white/40 hover:text-white"
-                    data-detail-reset
-                  >
-                    Reiniciar selector
-                  </button>
-                </div>
-
-                <div>
-                  <h3 class="text-3xl font-black tracking-tight sm:text-4xl" data-detail-title>
-                    Elige un sistema para cargar la información.
-                  </h3>
-                  <p class="mt-4 max-w-2xl text-base leading-8 text-slate-300" data-detail-subtitle>
-                    Aquí se revelará el contenido inicial del flujo seleccionado usando carga dinámica en la misma página.
-                  </p>
-                </div>
-
-                <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-100/80">Qué solicitará la calculadora</p>
-                  <ul class="mt-4 grid gap-3 sm:grid-cols-2" data-detail-metrics></ul>
-                </div>
-              </div>
-
-              <div class="rounded-[1.5rem] border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
-                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-100/80">Siguiente paso</p>
-                <ol class="mt-4 space-y-3" data-detail-steps></ol>
-                <a
-                  href="#"
-                  class="mt-6 inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:-translate-y-1 hover:bg-cyan-300"
-                  data-detail-cta
-                >
-                  Continuar
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
     </section>
   </main>
 
-  <script type="module">
-    import { animate } from 'animejs';
 
-    const optionCards = Array.from(document.querySelectorAll('[data-calculator-option]'));
-    const triggers = Array.from(document.querySelectorAll('[data-calculator-trigger]'));
-    const detailContainer = document.querySelector('[data-calculator-detail]');
-    const detailInner = document.querySelector('[data-calculator-detail-inner]');
-    const resetButton = document.querySelector('[data-detail-reset]');
-    const badge = document.querySelector('[data-detail-badge]');
-    const title = document.querySelector('[data-detail-title]');
-    const subtitle = document.querySelector('[data-detail-subtitle]');
-    const metrics = document.querySelector('[data-detail-metrics]');
-    const steps = document.querySelector('[data-detail-steps]');
-    const cta = document.querySelector('[data-detail-cta]');
-
-    const cache = new Map();
-    let activeMode = null;
-    let currentRequest = 0;
-
-    const setOptionState = (mode) => {
-      optionCards.forEach((card) => {
-        const isActive = card.dataset.mode === mode;
-        card.classList.toggle('ring-4', isActive);
-        card.classList.toggle('ring-cyan-300/70', isActive);
-        card.classList.toggle('scale-[1.015]', isActive);
-        card.classList.toggle('opacity-75', mode && !isActive);
-      });
-    };
-
-    const renderList = (items, type) => {
-      if (!items) return '';
-      if (type === 'metrics') {
-        return items
-          .map(
-            (item) => `
-              <li class="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm leading-7 text-slate-100">
-                ${item}
-              </li>
-            `
-          )
-          .join('');
-      }
-
-      return items
-        .map(
-          (item, index) => `
-            <li class="flex gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm leading-7 text-slate-100">
-              <span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-cyan-300 font-bold text-slate-950">${index + 1}</span>
-              <span>${item}</span>
-            </li>
-          `
-        )
-        .join('');
-    };
-
-    const animateReveal = async () => {
-      if (!detailContainer || !detailInner) return;
-
-      if (detailContainer.hidden) {
-        detailContainer.hidden = false;
-        detailContainer.style.height = '0px';
-      }
-
-      detailContainer.style.overflow = 'hidden';
-      const targetHeight = `${detailInner.scrollHeight}px`;
-
-      animate(detailContainer, {
-        height: [detailContainer.offsetHeight || 0, targetHeight],
-        duration: 680,
-        ease: 'outExpo',
-      });
-
-      animate(detailInner, {
-        opacity: [0, 1],
-        translateY: [56, 0],
-        duration: 620,
-        ease: 'outExpo',
-      });
-
-      window.requestAnimationFrame(() => {
-        detailContainer.style.height = 'auto';
-        detailContainer.style.overflow = 'visible';
-      });
-    };
-
-    const animateSwitch = () => {
-      if (!detailInner) return;
-      animate(detailInner, {
-        opacity: [0.55, 1],
-        translateX: [28, 0],
-        duration: 520,
-        ease: 'outExpo',
-      });
-    };
-
-    const setLoading = (mode) => {
-      title.textContent = mode === 'on-grid' ? 'Cargando flujo On-Grid…' : 'Cargando flujo Off-Grid…';
-      subtitle.textContent = 'Estamos consultando la información inicial para mostrar los bloques correctos en esta misma pantalla.';
-      badge.textContent = 'Cargando';
-      metrics.innerHTML = '<li class="rounded-2xl border border-dashed border-white/20 px-4 py-4 text-sm text-slate-300 sm:col-span-2">Preparando datos del flujo seleccionado…</li>';
-      steps.innerHTML = '<li class="rounded-2xl border border-dashed border-white/20 px-4 py-4 text-sm text-slate-300">Un momento mientras se actualiza el contenido.</li>';
-      cta.textContent = 'Cargando…';
-      cta.setAttribute('href', '#');
-    };
-
-    const applyData = (payload) => {
-      badge.textContent = payload.badge;
-      title.textContent = payload.title;
-      subtitle.textContent = payload.subtitle;
-      metrics.innerHTML = renderList(payload.metrics, 'metrics');
-      steps.innerHTML = renderList(payload.steps, 'steps');
-      cta.textContent = payload.cta.label;
-      cta.setAttribute('href', payload.cta.href);
-    };
-
-    const loadMode = async (mode) => {
-      const requestId = ++currentRequest;
-      activeMode = mode;
-      setOptionState(mode);
-      setLoading(mode);
-      await animateReveal();
-
-      try {
-        if (!cache.has(mode)) {
-          const response = await fetch(`/api/calculadora/${mode}.json`, {
-            headers: {
-              'X-Requested-With': 'XMLHttpRequest',
-              Accept: 'application/json',
-            },
-          });
-
-          if (!response.ok) {
-            throw new Error(`Error ${response.status}`);
-          }
-
-          cache.set(mode, await response.json());
-        }
-
-        if (requestId !== currentRequest) return;
-
-        applyData(cache.get(mode));
-        animateSwitch();
-      } catch (error) {
-        if (requestId !== currentRequest) return;
-        badge.textContent = 'Error de carga';
-        title.textContent = 'No se pudo cargar el flujo seleccionado.';
-        subtitle.textContent = 'Reintenta en unos segundos o vuelve a seleccionar el tipo de sistema.';
-        metrics.innerHTML = '<li class="rounded-2xl border border-rose-400/30 bg-rose-500/10 px-4 py-4 text-sm text-rose-100 sm:col-span-2">Ocurrió un problema al traer la información dinámica.</li>';
-        steps.innerHTML = '<li class="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-slate-100">Verifica la conexión y vuelve a intentarlo.</li>';
-        cta.textContent = 'Volver arriba';
-        cta.setAttribute('href', '/calculadora');
-        console.error(error);
-      }
-    };
-
-    const resetSelector = () => {
-      activeMode = null;
-      currentRequest += 1;
-      setOptionState(null);
-      if (!detailContainer || !detailInner) return;
-
-      animate(detailInner, {
-        opacity: [1, 0],
-        translateY: [0, -24],
-        duration: 300,
-        ease: 'inOutQuad',
-      });
-
-      animate(detailContainer, {
-        height: [detailContainer.offsetHeight || detailInner.scrollHeight, 0],
-        duration: 420,
-        ease: 'inOutQuad',
-        complete: () => {
-          detailContainer.hidden = true;
-          detailContainer.style.height = '0px';
-        },
-      });
-    };
-
-    triggers.forEach((trigger) => {
-      trigger.addEventListener('click', () => {
-        const mode = trigger.dataset.mode;
-        if (!mode) return;
-        if (activeMode === mode) {
-          animateSwitch();
-          return;
-        }
-        loadMode(mode);
-      });
-    });
-
-    resetButton?.addEventListener('click', resetSelector);
-  </script>
 </Layout>
