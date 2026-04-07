@@ -2,6 +2,7 @@ import { postUsuarioLogin, postUsuarioRegister } from "./api";
 import {
   SESSION_EVENT,
   SESSION_STORAGE_KEY,
+  clearStoredSession,
   hasActiveSession,
   normalizeTipoUsuario,
   normalizeSessionPayload,
@@ -79,13 +80,7 @@ const saveSession = (data: Record<string, unknown>) => {
 };
 
 const clearSession = () => {
-  try {
-    localStorage.removeItem(SESSION_STORAGE_KEY);
-  } catch (error) {
-    console.warn("No se pudo limpiar la sesión del usuario", error);
-  }
-  
-  window.dispatchEvent(new CustomEvent(SESSION_EVENT));
+  clearStoredSession();
 };
 const getStoredSession = (): SessionPayloadDetails | null => parseStoredSession();
 

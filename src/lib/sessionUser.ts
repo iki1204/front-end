@@ -1,4 +1,5 @@
 export const SESSION_STORAGE_KEY = "usuarioSesion";
+export const CART_STORAGE_KEY = "tienda-cart";
 export const SESSION_EVENT = "usuarioSesion:cambio";
 
 export type SessionUser = {
@@ -53,6 +54,19 @@ export const parseStoredSession = (): SessionPayload => {
   } catch (error) {
     console.warn("No se pudo leer la sesión almacenada", error);
     return null;
+  }
+};
+
+export const clearStoredSession = () => {
+  try {
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+    localStorage.removeItem(CART_STORAGE_KEY);
+  } catch (error) {
+    console.warn("No se pudo limpiar la sesión almacenada", error);
+  }
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(SESSION_EVENT));
   }
 };
 
