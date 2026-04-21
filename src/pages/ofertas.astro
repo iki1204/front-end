@@ -55,9 +55,7 @@ const productosOferta = offerItems.filter((producto) => {
     </div>
   </div>
 
-  <section class="relative overflow-hidden bg-gradient-to-br from-slate-950 via-zinc-900 to-slate-800 py-20 text-white"
-		data-auth-visible="authenticated"
-	>
+  <section class="relative overflow-hidden bg-gradient-to-br from-slate-950 via-zinc-900 to-slate-800 py-20 text-white">
     <div class="absolute -left-24 top-8 h-64 w-64 rounded-full bg-primary/30 blur-3xl"></div>
     <div class="absolute -right-20 bottom-0 h-72 w-72 rounded-full bg-amber-400/20 blur-3xl"></div>
     <Container>
@@ -75,9 +73,7 @@ const productosOferta = offerItems.filter((producto) => {
     </Container>
   </section>
 
-  <section class="bg-zinc-50 py-14 dark:bg-zinc-950"
-    data-auth-visible="authenticated"
-  >
+  <section class="bg-zinc-50 py-14 dark:bg-zinc-950">
     <Container>
       <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -107,20 +103,6 @@ const productosOferta = offerItems.filter((producto) => {
       )}
 
     </Container>
-  </section>
-  <section class="bg-zinc-50 py-14 dark:bg-zinc-950"
-    data-auth-visible="guest"
-  >
-	<div class="flex items-center justify-center h-full">
-		<div class="h-screen w-screen flex items-center justify-center perspective-normal bg-gray-50 dark:bg-gray-950">
-			<div class="animate-rotate-border w-full max-w-7xl transition-all duration-500 ease-out transform-3d hover:rotate-x-20 rounded-lg hover:scale-[1.03] hover:bg-conic/[from_var(--border-angle)] from-white dark:from-black via-red-500 to-white dark:to-black from-80% via-90% to-100% p-px">
-				<div class="p-10 rounded-lg p-2 m-1 bg-neutral-50 dark:bg-neutral-900 border border-neutral-50 dark:border-neutral-800 text-center text-xs max-w-7xl">
-					<p class="text-5xl sm:text-7xl font-semibold text-black dark:text-white">Nuestras Ofertas son irresistibles</p>
-					<a href="/login" class="mt-2 text-2xl text-red-500 dark:text-red-400 cursor-pointer">Inicia sesión para ver más</a>
-				</div>
-			</div>
-		</div>
-	</div>
   </section>
 
 </BaseLayout>

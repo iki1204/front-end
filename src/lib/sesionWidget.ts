@@ -181,20 +181,17 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
   
   const registerButton = form.querySelector<HTMLButtonElement>("[data-register-submit]");
   const feedback = form.querySelector<HTMLElement>("[data-register-feedback]");
-  const formContainer = document.querySelector<HTMLElement>("[data-register-form-container]");
-  const successPanel = document.querySelector<HTMLElement>("[data-register-success]");
-
   const formData = new FormData(form);
   const username = String(formData.get("username") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
-  const cedula = String(formData.get("Cedula") ?? "").trim();
-  const ruc = String(formData.get("RUC") ?? "").trim();
   const nombre = String(formData.get("name") ?? "").trim();
   const apellido = String(formData.get("lastname") ?? "").trim();
   const direccion = String(formData.get("direccion") ?? "").trim();
   const fecha = String(formData.get("fechaNacimiento") ?? "").trim();
   const telefono = String(formData.get("telefono") ?? "").trim();
   const password = String(formData.get("password") ?? "").trim();
+  const asesor = "Lizeth";
+  const tipoUsuario = "pvp3";
 
 
   if (!username || !password || !email || !nombre || !apellido || !direccion || !fecha || !telefono) {
@@ -212,7 +209,7 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
   setFeedbackMessage(feedback, "Creando tu cuenta...", "neutral");
 
   try {
-    const response = await postUsuarioRegister({ username, email, password, nombre, apellido, direccion, fecha, telefono });
+    const response = await postUsuarioRegister({ username, email, password, nombre, apellido, direccion, fecha, telefono, asesor, tipoUsuario });
     setFeedbackMessage(feedback, "Registro exitoso. redirigiendo ...", "success");
     window.location.assign("/success-register");
   } catch (error) {

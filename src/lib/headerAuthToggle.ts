@@ -10,6 +10,7 @@ const initHeaderAuthToggle = () => {
   const clearSession = () => {
     try {
       localStorage.removeItem(SESSION_STORAGE_KEY);
+      localStorage.removeItem("tienda-cart");
     } catch (error) {
       console.warn("No se pudo limpiar la sesión", error);
     }

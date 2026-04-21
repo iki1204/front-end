@@ -702,6 +702,82 @@ const destroyCheckout = () => {
   checkoutCleanups.clear();
 };
 
+const showAddedToast = (trigger: HTMLElement) => {
+  const toast = document.createElement("div");
+  toast.className = "cart-added-toast";
+  toast.textContent = "¡Añadido! 🛒";
+  document.body.appendChild(toast);
+
+  const rect = trigger.getBoundingClientRect();
+  toast.style.left = `${rect.left + rect.width / 2}px`;
+  toast.style.top = `${rect.top - 4}px`;
+
+  toast.addEventListener("animationend", () => toast.remove(), { once: true });
+};
+
+const flyToCart = (trigger: HTMLElement) => {
+  const image = trigger.dataset.productImage;
+  const cartWidget = document.querySelector<HTMLElement>("[data-cart-widget]");
+  if (!cartWidget) return;
+
+  const srcRect = trigger.getBoundingClientRect();
+  const dstRect = cartWidget.getBoundingClientRect();
+
+  const size = 70;
+  const startX = srcRect.left + srcRect.width / 2 - size / 2;
+  const startY = srcRect.top + srcRect.height / 2 - size / 2;
+  const endX = dstRect.left + dstRect.width / 2 - size / 2;
+  const endY = dstRect.top + dstRect.height / 2 - size / 2;
+
+  const deltaX = endX - startX;
+  const deltaY = endY - startY;
+  // Arc control point: perpendicular offset for a natural parabola
+  const arcOffsetX = deltaX * 0.4 - Math.sign(deltaX) * Math.abs(deltaY) * 0.3;
+  const arcOffsetY = Math.min(startY, endY) - Math.max(Math.abs(deltaX), 80) * 0.6 - startY;
+
+  const el = document.createElement(image ? "img" : "div");
+  if (image && el instanceof HTMLImageElement) {
+    el.src = image;
+    el.alt = "";
+  } else {
+    el.style.background = "var(--color-primary, #e53e3e)";
+  }
+  el.classList.add("fly-to-cart-el");
+  el.style.width = `${size}px`;
+  el.style.height = `${size}px`;
+  el.style.left = `${startX}px`;
+  el.style.top = `${startY}px`;
+  document.body.appendChild(el);
+
+  el.animate(
+    [
+      { transform: "scale(1)", opacity: "1", offset: 0 },
+      {
+        transform: `translate(${arcOffsetX}px, ${arcOffsetY}px) scale(0.85)`,
+        opacity: "1",
+        offset: 0.45,
+      },
+      {
+        transform: `translate(${deltaX}px, ${deltaY}px) scale(0.25)`,
+        opacity: "0.5",
+        offset: 0.9,
+      },
+      {
+        transform: `translate(${deltaX}px, ${deltaY}px) scale(0)`,
+        opacity: "0",
+        offset: 1,
+      },
+    ],
+    {
+      duration: 980,
+      easing: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      fill: "forwards",
+    }
+  ).finished.then(() => el.remove());
+
+  showAddedToast(trigger);
+};
+
 const bindGlobalActions = () => {
   if (actionsBound || typeof window === "undefined") return;
   actionsBound = true;
@@ -710,8 +786,9 @@ const bindGlobalActions = () => {
     if (!target) return;
 
     const addTrigger = target.closest("[data-action='add-to-cart']") as HTMLElement | null;
-    if (addTrigger) {
+    if (addTrigger && !(addTrigger as HTMLButtonElement).disabled) {
       event.preventDefault();
+      flyToCart(addTrigger);
       const priceValue = addTrigger.dataset.productPrice ?? "";
       const parsedPrice = priceValue === "" ? null : Number(priceValue);
       addItemToCart({

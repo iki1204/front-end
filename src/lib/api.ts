@@ -120,6 +120,10 @@ export async function getProductoBySlug(slug: string) {
   return fetchAPI("productos", `?${params.toString()}`);
 }
 
+export async function getPanelsData() {
+  return fetchAPI("panels?populate=*");
+}
+
 export async function getUsuarios(params?: QueryParams) {
   return fetchAPI("users", params);
 }
@@ -131,6 +135,7 @@ export async function postUsuarioLogin(data: Record<string, string>) {
 export async function postUsuarioRegister(data: Record<string, string>) {
   return postAPI("register-params", data);
 }
+
 
 
 

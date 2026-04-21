@@ -6,6 +6,7 @@ import { getProductoBySlug, getGlobalData, getCategorias, getProductos, getMarca
 import ProductCard from "../../components/ProductCard.astro";
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
+const CONTIFICO_URL = "https://api.contifico.com/sistema/api/v1";
 
 
 const normalizeCollection = (collection: any[] = []) =>
@@ -154,6 +155,7 @@ const recommendedProducts = uniqueRecommendations.slice(0, 4);
 
 const identifier = producto?.identifier;
 const stockEndpoint = `${API_URL}/api/productos/${encodeURIComponent(String(identifier))}/stock`;
+const bodegaEndpoint = `/api/bodega-stock/${encodeURIComponent(String(identifier))}`;
 
 
 const toAbsoluteMediaUrl = (path: string | null) => {
@@ -313,17 +315,6 @@ const offerPrices = {
   pvp4: applyDiscount(rawPrices.pvp4),
 };
 
-const formattedOfferPrices = {
-  default: formatPrice(offerPrices.default),
-  pvp1: formatPrice(offerPrices.pvp1),
-  pvp2: formatPrice(offerPrices.pvp2),
-  pvp3: formatPrice(offerPrices.pvp3),
-  pvp4: formatPrice(offerPrices.pvp4),
-};
-
-const activePrices = isOfertaActiva
-  ? offerPrices
-  : rawPrices;
 
 var descripcion = producto?.descripcion;
 
@@ -334,7 +325,17 @@ const asesorContactLinks: Record<string, string> = {
   "Samantha": "https://wa.me/593989538349?text=Hola, necesito mas informacion sobre su producto " + producto?.nombre + " con codigo: " + (producto?.codigo ?? ""),
   "Lizeth": "https://wa.me/593980373798?text=Hola, necesito mas informacion sobre su producto " + producto?.nombre + " con codigo: " + (producto?.codigo ?? ""),
 };
-const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(asesorContactLinks)[0] ?? "#";
+
+const getRandomAsesorLink = (links: Record<string, string>) => {
+  const values = Object.values(links).filter(Boolean);
+  if (values.length === 0) return "#";
+  return values[Math.floor(Math.random() * values.length)];
+};
+
+const randomAsesorContactLink = getRandomAsesorLink(asesorContactLinks);
+
+const stockCount = Number(producto?.cantidad_stock ?? 0);
+const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.cantidad_stock;
 ---
 
 <BaseLayout
@@ -448,6 +449,13 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
         </section>
 
         <section class="relative flex flex-col gap-6 rounded-3xl border border-zinc-200 bg-white/90 p-6 shadow-xl shadow-primary/5 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/85  lg:top-6 lg:self-start lg:p-8">
+          <div id="product-info-preloader" class="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-3xl bg-white/90 backdrop-blur dark:bg-zinc-900/90 transition-opacity duration-500">
+            <svg class="h-10 w-10 animate-spin text-primary" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <p class="mt-3 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 animate-pulse">Cargando&hellip;</p>
+          </div>
           <div class="space-y-3">
             <p class="text-xs inline-flex font-semibold uppercase tracking-[0.18em] text-primary">Producto
               {isOfertaActiva && porcentajeDescuento > 0 && (
@@ -462,45 +470,37 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
             {isOfertaActiva && porcentajeDescuento > 0 ? (
               <>
                 <p
-                  class="text-2xl font-bold text-gray-500 line-through"
+                  class="text-2xl font-bold text-gray-500 line-through animate-pulse"
                   data-auth-visible="authenticated"
-                  data-user-price
-                  data-price-default={formattedPrices.default}
-                  data-price-pvp1={formattedPrices.pvp1}
-                  data-price-pvp2={formattedPrices.pvp2}
-                  data-price-pvp3={formattedPrices.pvp3}
-                  data-price-pvp4={formattedPrices.pvp4}
+                  data-product-original-price-display
                 >
-                  {formattedPrices.default}
+                  ···
                 </p>
 
                 <p
                   class="text-5xl font-bold animate-pulse text-red-500"
                   data-auth-visible="authenticated"
-                  data-user-offer-price
-                  data-price-default={formattedOfferPrices.default}
-                  data-price-pvp1={formattedOfferPrices.pvp1}
-                  data-price-pvp2={formattedOfferPrices.pvp2}
-                  data-price-pvp3={formattedOfferPrices.pvp3}
-                  data-price-pvp4={formattedOfferPrices.pvp4}
+                  data-product-offer-price-display
                 >
-                  {formattedOfferPrices.default}
+                  ···
                 </p>
               </>
             ) : (
               <p
-                class="text-5xl font-bold text-red-500"
+                class="text-5xl font-bold animate-pulse text-red-500"
                 data-auth-visible="authenticated"
-                data-user-price
-                data-price-default={formattedPrices.default}
-                data-price-pvp1={formattedPrices.pvp1}
-                data-price-pvp2={formattedPrices.pvp2}
-                data-price-pvp3={formattedPrices.pvp3}
-                data-price-pvp4={formattedPrices.pvp4}
+                data-product-price-display
               >
-                {formattedPrices.default}
+                ···
               </p>
             )}
+            <div
+              id="admin-price-selector"
+              class="hidden mt-3 flex items-center gap-2"
+              data-auth-visible="authenticated"
+            >
+              <span class="text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Ver precio:</span>
+            </div>
             <p class="text-sm text-primary" data-auth-visible="guest">Inicia sesión para ver mas de este producto.</p>
 
             
@@ -537,6 +537,36 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
                 id="stock-status"
               >Disponible
               </span>
+            </div>
+          </div>
+
+          <div
+            id="bodega-panel"
+            class="hidden rounded-2xl border border-dashed border-primary/25 bg-white/80 px-4 py-4 shadow-sm dark:border-primary/40 dark:bg-zinc-900/70"
+            data-admin-visible
+            data-bodega-endpoint={bodegaEndpoint}
+          >
+            <div class="mb-3 flex items-center gap-3">
+              <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9.5L12 4L21 9.5V20H15V14H9V20H3V9.5Z"/>
+                </svg>
+              </span>
+              <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">Stock por bodega</p>
+            </div>
+            <div id="bodega-list" class="space-y-2">
+              <div class="flex animate-pulse items-center gap-3">
+                <div class="h-2.5 flex-1 rounded-full bg-zinc-200 dark:bg-zinc-700"></div>
+                <div class="h-2.5 w-8 rounded-full bg-zinc-200 dark:bg-zinc-700"></div>
+              </div>
+              <div class="flex animate-pulse items-center gap-3">
+                <div class="h-2.5 w-3/4 rounded-full bg-zinc-200 dark:bg-zinc-700"></div>
+                <div class="h-2.5 w-8 rounded-full bg-zinc-200 dark:bg-zinc-700"></div>
+              </div>
+              <div class="flex animate-pulse items-center gap-3">
+                <div class="h-2.5 w-2/4 rounded-full bg-zinc-200 dark:bg-zinc-700"></div>
+                <div class="h-2.5 w-8 rounded-full bg-zinc-200 dark:bg-zinc-700"></div>
+              </div>
             </div>
           </div>
 
@@ -599,25 +629,21 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
           <div class="flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
+              disabled={isOutOfStock || undefined}
+              aria-disabled={isOutOfStock ? "true" : undefined}
               data-auth-visible="authenticated"
               data-action="add-to-cart"
-              class="w-full cursor-pointer rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30"
+              class={`w-full rounded-full px-5 py-3 text-sm font-semibold text-white transition ${isOutOfStock ? "cursor-not-allowed bg-zinc-300 dark:bg-zinc-700 opacity-60" : "cursor-pointer bg-primary hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30"}`}
               data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}
               data-product-name={producto?.nombre ?? "Producto"}
-              data-product-price={activePrices.default ?? ""}
               data-product-image={mainImage}
               data-product-url={`/producto/${slug}`}
-              data-user-price-target="productPrice"
-              data-price-default={activePrices.default ?? ""}
-              data-price-pvp1={activePrices.pvp1 ?? ""}
-              data-price-pvp2={activePrices.pvp2 ?? ""}
-              data-price-pvp3={activePrices.pvp3 ?? ""}
-              data-price-pvp4={activePrices.pvp4 ?? ""}
+              data-price-slug={slug}
             >
               Añadir al carrito
             </button>
             <a
-              href={defaultAsesorContactLink}
+              href={randomAsesorContactLink}
               data-asesor-contact
               data-asesor-links={JSON.stringify(asesorContactLinks)}
               class="w-full rounded-full border border-primary/40 px-6 py-3 text-center text-sm font-semibold text-primary transition hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20"
@@ -649,6 +675,23 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
     ) : null}
 </BaseLayout>
 <script>
+  (() => {
+    const preloader = document.getElementById("product-info-preloader");
+
+    const hidePreloader = () => {
+      if (!preloader) return;
+      preloader.style.opacity = "0";
+      preloader.style.pointerEvents = "none";
+      setTimeout(() => preloader.remove(), 500);
+    };
+
+    if (document.readyState === "complete") {
+      hidePreloader();
+    } else {
+      window.addEventListener("load", hidePreloader, { once: true });
+    }
+  })();
+
   window.addEventListener("DOMContentLoaded", () => {
     const shareButton = document.getElementById("share-product");
 
@@ -693,32 +736,33 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
       }
     }
 
-    const asesorLink = document.querySelector("[data-asesor-contact]");
-    if (asesorLink instanceof HTMLAnchorElement) {
-      const asesorLinksRaw = asesorLink.getAttribute("data-asesor-links") ?? "{}";
-      const asesorLinks = JSON.parse(asesorLinksRaw) as Record<string, string>;
-      const fallbackLink =
-        asesorLinks["Edison"] ?? Object.values(asesorLinks)[0] ?? asesorLink.getAttribute("href") ?? "#";
-
-
+    {
+      let sessionAsesorKey: string | null = null;
       try {
         const rawSession = localStorage.getItem("usuarioSesion");
         if (rawSession) {
           const parsedSession = JSON.parse(rawSession);
           const user = parsedSession?.user ?? parsedSession?.data?.user ?? null;
-          const asesorKey = user?.asesor ?? null;
-          if (asesorKey && asesorLinks[asesorKey]) {
-            asesorLink.setAttribute("href", asesorLinks[asesorKey]);
-          } else {
-            asesorLink.setAttribute("href", fallbackLink);
-          }
-        } else {
-          asesorLink.setAttribute("href", fallbackLink);
+          sessionAsesorKey = user?.asesor ?? null;
         }
-      } catch (error) {
-        console.warn("No se pudo leer la sesión del usuario", error);
-        asesorLink.setAttribute("href", fallbackLink);
-      }
+      } catch { /* sin sesión válida */ }
+
+      const getRandomLink = (links: Record<string, string>) => {
+        const values = Object.values(links).filter(Boolean);
+        return values.length > 0 ? values[Math.floor(Math.random() * values.length)] : "#";
+      };
+
+      document.querySelectorAll<HTMLAnchorElement>("[data-asesor-contact]").forEach((el) => {
+        const raw = el.getAttribute("data-asesor-links") ?? "{}";
+        let links: Record<string, string> = {};
+        try { links = JSON.parse(raw); } catch { return; }
+
+        if (sessionAsesorKey && links[sessionAsesorKey]) {
+          el.setAttribute("href", links[sessionAsesorKey]);
+        } else {
+          el.setAttribute("href", getRandomLink(links));
+        }
+      });
     }
 
     const mainImg = document.getElementById("main-image");
@@ -802,7 +846,7 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
     if (!el) return;
 
     const endpoint = el.dataset.stockEndpoint;
-    if (!endpoint) {
+    if (!endpoint || endpoint.includes("undefined")) {
       el.textContent = "N/D";
       return;
     }
@@ -810,7 +854,7 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
     try {
       const res = await fetch(endpoint, { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json(); // { message, id, cantidad_stock }
+      const data = await res.json(); 
 
       const stockCount = Number(data?.cantidad_stock ?? 0);
       const hasStock = Number.isFinite(stockCount) ? stockCount > 0 : false;
@@ -887,6 +931,19 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
           ? "inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200"
           : "inline-flex items-center gap-2 rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-rose-600 dark:bg-rose-500/10 dark:text-rose-200";
       }
+
+      const cartBtn = document.querySelector<HTMLButtonElement>("[data-action='add-to-cart']");
+      if (cartBtn) {
+        if (!hasStock) {
+          cartBtn.disabled = true;
+          cartBtn.setAttribute("aria-disabled", "true");
+          cartBtn.className = "w-full rounded-full px-5 py-3 text-sm font-semibold text-white transition cursor-not-allowed bg-zinc-300 dark:bg-zinc-700 opacity-60";
+        } else {
+          cartBtn.disabled = false;
+          cartBtn.removeAttribute("aria-disabled");
+          cartBtn.className = "w-full cursor-pointer rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30";
+        }
+      }
     } catch (e) {
       el.textContent = "Error, intente más tarde";
        if (statusEl) {
@@ -896,4 +953,78 @@ const defaultAsesorContactLink = asesorContactLinks["Edison"] ?? Object.values(a
       }
     }
   });
+</script>
+
+<script type="module">
+  window.addEventListener("DOMContentLoaded", async () => {
+    const bodegaPanel = document.getElementById("bodega-panel");
+    const bodegaList = document.getElementById("bodega-list");
+    if (!bodegaPanel || !bodegaList) return;
+
+    try {
+      const raw = localStorage.getItem("usuarioSesion");
+      const parsed = raw ? JSON.parse(raw) : null;
+      const user = parsed?.user ?? parsed?.data?.user ?? null;
+      if (user?.admin !== true) return;
+    } catch {
+      return;
+    }
+
+    const endpoint = bodegaPanel.dataset.bodegaEndpoint;
+    if (!endpoint || endpoint.includes("undefined")) {
+      bodegaList.innerHTML = '<p class="text-xs text-zinc-400">Sin información de bodegas.</p>';
+      return;
+    }
+
+    try {
+      const res = await fetch(endpoint, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      if (!Array.isArray(data) || data.length === 0) {
+        bodegaList.innerHTML = '<p class="text-xs text-zinc-400">Sin información de bodegas.</p>';
+        return;
+      }
+
+      bodegaList.innerHTML = data
+        .map((bodega) => {
+          const nombre = String(bodega.bodega_nombre ?? "Bodega");
+          const cantidad = Number(bodega.cantidad ?? 0);
+          const hasStock = cantidad > 0;
+          const fewStock = cantidad > 0 && cantidad <= 10;
+
+          const dotClass = hasStock
+            ? fewStock
+              ? "bg-amber-400"
+              : "bg-emerald-400"
+            : "bg-zinc-300 dark:bg-zinc-600";
+          const countClass = hasStock
+            ? fewStock
+              ? "font-bold text-amber-600 dark:text-amber-400"
+              : "font-bold text-emerald-600 dark:text-emerald-400"
+            : "font-medium text-zinc-400 dark:text-zinc-500";
+          const rowClass = hasStock
+            ? fewStock
+              ? "border-amber-100 bg-amber-50/60 dark:border-amber-500/20 dark:bg-amber-500/5"
+              : "border-emerald-100 bg-emerald-50/60 dark:border-emerald-500/20 dark:bg-emerald-500/5"
+            : "border-zinc-100 bg-zinc-50/50 dark:border-zinc-700/30 dark:bg-zinc-800/20";
+
+          return `
+            <div class="flex items-center gap-3 rounded-xl border ${rowClass} px-3 py-2">
+              <span class="h-2 w-2 shrink-0 rounded-full ${dotClass}"></span>
+              <span class="flex-1 truncate text-xs font-medium text-zinc-700 dark:text-zinc-300">${nombre}</span>
+              <span class="shrink-0 tabular-nums text-xs ${countClass}">${cantidad}</span>
+            </div>
+          `;
+        })
+        .join("");
+    } catch (e) {
+      bodegaList.innerHTML =
+        '<p class="text-xs text-zinc-400">No se pudo cargar el stock por bodega.</p>';
+    }
+  });
+</script>
+
+<script>
+  import "../../lib/precioSeguro.ts";
 </script>

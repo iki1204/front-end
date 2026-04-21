@@ -4,156 +4,174 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 
 <Layout title="Unicom - Off Grid">
   <main class="min-h-screen bg-[#ececec]">
-    <section class="mx-auto grid min-h-screen w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[minmax(340px,40%)_1fr]">
-      <aside class="flex items-center bg-[linear-gradient(180deg,#5a0a0a_0%,#2a0303_100%)] px-[clamp(2.5rem,3.8vw,4rem)] py-10 text-white">
-        <div class="space-y-8 sm:space-y-10">
-          <h1 class="m-0 text-[clamp(2.6rem,4.5vw,5rem)] font-black leading-[0.95] tracking-[-0.07em] text-balance">
-            Simulador de
-            <br />
-            Proyectos
-            <br />
-            Fotovoltaicos
-            <br />
-            Off-Grid.
-            <br />
-            Diseña tu
-            <br />
-            autonomía total
-          </h1>
+  <section class="mx-auto grid min-h-screen w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[minmax(340px,40%)_1fr]">
+    <aside class="flex items-center bg-[linear-gradient(180deg,#5a0a0a_0%,#2a0303_100%)] px-[clamp(2.5rem,3.8vw,4rem)] py-10 text-white">
+      <div class="space-y-8 sm:space-y-10">
+        <h1 class="m-0 text-[clamp(2.6rem,4.5vw,5rem)] leading-[0.95] font-black tracking-[-0.07em] text-balance">
+          Simulador de
+          <br />
+          Proyectos
+          <br />
+          Fotovoltaicos
+          <br />
+          Off-Grid.
+          <br />
+          Diseña tu
+          <br />
+          autonomía total
+        </h1>
 
-          <p class="mt-4 max-w-[38ch] text-[clamp(1rem,1.2vw,1.35rem)] font-semibold leading-[1.5] text-red-100">
-            Calcula el sistema solar ideal para operar sin red eléctrica: paneles, inversor y baterías según tu demanda diaria.
-          </p>
+        <p class="mt-4 max-w-[38ch] text-[clamp(1rem,1.2vw,1.35rem)] leading-normal font-semibold text-red-100">Calcula el sistema solar ideal para operar sin red eléctrica: paneles, inversor y baterías según tu demanda diaria.</p>
+      </div>
+    </aside>
+
+    <section class="mx-auto w-full max-w-5xl rounded-md border border-slate-300 bg-slate-100 shadow-lg">
+      <header class="flex items-center justify-between rounded-t-md bg-[#cc2f1f] px-6 py-4 text-white">
+        <h1 class="font-mono text-xl tracking-wide">Uso diario de Energía</h1>
+        <span aria-hidden="true" class="text-lg">💡</span>
+      </header>
+
+      <div class="space-y-7 px-6 py-7">
+        <div>
+          <label for="equipo" class="mb-2 block text-sm text-slate-700">Seleccione el equipo</label>
+          <select id="equipo" class="h-11 w-full rounded border-2 border-[#2f74df] bg-slate-600 px-3 text-xl text-white outline-none">
+            <option value="" disabled selected>Cargando...</option>
+          </select>
         </div>
-      </aside>
 
-      <section class="mx-auto w-full max-w-5xl rounded-md border border-slate-300 bg-slate-100 shadow-lg">
-        <header class="flex items-center justify-between rounded-t-md bg-[#cc2f1f] px-6 py-4 text-white">
-          <h1 class="font-mono text-xl tracking-wide">Uso diario de Energía</h1>
-          <span aria-hidden="true" class="text-lg">💡</span>
-        </header>
+        <div class="grid gap-4 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
+          <label class="block">
+            <span class="mb-2 block text-sm text-slate-700">Cantidad</span>
+            <input id="cantidad" type="number" min="1" value="1" class="h-11 w-full rounded border border-slate-400 bg-slate-100 px-3 text-lg text-slate-700 outline-none" />
+          </label>
 
-        <div class="space-y-7 px-6 py-7">
-          <div>
-            <label for="equipo" class="mb-2 block text-sm text-slate-700">Seleccione el equipo</label>
-            <select
-              id="equipo"
-              class="h-11 w-full rounded border-2 border-[#2f74df] bg-slate-600 px-3 text-xl text-white outline-none"
-            >
-              <option>Refrigerador</option>
-              <option>Televisor</option>
-              <option>Computadora</option>
-              <option>Lavadora</option>
-            </select>
+          <label class="block">
+            <span class="mb-2 block text-sm text-slate-700">Potencia (W)</span>
+            <input id="potencia" type="number" min="0" class="h-11 w-full rounded border border-slate-400 bg-slate-100 px-3 text-lg text-slate-700 outline-none" />
+          </label>
+
+          <label class="block">
+            <span class="mb-2 block text-sm text-slate-700">Horas al día</span>
+            <input id="horas" type="number" min="0" step="0.1" class="h-11 w-full rounded border border-slate-400 bg-slate-100 px-3 text-lg text-slate-700 outline-none" />
+          </label>
+
+          <button id="btn-calcular" type="button" class="h-11 cursor-pointer rounded bg-[#cc3b26] px-8 text-lg font-semibold text-white transition hover:bg-[#b9301d]">Calcular</button>
+        </div>
+
+        <div class="rounded border border-slate-300 bg-slate-100">
+          <div class="grid grid-cols-6 border-b border-slate-300 px-2 py-3 text-lg text-slate-800">
+            <span class="px-2">Objeto</span>
+            <span class="px-2">Cantidad</span>
+            <span class="px-2">Potencia</span>
+            <span class="px-2">Horas</span>
+            <span class="px-2">Consumo</span>
+            <span class="px-2">Acciones</span>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
-            <label class="block">
-              <span class="mb-2 block text-sm text-slate-700">Cantidad</span>
-              <input
-                id="cantidad"
-                type="number"
-                min="1"
-                value="1"
-                class="h-11 w-full rounded border border-slate-400 bg-slate-100 px-3 text-lg text-slate-700 outline-none"
-              />
-            </label>
+          <div id="tabla-consumos" class="divide-y divide-slate-300"></div>
+        </div>
 
-            <label class="block">
-              <span class="mb-2 block text-sm text-slate-700">Potencia (W)</span>
-              <input
-                id="potencia"
-                type="number"
-                min="0"
-                class="h-11 w-full rounded border border-slate-400 bg-slate-100 px-3 text-lg text-slate-700 outline-none"
-              />
-            </label>
+        <div class="space-y-5 pt-2 pb-4">
+          <h2 class="font-mono text-3xl text-slate-800">Consumo diario de energía</h2>
 
-            <label class="block">
-              <span class="mb-2 block text-sm text-slate-700">Horas al día</span>
-              <input
-                id="horas"
-                type="number"
-                min="0"
-                step="0.1"
-                class="h-11 w-full rounded border border-slate-400 bg-slate-100 px-3 text-lg text-slate-700 outline-none"
-              />
-            </label>
-
-            <button
-              id="btn-calcular"
-              type="button"
-              class="h-11 rounded bg-[#cc3b26] px-8 text-lg font-semibold text-white transition hover:bg-[#b9301d]"
-            >
-              Calcular
-            </button>
-          </div>
-
-          <div class="rounded border border-slate-300 bg-slate-100">
-            <div class="grid grid-cols-6 border-b border-slate-300 px-2 py-3 text-lg text-slate-800">
-              <span class="px-2">Objeto</span>
-              <span class="px-2">Cantidad</span>
-              <span class="px-2">Potencia</span>
-              <span class="px-2">Horas</span>
-              <span class="px-2">Consumo</span>
-              <span class="px-2">Acciones</span>
+          <div class="grid gap-6 sm:grid-cols-2">
+            <div>
+              <p class="text-3xl text-slate-700">Potencia total requerida</p>
+              <p id="total-potencia" class="text-5xl text-slate-900">0 W</p>
             </div>
 
-            <div id="tabla-consumos" class="divide-y divide-slate-300"></div>
-          </div>
-
-          <div class="space-y-5 pb-4 pt-2">
-            <h2 class="font-mono text-3xl text-slate-800">Consumo Total Diario de Energía</h2>
-
-            <div class="grid gap-6 sm:grid-cols-2">
-              <div>
-                <p class="text-3xl text-slate-700">Total Potencia</p>
-                <p id="total-potencia" class="text-5xl text-slate-900">0 W</p>
-              </div>
-
-              <div>
-                <p class="text-3xl text-slate-700">Total Vatios-Hora</p>
-                <p id="total-wh" class="text-5xl text-slate-900">0 Wh</p>
-              </div>
+            <div>
+              <p class="text-3xl text-slate-700">Energía total por día</p>
+              <p id="total-wh" class="text-5xl text-slate-900">0 Wh</p>
             </div>
           </div>
         </div>
-      </section>
+          <div class="flex justify-start pb-2">
+            <a
+              href="/calculadora-off-grid/localidad"
+              class="inline-flex h-11 items-center rounded bg-[#cc2f1f] px-8 text-lg font-semibold text-white transition hover:bg-[#b9301d]"
+            >
+              Siguiente
+            </a>
+          </div>
+      </div>
     </section>
-  </main>
+  </section>
+</main>
+
 </Layout>
 
   <script>
-    const equipoEl = document.querySelector("#equipo");
-    const cantidadEl = document.querySelector("#cantidad");
-    const potenciaEl = document.querySelector("#potencia");
-    const horasEl = document.querySelector("#horas");
-    const btnCalcularEl = document.querySelector("#btn-calcular");
-    const tablaConsumosEl = document.querySelector("#tabla-consumos");
-    const totalPotenciaEl = document.querySelector("#total-potencia");
-    const totalWhEl = document.querySelector("#total-wh");
+    type Electrodomestico = {
+      id?: string;
+      nombre: string;
+      potencia: number;
+      categoria?: string;
+    };
 
-/**
-     * @typedef {{
-     *  id: number;
-     *  equipo: string;
-     *  cantidad: number;
-     *  potencia: number;
-     *  horas: number;
-     * }} RegistroConsumo
-     */
+    type RegistroConsumo = {
+      id: number;
+      equipo: string;
+      cantidad: number;
+      potencia: number;
+      horas: number;
+    };
 
-    /** @type {{ id: string; nombre: string; potencia: number; categoria: string }[]} */
-    let electrodomesticos = [];
-    /** @type {RegistroConsumo[]} */
-    let registros = [];
-    let registroEnEdicionId = null;
-    let borradorEdicion = null;
+    type CampoEditable = "cantidad" | "potencia" | "horas";
+    type BorradorEdicion = Pick<RegistroConsumo, CampoEditable>;
+    type ConsumoStorage = {
+      registrosPorId: Record<string, RegistroConsumo>;
+      contadorRegistros: number;
+      totalPotencia: number;
+      totalEnergiaDiaria: number;
+    };
+
+    const STORAGE_KEY = "unicom.offgrid.consumos";
+
+    let equipoEl: HTMLSelectElement | null = null;
+    let cantidadEl: HTMLInputElement | null = null;
+    let potenciaEl: HTMLInputElement | null = null;
+    let horasEl: HTMLInputElement | null = null;
+    let btnCalcularEl: HTMLButtonElement | null = null;
+    let tablaConsumosEl: HTMLDivElement | null = null;
+    let totalPotenciaEl: HTMLElement | null = null;
+    let totalWhEl: HTMLElement | null = null;
+
+    const sincronizarElementosDom = (): void => {
+      equipoEl = document.querySelector<HTMLSelectElement>("#equipo");
+      cantidadEl = document.querySelector<HTMLInputElement>("#cantidad");
+      potenciaEl = document.querySelector<HTMLInputElement>("#potencia");
+      horasEl = document.querySelector<HTMLInputElement>("#horas");
+      btnCalcularEl = document.querySelector<HTMLButtonElement>("#btn-calcular");
+      tablaConsumosEl = document.querySelector<HTMLDivElement>("#tabla-consumos");
+      totalPotenciaEl = document.querySelector<HTMLElement>("#total-potencia");
+      totalWhEl = document.querySelector<HTMLElement>("#total-wh");
+    };
+
+    const esPaginaConsumoActiva = (): boolean => {
+      return equipoEl instanceof HTMLSelectElement
+        && cantidadEl instanceof HTMLInputElement
+        && potenciaEl instanceof HTMLInputElement
+        && horasEl instanceof HTMLInputElement
+        && btnCalcularEl instanceof HTMLButtonElement
+        && tablaConsumosEl instanceof HTMLDivElement;
+    };
+
+    let electrodomesticos: Electrodomestico[] = [];
+    let registros: RegistroConsumo[] = [];
+    let registroEnEdicionId: number | null = null;
+    let borradorEdicion: BorradorEdicion | null = null;
     let contadorRegistros = 0;
+    let totalPotenciaGuardada = 0;
+    let totalEnergiaDiariaGuardada = 0;
 
-    const formatearNumero = (valor) => Number.isInteger(valor) ? `${valor}` : valor.toFixed(2);
+    const esCampoEditable = (campo: string): campo is CampoEditable => {
+      return ["cantidad", "potencia", "horas"].includes(campo);
+    };
 
-    const limpiarFormulario = () => {
+    const formatearNumero = (valor: number): string => Number.isInteger(valor) ? `${valor}` : valor.toFixed(2);
+
+    const limpiarFormulario = (): void => {
       if (cantidadEl instanceof HTMLInputElement) cantidadEl.value = "1";
       if (horasEl instanceof HTMLInputElement) horasEl.value = "";
       if (registroEnEdicionId === null && potenciaEl instanceof HTMLInputElement) {
@@ -161,34 +179,119 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       }
     };
 
-    const escapeHtml = (texto) => texto
+    const escapeHtml = (texto: string): string => texto
       .replaceAll("&", "&amp;")
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
 
-    const actualizarTotales = () => {
+    const esRegistroConsumoValido = (valor: unknown): valor is RegistroConsumo => {
+      if (!valor || typeof valor !== "object") return false;
+
+      const registro = valor as Partial<RegistroConsumo>;
+      return typeof registro.id === "number"
+        && typeof registro.equipo === "string"
+        && typeof registro.cantidad === "number"
+        && typeof registro.potencia === "number"
+        && typeof registro.horas === "number";
+    };
+
+    const guardarRegistrosEnStorage = (): void => {
+      const registrosPorId = registros.reduce<Record<string, RegistroConsumo>>((acumulador, registro) => {
+        acumulador[String(registro.id)] = registro;
+        return acumulador;
+      }, {});
+
+      const totalPotencia = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia), 0);
+      const totalEnergiaDiaria = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia * registro.horas), 0);
+
+      totalPotenciaGuardada = totalPotencia;
+      totalEnergiaDiariaGuardada = totalEnergiaDiaria;
+
+      const payload: ConsumoStorage = {
+        registrosPorId,
+        contadorRegistros,
+        totalPotencia,
+        totalEnergiaDiaria
+      };
+
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      } catch (error) {
+        console.error("No se pudieron guardar los consumos en localStorage.", error);
+      }
+    };
+
+    const cargarRegistrosDesdeStorage = (): void => {
+      try {
+        const guardado = window.localStorage.getItem(STORAGE_KEY);
+        if (!guardado) return;
+
+        const datos = JSON.parse(guardado) as Partial<ConsumoStorage>;
+        const registrosGuardados = datos.registrosPorId && typeof datos.registrosPorId === "object"
+          ? Object.values(datos.registrosPorId).filter(esRegistroConsumoValido).sort((a, b) => a.id - b.id)
+          : [];
+
+        registros = registrosGuardados;
+        contadorRegistros = typeof datos.contadorRegistros === "number"
+          ? datos.contadorRegistros
+          : registrosGuardados.reduce((maximo, registro) => Math.max(maximo, registro.id), 0);
+        totalPotenciaGuardada = typeof datos.totalPotencia === "number" ? datos.totalPotencia : 0;
+        totalEnergiaDiariaGuardada = typeof datos.totalEnergiaDiaria === "number" ? datos.totalEnergiaDiaria : 0;
+        registroEnEdicionId = null;
+        borradorEdicion = null;
+
+        renderTabla();
+        actualizarTotales();
+      } catch (error) {
+        console.error("No se pudieron recuperar los consumos guardados.", error);
+      }
+    };
+
+    const inicializarConsumosGuardados = (): void => {
+      const guardado = window.localStorage.getItem(STORAGE_KEY);
+
+      if (guardado) {
+        cargarRegistrosDesdeStorage();
+        return;
+      }
+
+      registros = [];
+      contadorRegistros = 0;
+      totalPotenciaGuardada = 0;
+      totalEnergiaDiariaGuardada = 0;
+      registroEnEdicionId = null;
+      borradorEdicion = null;
+      renderTabla();
+      actualizarTotales();
+    };
+
+    const actualizarTotales = (): void => {
       const totalPotencia = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia), 0);
       const totalWh = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia * registro.horas), 0);
 
-      if (totalPotenciaEl) totalPotenciaEl.textContent = `${formatearNumero(totalPotencia)} W`;
-      if (totalWhEl) totalWhEl.textContent = `${formatearNumero(totalWh)} Wh`;
+      totalPotenciaGuardada = totalPotencia;
+      totalEnergiaDiariaGuardada = totalWh;
+
+      if (totalPotenciaEl) totalPotenciaEl.textContent = `${formatearNumero(totalPotenciaGuardada)} W`;
+      if (totalWhEl) totalWhEl.textContent = `${formatearNumero(totalEnergiaDiariaGuardada)} Wh`;
     };
 
-    const renderTabla = () => {
+    const renderTabla = (): void => {
       if (!tablaConsumosEl) return;
 
-      tablaConsumosEl.innerHTML = "";
+      const tabla = tablaConsumosEl;
+      tabla.innerHTML = "";
 
       registros.forEach((registro) => {
         const consumo = registro.cantidad * registro.potencia * registro.horas;
         const fila = document.createElement("div");
         fila.className = "grid grid-cols-6 items-center px-2 py-3 text-base text-slate-700";
 
-        const estaEnEdicion = registroEnEdicionId === registro.id && borradorEdicion;
+        const estaEnEdicion = registroEnEdicionId === registro.id && borradorEdicion !== null;
 
-        if (estaEnEdicion) {
+        if (estaEnEdicion && borradorEdicion) {
           fila.innerHTML = `
             <span class="px-2">${escapeHtml(registro.equipo)}</span>
             <span class="px-2">
@@ -255,33 +358,33 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
             <span class="flex gap-2 px-2">
               <button
                 type="button"
-                class="rounded bg-sky-600 px-3 py-1 text-sm font-semibold text-white transition hover:bg-sky-700"
+                class="rounded cursor-pointer bg-sky-600 px-3 py-1 text-sm font-semibold text-white transition hover:bg-sky-700"
                 data-action="editar"
                 data-id="${registro.id}"
               >
-                Editar
+                <svg class="h-6 w-6" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11 4H7.2C6.0799 4 5.51984 4 5.09202 4.21799C4.71569 4.40974 4.40973 4.7157 4.21799 5.09202C4 5.51985 4 6.0799 4 7.2V16.8C4 17.9201 4 18.4802 4.21799 18.908C4.40973 19.2843 4.71569 19.5903 5.09202 19.782C5.51984 20 6.0799 20 7.2 20H16.8C17.9201 20 18.4802 20 18.908 19.782C19.2843 19.5903 19.5903 19.2843 19.782 18.908C20 18.4802 20 17.9201 20 16.8V12.5M15.5 5.5L18.3284 8.32843M10.7627 10.2373L17.411 3.58902C18.192 2.80797 19.4584 2.80797 20.2394 3.58902C21.0205 4.37007 21.0205 5.6364 20.2394 6.41745L13.3774 13.2794C12.6158 14.0411 12.235 14.4219 11.8012 14.7247C11.4162 14.9936 11.0009 15.2162 10.564 15.3882C10.0717 15.582 9.54378 15.6885 8.48793 15.9016L8 16L8.04745 15.6678C8.21536 14.4925 8.29932 13.9048 8.49029 13.3561C8.65975 12.8692 8.89125 12.4063 9.17906 11.9786C9.50341 11.4966 9.92319 11.0768 10.7627 10.2373Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
               </button>
               <button
                 type="button"
-                class="rounded bg-red-600 px-3 py-1 text-sm font-semibold text-white transition hover:bg-red-700"
+                class="rounded cursor-pointer bg-red-600 px-3 py-1 text-sm font-semibold text-white transition hover:bg-red-700"
                 data-action="eliminar"
                 data-id="${registro.id}"
               >
-                Eliminar
+                <svg class="h-6 w-6 pointer-events-none" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M10 12L14 16M14 12L10 16M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
               </button>
             </span>
           `;
         }
 
-        tablaConsumosEl.appendChild(fila);
+        tabla.appendChild(fila);
       });
     };
 
-    const cargarElectrodomesticos = async () => {
+    const cargarElectrodomesticos = async (): Promise<void> => {
       try {
         const respuesta = await fetch("/json/electrodomesticos.json");
         if (!respuesta.ok) throw new Error("No se pudo cargar la lista de equipos.");
-        electrodomesticos = await respuesta.json();
+        electrodomesticos = (await respuesta.json()) as Electrodomestico[];
       } catch (error) {
         console.error(error);
         electrodomesticos = [];
@@ -289,9 +392,10 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 
       if (!(equipoEl instanceof HTMLSelectElement)) return;
 
-      equipoEl.innerHTML = "";
+      const select = equipoEl;
+      select.innerHTML = "";
 
-      const categorias = electrodomesticos.reduce((acumulador, equipo) => {
+      const categorias = electrodomesticos.reduce<Map<string, Electrodomestico[]>>((acumulador, equipo) => {
         const categoria = equipo.categoria || "Sin categoría";
         if (!acumulador.has(categoria)) acumulador.set(categoria, []);
         acumulador.get(categoria)?.push(equipo);
@@ -309,28 +413,30 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
           grupo.appendChild(opcion);
         });
 
-        equipoEl.appendChild(grupo);
+        select.appendChild(grupo);
       });
 
       if (electrodomesticos.length === 0) {
         const opcion = document.createElement("option");
         opcion.value = "";
         opcion.textContent = "Sin equipos disponibles";
-        equipoEl.appendChild(opcion);
+        select.appendChild(opcion);
       }
 
       actualizarPotenciaPorEquipo();
     };
 
-    const actualizarPotenciaPorEquipo = () => {
+    const actualizarPotenciaPorEquipo = (): void => {
       if (!(equipoEl instanceof HTMLSelectElement) || !(potenciaEl instanceof HTMLInputElement)) return;
 
-      const equipoSeleccionado = electrodomesticos.find((equipo) => equipo.nombre === equipoEl.value);
+      const select = equipoEl;
+      const potenciaInput = potenciaEl;
+      const equipoSeleccionado = electrodomesticos.find((equipo) => equipo.nombre === select.value);
       if (!equipoSeleccionado) return;
-      potenciaEl.value = `${equipoSeleccionado.potencia}`;
+      potenciaInput.value = `${equipoSeleccionado.potencia}`;
     };
 
-    const iniciarEdicionRegistro = (id) => {
+    const iniciarEdicionRegistro = (id: number): void => {
       const registro = registros.find((item) => item.id === id);
       if (!registro) return;
 
@@ -343,19 +449,18 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       renderTabla();
     };
 
-    const cancelarEdicionRegistro = () => {
+    const cancelarEdicionRegistro = (): void => {
       registroEnEdicionId = null;
       borradorEdicion = null;
       renderTabla();
     };
 
-    const actualizarBorradorEdicion = (campo, valor) => {
+    const actualizarBorradorEdicion = (campo: CampoEditable, valor: string): void => {
       if (registroEnEdicionId === null || !borradorEdicion) return;
-      if (!["cantidad", "potencia", "horas"].includes(campo)) return;
       borradorEdicion = { ...borradorEdicion, [campo]: Number(valor) };
     };
 
-    const guardarEdicionRegistro = (id) => {
+    const guardarEdicionRegistro = (id: number): void => {
       if (registroEnEdicionId !== id || !borradorEdicion) return;
 
       const cantidad = Number(borradorEdicion.cantidad);
@@ -376,9 +481,10 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       borradorEdicion = null;
       renderTabla();
       actualizarTotales();
+      guardarRegistrosEnStorage();
     };
 
-    const eliminarRegistro = (id) => {
+    const eliminarRegistro = (id: number): void => {
       registros = registros.filter((item) => item.id !== id);
       if (registroEnEdicionId === id) {
         registroEnEdicionId = null;
@@ -386,14 +492,15 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       }
       renderTabla();
       actualizarTotales();
+      guardarRegistrosEnStorage();
     };
 
-    equipoEl?.addEventListener("change", () => {
+    const manejarCambioEquipo = (): void => {
       if (registroEnEdicionId !== null) return;
       actualizarPotenciaPorEquipo();
-    });
+    };
 
-    btnCalcularEl?.addEventListener("click", () => {
+    const manejarClickCalcular = (): void => {
       const equipo = equipoEl instanceof HTMLSelectElement ? equipoEl.value : "";
       const cantidad = cantidadEl instanceof HTMLInputElement ? Number(cantidadEl.value) : 0;
       const potencia = potenciaEl instanceof HTMLInputElement ? Number(potenciaEl.value) : 0;
@@ -407,44 +514,86 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       if (registroEnEdicionId !== null) {
         alert("Termina o cancela la edición en la tabla antes de agregar un nuevo equipo.");
         return;
-      } else {
-        contadorRegistros += 1;
-        registros.push({
-          id: contadorRegistros,
-          equipo,
-          cantidad,
-          potencia,
-          horas
-        });
       }
+
+      contadorRegistros += 1;
+      registros.push({
+        id: contadorRegistros,
+        equipo,
+        cantidad,
+        potencia,
+        horas
+      });
 
       renderTabla();
       actualizarTotales();
+      guardarRegistrosEnStorage();
       limpiarFormulario();
-    });
+    };
 
-    tablaConsumosEl?.addEventListener("input", (event) => {
+    const manejarInputTabla = (event: Event): void => {
       const target = event.target;
       if (!(target instanceof HTMLInputElement)) return;
       if (registroEnEdicionId === null || Number(target.dataset.id) !== registroEnEdicionId) return;
+
       const campo = target.dataset.campo;
-      if (!campo) return;
+      if (!campo || !esCampoEditable(campo)) return;
       actualizarBorradorEdicion(campo, target.value);
-    });
+    };
 
-      tablaConsumosEl?.addEventListener("click", (event) => {
-        const target = event.target;
-        if (!(target instanceof HTMLElement)) return;
-        const botonAccion = target.closest("button[data-action][data-id]");
-        if (!(botonAccion instanceof HTMLButtonElement)) return;
+    const manejarClickTabla = (event: Event): void => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
 
-        const id = Number(botonAccion.dataset.id);
-        const accion = botonAccion.dataset.action;
+      const botonAccion = target.closest("button[data-action][data-id]");
+      if (!(botonAccion instanceof HTMLButtonElement)) return;
 
-        if (accion === "editar") iniciarEdicionRegistro(id);
-        if (accion === "eliminar") eliminarRegistro(id);
-        if (accion === "guardar-edicion") guardarEdicionRegistro(id);
-        if (accion === "cancelar-edicion") cancelarEdicionRegistro();
-    });
-    cargarElectrodomesticos();
+      const id = Number(botonAccion.dataset.id);
+      const accion = botonAccion.dataset.action;
+
+      if (accion === "editar") iniciarEdicionRegistro(id);
+      if (accion === "eliminar") eliminarRegistro(id);
+      if (accion === "guardar-edicion") guardarEdicionRegistro(id);
+      if (accion === "cancelar-edicion") cancelarEdicionRegistro();
+    };
+
+    const registrarEventos = (): void => {
+      if (equipoEl && equipoEl.dataset.listenerBound !== "1") {
+        equipoEl.addEventListener("change", manejarCambioEquipo);
+        equipoEl.dataset.listenerBound = "1";
+      }
+
+      if (btnCalcularEl && btnCalcularEl.dataset.listenerBound !== "1") {
+        btnCalcularEl.addEventListener("click", manejarClickCalcular);
+        btnCalcularEl.dataset.listenerBound = "1";
+      }
+
+      if (tablaConsumosEl && tablaConsumosEl.dataset.inputBound !== "1") {
+        tablaConsumosEl.addEventListener("input", manejarInputTabla);
+        tablaConsumosEl.dataset.inputBound = "1";
+      }
+
+      if (tablaConsumosEl && tablaConsumosEl.dataset.clickBound !== "1") {
+        tablaConsumosEl.addEventListener("click", manejarClickTabla);
+        tablaConsumosEl.dataset.clickBound = "1";
+      }
+    };
+
+    const inicializarPaginaConsumo = (): void => {
+      sincronizarElementosDom();
+      if (!esPaginaConsumoActiva()) return;
+
+      inicializarConsumosGuardados();
+      registrarEventos();
+      void cargarElectrodomesticos();
+    };
+
+    document.addEventListener("astro:page-load", inicializarPaginaConsumo);
+    window.addEventListener("pageshow", inicializarPaginaConsumo);
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", inicializarPaginaConsumo, { once: true });
+    } else {
+      inicializarPaginaConsumo();
+    }
   </script>

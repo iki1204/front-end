@@ -1,0 +1,278 @@
+---
+import Layout from '../../layouts/LayoutCalculadora.astro';
+---
+
+<Layout title="Unicom - Off Grid">
+  <Fragment slot="head">
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+  </Fragment>
+  <main class="min-h-screen bg-[#ececec]">
+    <section class="mx-auto grid min-h-screen w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[minmax(340px,40%)_1fr]">
+      <aside class="flex items-center bg-[linear-gradient(180deg,#5a0a0a_0%,#2a0303_100%)] px-[clamp(2.5rem,3.8vw,4rem)] py-10 text-white">
+        <div class="space-y-8 sm:space-y-10">
+          <h1 class="m-0 text-[clamp(2.6rem,4.5vw,5rem)] font-black leading-[0.95] tracking-[-0.07em] text-balance">
+            Simulador de
+            <br />
+            Proyectos
+            <br />
+            Fotovoltaicos
+            <br />
+            Off-Grid.
+            <br />
+            Diseña tu
+            <br />
+            autonomía total
+          </h1>
+
+          <p class="max-w-[38ch] mt-4 text-[clamp(1rem,1.2vw,1.35rem)] font-semibold leading-normal text-red-100">
+            Calcula el sistema solar ideal para operar sin red eléctrica: paneles, inversor y baterías según tu demanda
+            diaria.
+          </p>
+        </div>
+      </aside>
+
+      
+ <section class="mx-auto w-full max-w-4xl rounded-md border border-slate-300 bg-slate-100 p-8 shadow-lg">
+      <h1 class="font-mono text-3xl text-slate-800">Localidad</h1>
+      <p class="mt-3 text-lg text-slate-700">
+        Selecciona tu provincia en el mapa de Ecuador para obtener las horas de irradiación solar.
+      </p>
+
+      <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
+        <div id="mapa-ecuador" class="h-[520px] w-full rounded border border-slate-300"></div>
+
+        <aside class="rounded border border-slate-300 bg-white p-5">
+          <p class="text-sm uppercase tracking-wide text-slate-500">Provincia seleccionada</p>
+          <p id="provincia-seleccionada" class="mt-2 text-2xl font-semibold text-slate-900">Ninguna</p>
+
+          <p class="mt-6 text-sm uppercase tracking-wide text-slate-500">Horas de irradiación solar</p>
+          <p id="horas-irradiacion" class="mt-2 text-4xl font-bold text-[#cc3b26]">--</p>
+          <p class="mt-2 text-sm text-slate-600">h/día</p>
+
+          <p class="mt-6 text-sm text-slate-600">
+            Haz clic sobre un marcador para elegir la provincia para saber cuales son las horas de sol pico.
+          </p>
+        </aside>
+      </div>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a
+          href="/calculadora-off-grid/consumo"
+          class="inline-flex h-11 items-center rounded bg-slate-700 px-6 text-base font-semibold text-white transition hover:bg-slate-800"
+        >
+          Volver a consumo
+        </a>
+        <a
+          id="confirmar-localidad"
+          href="/calculadora-off-grid/paneles"
+          class="inline-flex h-11 items-center rounded bg-[#cc2f1f] px-6 text-base font-semibold text-white transition hover:bg-[#b9301d]"
+        >
+          Confirmar siguiente
+        </a>
+      </div>
+    </section>
+
+
+    </section>
+  </main>
+</Layout>
+
+<script>
+  type Provincia = {
+    nombre: string;
+    lat: number;
+    lng: number;
+    horas_sol: number;
+  };
+
+  const LOCALIDAD_STORAGE_KEY = "unicom.offgrid.localidad";
+
+  type LeafletGlobal = any;
+
+  type LeafletWindow = Window & typeof globalThis & {
+    L?: LeafletGlobal;
+    __leafletLoadingPromise?: Promise<LeafletGlobal>;
+    __localidadMap?: any;
+  };
+
+  let provinciaSeleccionada: Provincia | null = null;
+
+  const esProvinciaValida = (valor: unknown): valor is Provincia => {
+    if (!valor || typeof valor !== "object") return false;
+
+    const provincia = valor as Partial<Provincia>;
+    return typeof provincia.nombre === "string"
+      && typeof provincia.lat === "number"
+      && typeof provincia.lng === "number"
+      && typeof provincia.horas_sol === "number";
+  };
+
+  const guardarProvinciaSeleccionada = (): void => {
+    if (!provinciaSeleccionada) return;
+
+    try {
+      window.localStorage.setItem(LOCALIDAD_STORAGE_KEY, JSON.stringify(provinciaSeleccionada));
+    } catch (error) {
+      console.error("No se pudo guardar la provincia seleccionada.", error);
+    }
+  };
+
+  const cargarProvinciaSeleccionada = (): void => {
+    try {
+      const guardada = window.localStorage.getItem(LOCALIDAD_STORAGE_KEY);
+      if (!guardada) return;
+
+      const provincia = JSON.parse(guardada) as unknown;
+      if (!esProvinciaValida(provincia)) return;
+
+      provinciaSeleccionada = provincia;
+      actualizarPanel(provincia.nombre, provincia.horas_sol);
+    } catch (error) {
+      console.error("No se pudo recuperar la provincia guardada.", error);
+    }
+  };
+
+  const registrarConfirmacionLocalidad = (): void => {
+    const confirmarLocalidadEl = document.querySelector<HTMLAnchorElement>("#confirmar-localidad");
+    if (!(confirmarLocalidadEl instanceof HTMLAnchorElement)) return;
+    if (confirmarLocalidadEl.dataset.listenerBound === "1") return;
+
+    confirmarLocalidadEl.addEventListener("click", (event) => {
+      if (!provinciaSeleccionada) {
+        event.preventDefault();
+        alert("Selecciona una provincia antes de confirmar la localidad.");
+        return;
+      }
+
+      guardarProvinciaSeleccionada();
+    });
+
+    confirmarLocalidadEl.dataset.listenerBound = "1";
+  };
+
+  const actualizarPanel = (provincia: string, horas: number): void => {
+    const provinciaSeleccionadaEl = document.querySelector<HTMLElement>("#provincia-seleccionada");
+    const horasIrradiacionEl = document.querySelector<HTMLElement>("#horas-irradiacion");
+
+    if (provinciaSeleccionadaEl) provinciaSeleccionadaEl.textContent = provincia;
+    if (horasIrradiacionEl) horasIrradiacionEl.textContent = `${horas.toFixed(1)}`;
+  };
+
+  const cargarLeaflet = async (): Promise<LeafletGlobal> => {
+    const leafletWindow = window as LeafletWindow;
+
+    if (leafletWindow.L) return leafletWindow.L;
+    if (leafletWindow.__leafletLoadingPromise) return leafletWindow.__leafletLoadingPromise;
+
+    leafletWindow.__leafletLoadingPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      script.integrity = "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=";
+      script.crossOrigin = "";
+      script.onload = () => {
+        if (leafletWindow.L) {
+          resolve(leafletWindow.L);
+          return;
+        }
+
+        reject(new Error("Leaflet se cargó, pero `window.L` no está disponible."));
+      };
+      script.onerror = () => reject(new Error("No se pudo cargar Leaflet desde el CDN."));
+      document.head.appendChild(script);
+    });
+
+    return leafletWindow.__leafletLoadingPromise;
+  };
+
+  const iniciarMapa = async (): Promise<void> => {
+    const mapaEl = document.querySelector<HTMLElement>("#mapa-ecuador");
+    if (!(mapaEl instanceof HTMLElement)) return;
+    if (mapaEl.dataset.mapaInicializado === "1" || mapaEl.dataset.mapaInicializando === "1") return;
+
+    mapaEl.dataset.mapaInicializando = "1";
+
+    try {
+      const leafletWindow = window as LeafletWindow;
+      const leaflet = await cargarLeaflet();
+
+      if (leafletWindow.__localidadMap) {
+        leafletWindow.__localidadMap.remove();
+        leafletWindow.__localidadMap = undefined;
+      }
+
+      mapaEl.innerHTML = "";
+
+      const mapa = leaflet.map(mapaEl).setView([-1.75, -78.5], 6.5);
+      leafletWindow.__localidadMap = mapa;
+      mapaEl.dataset.mapaInicializado = "1";
+
+      leaflet.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: "&copy; OpenStreetMap contributors"
+      }).addTo(mapa);
+
+      requestAnimationFrame(() => {
+        mapa.invalidateSize();
+      });
+
+      const respuesta = await fetch("/json/provincias.json");
+      if (!respuesta.ok) throw new Error("No se pudo cargar el archivo de provincias.");
+
+      const provincias = (await respuesta.json()) as Provincia[];
+      let marcadorActivo: { setStyle: (styles: { fillColor: string; color: string }) => void } | null = null;
+
+      provincias.forEach((provincia: Provincia) => {
+        const marcador = leaflet.circleMarker([provincia.lat, provincia.lng], {
+          radius: 7,
+          color: "#9f1239",
+          fillColor: "#cc3b26",
+          fillOpacity: 0.75,
+          weight: 2
+        });
+
+        marcador.bindTooltip(provincia.nombre);
+        marcador.on("click", () => {
+          if (marcadorActivo) {
+            marcadorActivo.setStyle({ fillColor: "#cc3b26", color: "#9f1239" });
+          }
+
+          marcadorActivo = marcador;
+          provinciaSeleccionada = provincia;
+          marcador.setStyle({ fillColor: "#2563eb", color: "#1e3a8a" });
+          actualizarPanel(provincia.nombre, provincia.horas_sol);
+        });
+
+        marcador.addTo(mapa);
+      });
+    } catch (error) {
+      console.error("Error al iniciar el mapa de localidad:", error);
+      mapaEl.innerHTML = '<p class="flex h-full items-center justify-center text-sm text-slate-600">No se pudo cargar el mapa.</p>';
+      delete mapaEl.dataset.mapaInicializado;
+    } finally {
+      delete mapaEl.dataset.mapaInicializando;
+    }
+  };
+
+  const ejecutarMapa = (): void => {
+    cargarProvinciaSeleccionada();
+    registrarConfirmacionLocalidad();
+
+    requestAnimationFrame(() => {
+      void iniciarMapa();
+    });
+  };
+
+  document.addEventListener("astro:page-load", ejecutarMapa);
+  window.addEventListener("pageshow", ejecutarMapa);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", ejecutarMapa, { once: true });
+  } else {
+    ejecutarMapa();
+  }
+</script>

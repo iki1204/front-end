@@ -1,11 +1,33 @@
-import { SESSION_EVENT, SESSION_STORAGE_KEY, hasActiveSession } from "./sessionUser";
+import { SESSION_EVENT, SESSION_STORAGE_KEY, parseStoredSession } from "./sessionUser";
+
+const getUserAdmin = (): boolean => {
+  const session = parseStoredSession();
+  return session?.user?.admin === true;
+};
+
+/**
+ * Un usuario está autenticado si tiene JWT y su cuenta está confirmada.
+ * No se requiere tipoUsuario — los usuarios admin tampoco lo tienen.
+ */
+const isUserLoggedIn = (): boolean => {
+  const session = parseStoredSession();
+  return Boolean(session?.jwt && session?.user && session.user.confirmed !== false);
+};
 
 const refreshAuthVisibility = () => {
-  const isLoggedIn = hasActiveSession();
+  const isLoggedIn = isUserLoggedIn();
+  const isAdmin = getUserAdmin();
 
   document.querySelectorAll<HTMLElement>("[data-auth-visible]").forEach((element) => {
     const mode = element.dataset.authVisible ?? "authenticated";
     const shouldShow = mode === "authenticated" ? isLoggedIn : !isLoggedIn;
+
+    element.classList.toggle("hidden", !shouldShow);
+    element.setAttribute("aria-hidden", (!shouldShow).toString());
+  });
+
+  document.querySelectorAll<HTMLElement>("[data-admin-visible]").forEach((element) => {
+    const shouldShow = isLoggedIn && isAdmin;
 
     element.classList.toggle("hidden", !shouldShow);
     element.setAttribute("aria-hidden", (!shouldShow).toString());

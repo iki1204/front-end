@@ -1,0 +1,509 @@
+---
+import Layout from '../../layouts/LayoutCalculadora.astro';
+import { getPanelsData } from "../../lib/api";
+
+type PanelOption = {
+  watts: number;
+  eficiencia: string;
+  uso: string;
+  descripcion: string;
+  imagen: string;
+};
+
+type StrapiMediaItem = {
+  url?: string | null;
+};
+
+type StrapiMediaField =
+  | StrapiMediaItem
+  | StrapiMediaItem[]
+  | { data?: StrapiMediaItem | StrapiMediaItem[] | null }
+  | null
+  | undefined;
+
+const STRAPI_BASE_URL = import.meta.env.VITE_STRAPI_URL ?? "https://api.unicomec.com";
+const PANEL_PLACEHOLDER = "/images/placeholder.png";
+
+const resolvePanelImage = (imageField: StrapiMediaField): string => {
+  const normalizedField = imageField as {
+    data?: StrapiMediaItem | StrapiMediaItem[] | null;
+    url?: string | null;
+  } | null | undefined;
+
+  const candidateUrl = Array.isArray(imageField)
+    ? imageField[0]?.url
+    : Array.isArray(normalizedField?.data)
+      ? normalizedField.data[0]?.url
+      : normalizedField?.data && !Array.isArray(normalizedField.data)
+        ? normalizedField.data.url
+        : normalizedField?.url;
+
+  if (!candidateUrl) return PANEL_PLACEHOLDER;
+  return candidateUrl.startsWith("http") ? candidateUrl : `${STRAPI_BASE_URL}${candidateUrl}`;
+};
+
+const ordenarPanelesPorWatts = (paneles: PanelOption[]): PanelOption[] => {
+  return [...paneles].sort((a, b) => a.watts - b.watts);
+};
+
+const opcionesVatios: PanelOption[] = await getPanelsData().then((response) => {
+  if (response?.data) {
+    const panelesMapeados = response.data.map((item: any): PanelOption => ({
+      watts: Number(item.Potencia ?? 0),
+      eficiencia: String(item.PorcentajeEficiencia ?? "--"),
+      uso: String(item.Uso ?? item.Descripcion ?? "Panel solar"),
+      descripcion: String(item.Descripcion ?? "Panel solar disponible."),
+      imagen: resolvePanelImage(item.Imagen),
+    }));
+
+    return ordenarPanelesPorWatts(panelesMapeados);
+  }
+
+  return [];
+}).catch((error) => {
+  console.error("Error al obtener los datos de los paneles:", error);
+  return [];
+});
+
+const panelInicial: PanelOption = opcionesVatios[0] ?? {
+  watts: 0,
+  eficiencia: "--",
+  uso: "Sin paneles disponibles",
+  descripcion: "No hay paneles disponibles por el momento.",
+  imagen: PANEL_PLACEHOLDER,
+};
+
+
+---
+
+<Layout title="Unicom - Off Grid">
+  <main class="min-h-screen bg-[#ececec]">
+    <section class="mx-auto grid min-h-screen w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[minmax(340px,40%)_1fr]">
+      <aside class="flex items-center bg-[linear-gradient(180deg,#5a0a0a_0%,#2a0303_100%)] px-[clamp(2.5rem,3.8vw,4rem)] py-10 text-white">
+        <div class="space-y-8 sm:space-y-10">
+          <h1 class="m-0 text-[clamp(2.6rem,4.5vw,5rem)] font-black leading-[0.95] tracking-[-0.07em] text-balance">
+            Simulador de
+            <br />
+            Proyectos
+            <br />
+            Fotovoltaicos
+            <br />
+            Off-Grid.
+            <br />
+            Diseña tu
+            <br />
+            autonomía total
+          </h1>
+
+          <p class="max-w-[38ch] mt-4 text-[clamp(1rem,1.2vw,1.35rem)] font-semibold leading-normal text-red-100">
+            Calcula el sistema solar ideal para operar sin red eléctrica: paneles, inversor y baterías según tu demanda
+            diaria.
+          </p>
+        </div>
+      </aside>
+
+       <aside class="m-4 rounded-3xl border border-slate-300 bg-slate-100 p-6 text-slate-800 shadow-lg lg:m-6 lg:p-8">
+        <section class="mt-8 rounded-2xl border border-slate-300 bg-white p-4 shadow-sm">
+          <p class="m-0 text-xs uppercase tracking-[0.12em] text-slate-500">Selecciona el panel</p>
+
+          <div class="mt-4 flex items-center justify-between gap-3">
+            <button
+              id="panel-prev"
+              type="button"
+              class="flex cursor-pointer h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-slate-100 text-xl text-slate-700 transition hover:border-[#cc2f1f] hover:text-[#cc2f1f] disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Panel anterior"
+            >
+              ‹
+            </button>
+
+            <div class="min-w-0 flex-1 text-center">
+              <div class="relative mx-auto flex h-90 w-full items-center justify-center overflow-hidden rounded-lg">
+                <div
+                  id="carousel-panel-loader"
+                  class="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-lg  "
+                >
+                  <span class="h-11 w-11 animate-spin rounded-full border-[3px] border-slate-300 border-t-[#cc2f1f]"></span>
+                  <span class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Cargando...</span>
+                </div>
+
+                <img
+                  id="carousel-panel-image"
+                  src={panelInicial.imagen}
+                  data-current-src=""
+                  alt="Panel solar seleccionado"
+                  class="mx-auto h-90 w-auto rounded-lg object-contain p-2 opacity-0 transition-opacity duration-200"
+                />
+              </div>
+              <p class="m-0 mt-3 text-sm uppercase tracking-[0.14em] text-slate-500">Panel solar</p>
+              <p class="m-0 mt-1 text-4xl font-extrabold text-slate-900" id="carousel-panel-watts">{panelInicial.watts}W</p>
+              <p class="m-0 mt-2 text-sm text-slate-600" id="carousel-panel-uso">{panelInicial.uso}</p>
+            </div>
+
+            <button
+              id="panel-next"
+              type="button"
+              class="flex cursor-pointer h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-slate-100 text-xl text-slate-700 transition hover:border-[#cc2f1f] hover:text-[#cc2f1f] disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Siguiente panel"
+            >
+              ›
+            </button>
+          </div>
+
+          <div class="mt-4 flex justify-center gap-2" id="panel-carousel-dots">
+            {opcionesVatios.map((opcion, index) => (
+              <button
+                type="button"
+                class={`panel-dot h-2.5 w-2.5 rounded-full transition ${index === 0 ? 'bg-[#cc2f1f]' : 'bg-slate-300'}`}
+                data-index={index}
+                data-watts={opcion.watts}
+                data-eficiencia={opcion.eficiencia}
+                data-uso={opcion.uso}
+                data-descripcion={opcion.descripcion}
+                data-imagen={opcion.imagen ?? '/images/placeholder.png'}
+                aria-label={`Seleccionar panel de ${opcion.watts}W`}
+                aria-pressed={index === 0 ? 'true' : 'false'}
+              ></button>
+            ))}
+          </div>
+        </section>
+        <h2 class="m-0 mt-6 text-2xl font-bold text-slate-800">Resumen de selección</h2>
+
+        <div class="mt-6 space-y-5">
+          <section class="rounded-2xl border border-slate-300 bg-white p-5 shadow-sm">
+            <p class="m-0 text-xs uppercase tracking-[0.12em] text-slate-500">Resumen de selección</p>
+            <div class="mt-3 flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p class="m-0 text-4xl font-black text-slate-900" id="resumen-watts">{panelInicial.watts}W</p>
+                <p class="m-0 mt-1 text-sm font-semibold text-slate-600" id="resumen-uso">{panelInicial.uso}</p>
+              </div>
+              <div class="rounded-full bg-red-50 px-3 py-1 text-sm font-semibold text-[#cc2f1f]" id="resumen-eficiencia">{panelInicial.eficiencia}</div>
+            </div>
+            <p class="m-0 mt-3 text-sm leading-relaxed text-slate-600" id="resumen-descripcion">
+              {panelInicial.descripcion}
+            </p>
+          </section>
+
+          <section class="rounded-xl border border-slate-300 bg-white p-4 shadow-sm">
+            <label for="porcentaje-perdida" class="m-0 block text-xs uppercase tracking-[0.12em] text-slate-500">
+              Pérdida energética estimada
+            </label>
+            <select
+              id="porcentaje-perdida"
+              class="mt-3 w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-base font-semibold text-slate-800 outline-none focus:border-[#cc2f1f]"
+            >
+              <option value="15">15%</option>
+              <option value="20">20%</option>
+              <option value="25">25%</option>
+              <option value="30">30%</option>
+              <option value="35">35%</option>
+              <option value="40">40%</option>
+            </select>
+            <p class="m-0 mt-2 text-xs text-slate-500">Selecciona un margen de pérdida que se ajuste a tus necesidades.</p>
+          </section>
+
+          <section class="rounded-xl border border-red-200 bg-red-50 p-4">
+            <p class="m-0 text-xs uppercase tracking-[0.12em] text-[#cc2f1f]">Paneles totales:</p>
+            <p class="m-0 mt-2 text-3xl font-black text-slate-900" id="resultado-paneles">0 paneles de {panelInicial.watts} W</p>
+
+            <button
+              id="resultado-paneles-toggle"
+              type="button"
+              class="mt-3 inline-flex cursor-pointer items-center rounded-full border border-red-200 bg-white px-3 py-1 text-sm font-semibold text-[#b9301d] transition hover:border-[#cc2f1f] hover:text-[#cc2f1f]"
+              aria-expanded="false"
+              aria-controls="resultado-paneles-detalle-wrap"
+            >
+              + info
+            </button>
+
+            <div id="resultado-paneles-detalle-wrap" class="hidden">
+              <p class="m-0 mt-3 whitespace-pre-line rounded-lg border border-red-100 bg-white/70 p-3 text-sm leading-6 text-slate-600" id="resultado-paneles-detalle"></p>
+            </div>
+          </section>
+
+            <div class="mt-8 flex flex-wrap gap-3">
+                <a
+                href="/calculadora-off-grid/localidad"
+                class="inline-flex h-11 items-center rounded bg-slate-700 px-6 text-base font-semibold text-white transition hover:bg-slate-800"
+                >
+                Volver a localidad
+                </a>
+                <a
+                id="confirmar-localidad"
+                href="/calculadora-off-grid/baterias"
+                class="inline-flex h-11 items-center rounded bg-[#cc3b26] px-6 text-base font-semibold text-white transition hover:bg-[#b9301d]"
+                >
+                Continuar 
+                </a>
+            </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+</Layout>
+
+<script>
+    type ConsumoStorage = {
+      totalEnergiaDiaria?: number;
+    };
+
+    type LocalidadStorage = {
+      nombre: string;
+      lat: number;
+      lng: number;
+      horas_sol: number;
+    };
+
+    const CONSUMO_STORAGE_KEY = "unicom.offgrid.consumos";
+    const LOCALIDAD_STORAGE_KEY = "unicom.offgrid.localidad";
+    const PANEL_PLACEHOLDER_CLIENT = "/images/placeholder.png";
+
+    let dots: HTMLButtonElement[] = [];
+    let resumenWatts: HTMLElement | null = null;
+    let resumenEficiencia: HTMLElement | null = null;
+    let resumenUso: HTMLElement | null = null;
+    let resumenDescripcion: HTMLElement | null = null;
+    let porcentajePerdidaEl: HTMLSelectElement | null = null;
+    let resultadoPanelesEl: HTMLElement | null = null;
+    let resultadoPanelesDetalleEl: HTMLElement | null = null;
+    let resultadoPanelesToggleEl: HTMLButtonElement | null = null;
+    let resultadoPanelesDetalleWrapEl: HTMLElement | null = null;
+    let panelPrevEl: HTMLButtonElement | null = null;
+    let panelNextEl: HTMLButtonElement | null = null;
+    let carouselPanelWattsEl: HTMLElement | null = null;
+    let carouselPanelUsoEl: HTMLElement | null = null;
+    let carouselPanelImageEl: HTMLImageElement | null = null;
+    let carouselPanelLoaderEl: HTMLElement | null = null;
+
+    let totalWattHour = 0;
+    let horasSol = 0;
+    let nombreProvincia = "No seleccionada";
+    let panelWattSeleccionado = 0;
+    let indicePanelActivo = 0;
+    let imageLoadRequestId = 0;
+
+    const formatearNumero = (valor: number): string => Number.isInteger(valor) ? `${valor}` : valor.toFixed(2);
+
+    const sincronizarElementos = (): void => {
+      dots = Array.from(document.querySelectorAll<HTMLButtonElement>(".panel-dot"));
+      resumenWatts = document.getElementById("resumen-watts");
+      resumenEficiencia = document.getElementById("resumen-eficiencia");
+      resumenUso = document.getElementById("resumen-uso");
+      resumenDescripcion = document.getElementById("resumen-descripcion");
+      porcentajePerdidaEl = document.querySelector<HTMLSelectElement>("#porcentaje-perdida");
+      resultadoPanelesEl = document.getElementById("resultado-paneles");
+      resultadoPanelesDetalleEl = document.getElementById("resultado-paneles-detalle");
+      resultadoPanelesToggleEl = document.querySelector<HTMLButtonElement>("#resultado-paneles-toggle");
+      resultadoPanelesDetalleWrapEl = document.getElementById("resultado-paneles-detalle-wrap");
+      panelPrevEl = document.querySelector<HTMLButtonElement>("#panel-prev");
+      panelNextEl = document.querySelector<HTMLButtonElement>("#panel-next");
+      carouselPanelWattsEl = document.getElementById("carousel-panel-watts");
+      carouselPanelUsoEl = document.getElementById("carousel-panel-uso");
+      carouselPanelImageEl = document.querySelector<HTMLImageElement>("#carousel-panel-image");
+      carouselPanelLoaderEl = document.getElementById("carousel-panel-loader");
+    };
+
+    const leerDatosGuardados = (): void => {
+      totalWattHour = 0;
+      horasSol = 0;
+      nombreProvincia = "No seleccionada";
+
+      try {
+        const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
+        if (consumoGuardado) {
+          const consumo = JSON.parse(consumoGuardado) as ConsumoStorage;
+          totalWattHour = typeof consumo.totalEnergiaDiaria === "number" ? consumo.totalEnergiaDiaria : 0;
+        }
+
+        const localidadGuardada = window.localStorage.getItem(LOCALIDAD_STORAGE_KEY);
+        if (localidadGuardada) {
+          const localidad = JSON.parse(localidadGuardada) as Partial<LocalidadStorage>;
+          nombreProvincia = typeof localidad.nombre === "string" ? localidad.nombre : "No seleccionada";
+          horasSol = typeof localidad.horas_sol === "number" ? localidad.horas_sol : 0;
+        }
+      } catch (error) {
+        console.error("No se pudieron leer los datos guardados para el cálculo de paneles.", error);
+      }
+    };
+
+    const toggleResultadoDetalle = (abierto?: boolean): void => {
+      if (!resultadoPanelesToggleEl || !resultadoPanelesDetalleWrapEl) return;
+
+      const shouldOpen = typeof abierto === "boolean"
+        ? abierto
+        : resultadoPanelesDetalleWrapEl.classList.contains("hidden");
+
+      resultadoPanelesDetalleWrapEl.classList.toggle("hidden", !shouldOpen);
+      resultadoPanelesToggleEl.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+      resultadoPanelesToggleEl.textContent = shouldOpen ? "− info" : "+ info";
+    };
+
+    const actualizarResultadoPaneles = (): void => {
+      if (!resultadoPanelesEl || !resultadoPanelesDetalleEl) return;
+
+      const porcentajeSeleccionado = porcentajePerdidaEl ? Number(porcentajePerdidaEl.value) : 15;
+      const porcentajePerdida = Number.isFinite(porcentajeSeleccionado) ? porcentajeSeleccionado / 100 : 0.15;
+      const totalWattHourLss = totalWattHour * (1 + porcentajePerdida);
+      const totalWattSolar = horasSol > 0 ? totalWattHourLss / horasSol : 0;
+      const panelesExactos = panelWattSeleccionado > 0 ? totalWattSolar / panelWattSeleccionado : 0;
+      const paneles = panelWattSeleccionado > 0 ? Math.ceil(panelesExactos) : 0;
+
+      if (totalWattHour <= 0 || horasSol <= 0) {
+        resultadoPanelesEl.textContent = `0 paneles de ${panelWattSeleccionado} W`;
+        resultadoPanelesDetalleEl.textContent = [
+          `• Pérdida: ${porcentajeSeleccionado}%`,
+          `• Consumo diario: ${formatearNumero(totalWattHour)} Wh`,
+          `• Horas sol: ${horasSol > 0 ? formatearNumero(horasSol) : "--"}`,
+          `• Provincia: ${nombreProvincia}`,
+        ].join("\n");
+        return;
+      }
+
+      resultadoPanelesEl.textContent = `${paneles} paneles de ${panelWattSeleccionado} W`;
+      resultadoPanelesDetalleEl.textContent = [
+        `• Pérdida: ${porcentajeSeleccionado}%`,
+        `• Consumo ajustado: ${formatearNumero(totalWattHourLss)} Wh`,
+        `• Potencia solar requerida: ${formatearNumero(totalWattSolar)} W`,
+        `• Provincia: ${nombreProvincia}`,
+      ].join("\n");
+    };
+
+    const actualizarCarrusel = (): void => {
+      if (dots.length === 0) return;
+
+      dots.forEach((dot, index) => {
+        const isActive = index === indicePanelActivo;
+        dot.classList.toggle("bg-[#cc2f1f]", isActive);
+        dot.classList.toggle("bg-slate-300", !isActive);
+        dot.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+
+      if (panelPrevEl) panelPrevEl.disabled = indicePanelActivo === 0;
+      if (panelNextEl) panelNextEl.disabled = indicePanelActivo === dots.length - 1;
+    };
+
+    const actualizarEstadoPreloader = (cargando: boolean): void => {
+      if (carouselPanelLoaderEl) {
+        carouselPanelLoaderEl.classList.toggle("hidden", !cargando);
+      }
+
+      if (carouselPanelImageEl) {
+        carouselPanelImageEl.classList.toggle("opacity-0", cargando);
+        carouselPanelImageEl.classList.toggle("opacity-100", !cargando);
+      }
+    };
+
+    const actualizarImagenCarrusel = (imagen: string): void => {
+      if (!carouselPanelImageEl) return;
+
+      const imageUrl = imagen?.trim() ? imagen : PANEL_PLACEHOLDER_CLIENT;
+      const currentImage = carouselPanelImageEl.dataset.currentSrc || "";
+
+      if (currentImage === imageUrl && carouselPanelImageEl.complete && carouselPanelImageEl.naturalWidth > 0) {
+        actualizarEstadoPreloader(false);
+        return;
+      }
+
+      imageLoadRequestId += 1;
+      const requestId = imageLoadRequestId;
+      const preloadedImage = new Image();
+
+      actualizarEstadoPreloader(true);
+
+      preloadedImage.onload = () => {
+        if (!carouselPanelImageEl || requestId !== imageLoadRequestId) return;
+        carouselPanelImageEl.src = imageUrl;
+        carouselPanelImageEl.dataset.currentSrc = imageUrl;
+        actualizarEstadoPreloader(false);
+      };
+
+      preloadedImage.onerror = () => {
+        if (!carouselPanelImageEl || requestId !== imageLoadRequestId) return;
+        carouselPanelImageEl.src = PANEL_PLACEHOLDER_CLIENT;
+        carouselPanelImageEl.dataset.currentSrc = PANEL_PLACEHOLDER_CLIENT;
+        actualizarEstadoPreloader(false);
+      };
+
+      preloadedImage.src = imageUrl;
+    };
+
+    const updateSelection = (dot: HTMLButtonElement): void => {
+      indicePanelActivo = Number(dot.dataset.index || 0);
+      panelWattSeleccionado = Number(dot.dataset.watts || 0);
+
+      const imagenPanel = dot.dataset.imagen || PANEL_PLACEHOLDER_CLIENT;
+
+      if (carouselPanelWattsEl) carouselPanelWattsEl.textContent = `${panelWattSeleccionado}W`;
+      if (carouselPanelUsoEl) carouselPanelUsoEl.textContent = dot.dataset.uso || "";
+      actualizarImagenCarrusel(imagenPanel);
+
+      if (resumenWatts) resumenWatts.textContent = `${panelWattSeleccionado}W`;
+      if (resumenEficiencia) resumenEficiencia.textContent = dot.dataset.eficiencia || "";
+      if (resumenUso) resumenUso.textContent = dot.dataset.uso || "";
+      if (resumenDescripcion) resumenDescripcion.textContent = dot.dataset.descripcion || "";
+
+      actualizarCarrusel();
+      actualizarResultadoPaneles();
+    };
+
+    const registrarEventos = (): void => {
+      dots.forEach((dot) => {
+        if (dot.dataset.listenerBound === "1") return;
+        dot.addEventListener("click", () => updateSelection(dot));
+        dot.dataset.listenerBound = "1";
+      });
+
+      if (panelPrevEl && panelPrevEl.dataset.listenerBound !== "1") {
+        panelPrevEl.addEventListener("click", () => {
+          if (indicePanelActivo <= 0) return;
+          const siguienteDot = dots[indicePanelActivo - 1];
+          if (siguienteDot) updateSelection(siguienteDot);
+        });
+        panelPrevEl.dataset.listenerBound = "1";
+      }
+
+      if (panelNextEl && panelNextEl.dataset.listenerBound !== "1") {
+        panelNextEl.addEventListener("click", () => {
+          if (indicePanelActivo >= dots.length - 1) return;
+          const siguienteDot = dots[indicePanelActivo + 1];
+          if (siguienteDot) updateSelection(siguienteDot);
+        });
+        panelNextEl.dataset.listenerBound = "1";
+      }
+
+      if (porcentajePerdidaEl && porcentajePerdidaEl.dataset.listenerBound !== "1") {
+        porcentajePerdidaEl.addEventListener("change", actualizarResultadoPaneles);
+        porcentajePerdidaEl.addEventListener("input", actualizarResultadoPaneles);
+        porcentajePerdidaEl.dataset.listenerBound = "1";
+      }
+
+      if (resultadoPanelesToggleEl && resultadoPanelesToggleEl.dataset.listenerBound !== "1") {
+        resultadoPanelesToggleEl.addEventListener("click", () => toggleResultadoDetalle());
+        resultadoPanelesToggleEl.dataset.listenerBound = "1";
+      }
+    };
+
+    const inicializarPaginaPaneles = (): void => {
+      sincronizarElementos();
+      if (dots.length === 0) return;
+
+      leerDatosGuardados();
+      registrarEventos();
+      toggleResultadoDetalle(false);
+
+      const dotSeleccionado = dots.find((dot) => dot.getAttribute("aria-pressed") === "true") ?? dots[0];
+      if (dotSeleccionado) {
+        updateSelection(dotSeleccionado);
+      } else {
+        actualizarResultadoPaneles();
+      }
+    };
+
+    document.addEventListener("astro:page-load", inicializarPaginaPaneles);
+    window.addEventListener("pageshow", inicializarPaginaPaneles);
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", inicializarPaginaPaneles, { once: true });
+    } else {
+      inicializarPaginaPaneles();
+    }
+  </script>
