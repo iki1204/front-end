@@ -40,8 +40,8 @@ const botones = response.data.header.Botones.map((boton) => ({
                             <div class="size-4 rounded-full bg-gray-900 dark:bg-white"></div>
                             <div class="h-6 w-2 bg-primary"></div>
                         </div>
-                        <div>
-                            {logoUrl ? <img src={logoUrl[0]} alt={siteName} class="h-12 w-auto object-contain" /> : null}
+                        <div class="inline-flex w-fit items-center justify-center rounded-xl bg-white/70 px-2 py-1 backdrop-blur-sm">
+                          {logoUrl ? <img src={logoUrl[0]} alt={siteName} class="block h-12 w-auto object-contain" /> : null}
                         </div>
                     </a>
                     <a href="/#home" aria-label="logo" class="hidden dark:flex items-center space-x-2">
@@ -209,58 +209,74 @@ const botones = response.data.header.Botones.map((boton) => ({
 </header>
 
 <script>
-  const header = document.getElementById("site-header");
-  const HOME_PATH = "/";
-  const normalizeHash = (value) => {
-    if (!value) return null;
-    if (value.startsWith("/#")) return value.slice(2);
-    if (value.startsWith("#/")) return value.slice(2);
-    if (value.startsWith("#")) return value.slice(1);
-    return null;
+  const initHeader = () => {
+    const header = document.getElementById("site-header");
+    const HOME_PATH = "/";
+    const normalizeHash = (value) => {
+      if (!value) return null;
+      if (value.startsWith("/#")) return value.slice(2);
+      if (value.startsWith("#/")) return value.slice(2);
+      if (value.startsWith("#")) return value.slice(1);
+      return null;
+    };
+
+    const scrollToHash = (hashValue) => {
+      const target = document.getElementById(hashValue);
+      if (!target) return;
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    const updateHeaderState = () => {
+      if (!header) return;
+      if (window.scrollY > 50) {
+        header.classList.add("bg-white", "dark:bg-gray-950", "shadow-md");
+        header.classList.remove("bg-transparent");
+      } else {
+        header.classList.remove("bg-white", "dark:bg-gray-950", "shadow-md");
+        header.classList.add("bg-transparent");
+      }
+    };
+
+    updateHeaderState();
+
+    // Remove previous listener before adding to avoid duplicates across navigations
+    window.removeEventListener("scroll", (window as any).__headerScrollHandler);
+    (window as any).__headerScrollHandler = updateHeaderState;
+    window.addEventListener("scroll", updateHeaderState);
+
+    document.removeEventListener("click", (window as any).__headerAnchorClickHandler);
+    (window as any).__headerAnchorClickHandler = (event: Event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const link = target.closest("a");
+      if (!link) return;
+      const href = link.getAttribute("href") ?? "";
+      const hashValue = normalizeHash(href);
+      if (!hashValue) return;
+      const isHome = window.location.pathname === HOME_PATH;
+      if (isHome) {
+        event.preventDefault();
+        scrollToHash(hashValue);
+        window.history.replaceState({}, "", `/#${hashValue}`);
+      }
+    };
+
+    if (window.location.pathname === HOME_PATH) {
+      const initialHash = normalizeHash(window.location.hash || window.location.pathname);
+      if (initialHash) {
+        requestAnimationFrame(() => scrollToHash(initialHash));
+      }
+    }
+
+    document.addEventListener("click", (window as any).__headerAnchorClickHandler);
   };
 
-  const scrollToHash = (hashValue) => {
-    const target = document.getElementById(hashValue);
-    if (!target) return;
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  const updateHeaderState = () => {
-    if (!header) return;
-    if (window.scrollY > 50) {
-      header.classList.add("bg-white", "dark:bg-gray-950", "shadow-md");
-      header.classList.remove("bg-transparent");
-    } else {
-      header.classList.remove("bg-white", "dark:bg-gray-950", "shadow-md");
-      header.classList.add("bg-transparent");
-    }
-   };
-
-  updateHeaderState();
-  window.addEventListener("scroll", updateHeaderState);
-  if (window.location.pathname === HOME_PATH) {
-    const initialHash = normalizeHash(window.location.hash || window.location.pathname);
-    if (initialHash) {
-      requestAnimationFrame(() => scrollToHash(initialHash));
-    }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initHeader, { once: true });
+  } else {
+    initHeader();
   }
-
-  document.addEventListener("click", (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLElement)) return;
-    const link = target.closest("a");
-    if (!link) return;
-    const href = link.getAttribute("href") ?? "";
-    const hashValue = normalizeHash(href);
-    if (!hashValue) return;
-    const isHome = window.location.pathname === HOME_PATH;
-    if (isHome) {
-      event.preventDefault();
-      scrollToHash(hashValue);
-      window.history.replaceState({}, "", `/#${hashValue}`);
-    }
-  }); 
-
+  document.addEventListener("astro:page-load", initHeader);
 </script>
 
 
@@ -269,126 +285,115 @@ const botones = response.data.header.Botones.map((boton) => ({
 
 
 <script>
+  const initHamburger = () => {
     let isToggled = false;
     const navbar = document.getElementById("nav");
     const menuBtn = document.getElementById("hamburger");
     const links = navbar ? Array.from(navbar.querySelector("#links-group")?.children ?? []) : [];
 
     function toggleNavlinks() {
-        if (!navbar) return;
-        if (isToggled) {
-            navbar.dataset.state = "active";
-        } else {
-            navbar.dataset.state = "";
-        }
+      if (!navbar) return;
+      navbar.dataset.state = isToggled ? "active" : "";
     }
 
-    menuBtn?.addEventListener("click", () => {
-        isToggled = !isToggled;
-        toggleNavlinks();
-    });
+    menuBtn?.removeEventListener("click", (window as any).__hamburgerClickHandler);
+    (window as any).__hamburgerClickHandler = () => {
+      isToggled = !isToggled;
+      toggleNavlinks();
+    };
+    menuBtn?.addEventListener("click", (window as any).__hamburgerClickHandler);
 
     links.forEach((link) => {
-        link.addEventListener("click", () => {
-            isToggled = !isToggled;
-            toggleNavlinks();
-        });
+      link.addEventListener("click", () => {
+        isToggled = !isToggled;
+        toggleNavlinks();
+      });
     });
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initHamburger, { once: true });
+  } else {
+    initHamburger();
+  }
+  document.addEventListener("astro:page-load", initHamburger);
 </script>
 
 <script>
-  const hoverSupported =
-    typeof window !== "undefined" && typeof window.matchMedia === "function"
-      ? window.matchMedia("(hover: hover) and (pointer: fine)").matches
-      : true;
-  const dropdowns = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-dropdown]"));
-     const closeDropdown = (dropdown: HTMLElement) => {
-    dropdown.removeAttribute("data-open");
-    const button = dropdown.querySelector<HTMLButtonElement>("button");
-    if (button) {
+  const initDropdowns = () => {
+    const hoverSupported =
+      typeof window !== "undefined" && typeof window.matchMedia === "function"
+        ? window.matchMedia("(hover: hover) and (pointer: fine)").matches
+        : true;
+    const dropdowns = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-dropdown]"));
+    const closeDropdown = (dropdown: HTMLElement) => {
+      dropdown.removeAttribute("data-open");
+      const button = dropdown.querySelector<HTMLButtonElement>("button");
+      if (button) button.setAttribute("aria-expanded", "false");
+    };
+    const openDropdown = (dropdown: HTMLElement) => {
+      dropdown.setAttribute("data-open", "true");
+      const button = dropdown.querySelector<HTMLButtonElement>("button");
+      if (button) button.setAttribute("aria-expanded", "true");
+    };
+    const closeAllDropdowns = (exception?: HTMLElement) => {
+      dropdowns.forEach((dropdown) => {
+        if (exception && dropdown === exception) return;
+        closeDropdown(dropdown);
+      });
+    };
+
+    dropdowns.forEach((dropdown) => {
+      const button = dropdown.querySelector<HTMLButtonElement>("button");
+      if (!button) return;
       button.setAttribute("aria-expanded", "false");
-    }
-  };
-  const openDropdown = (dropdown: HTMLElement) => {
-    dropdown.setAttribute("data-open", "true");
-    const button = dropdown.querySelector<HTMLButtonElement>("button");
-    if (button) {
-      button.setAttribute("aria-expanded", "true");
-    }
-  };
-  const closeAllDropdowns = (exception?: HTMLElement) => {
-    dropdowns.forEach((dropdown) => {
-      if (exception && dropdown === exception) return;
-      closeDropdown(dropdown);
-    });
-  };
-
-  dropdowns.forEach((dropdown) => {
-    const button = dropdown.querySelector<HTMLButtonElement>("button");
-    if (!button) return;
-    button.setAttribute("aria-expanded", "false");
-    button.addEventListener("click", (event) => {
-      event.preventDefault();
-      const isOpen = dropdown.getAttribute("data-open") === "true";
-      if (isOpen) {
-        closeDropdown(dropdown);
-        return;
-      }
-      closeAllDropdowns(dropdown);
-      openDropdown(dropdown);
-    });
-  });
-
-  document.addEventListener("click", (event) => {
-    if (dropdowns.some((dropdown) => dropdown.contains(event.target as Node))) {
-      return;
-    }
-    closeAllDropdowns();
-  });
-
-  if (hoverSupported && dropdowns.length > 0) {
-    dropdowns.forEach((dropdown) => {
-      const panel = dropdown.querySelector<HTMLElement>("[data-nav-panel]");
-      if (!panel) return;
-
-      let hoverCloseTimeout: number | null = null;
-      const clearHoverTimeout = () => {
-        if (hoverCloseTimeout !== null) {
-          window.clearTimeout(hoverCloseTimeout);
-          hoverCloseTimeout = null;
-        }
-      };
-      const isPointerInside = () => dropdown.matches(":hover") || panel.matches(":hover");
-      const openOnHover = () => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        const isOpen = dropdown.getAttribute("data-open") === "true";
+        if (isOpen) { closeDropdown(dropdown); return; }
+        closeAllDropdowns(dropdown);
         openDropdown(dropdown);
-      };
-      const closeOnHover = () => {
-        closeDropdown(dropdown);
-      };
-      const scheduleClose = () => {
-        clearHoverTimeout();
-        hoverCloseTimeout = window.setTimeout(() => {
-          hoverCloseTimeout = null;
-          if (isPointerInside()) {
-            scheduleClose();
-            return;
-          }
-          closeOnHover();
-        }, 220);
-      };
-
-      const handleEnter = () => {
-        clearHoverTimeout();
-        openOnHover();
-      };
-      const handleLeave = () => {
-        scheduleClose();
-      };
-
-      dropdown.addEventListener("mouseenter", handleEnter);
-      dropdown.addEventListener("mouseleave", handleLeave);
-      panel.addEventListener("mouseenter", handleEnter);
-      panel.addEventListener("mouseleave", handleLeave);
+      });
     });
+
+    document.removeEventListener("click", (window as any).__dropdownOutsideClickHandler);
+    (window as any).__dropdownOutsideClickHandler = (event: Event) => {
+      if (dropdowns.some((dropdown) => dropdown.contains(event.target as Node))) return;
+      closeAllDropdowns();
+    };
+    document.addEventListener("click", (window as any).__dropdownOutsideClickHandler);
+
+    if (hoverSupported && dropdowns.length > 0) {
+      dropdowns.forEach((dropdown) => {
+        const panel = dropdown.querySelector<HTMLElement>("[data-nav-panel]");
+        if (!panel) return;
+
+        let hoverCloseTimeout: number | null = null;
+        const clearHoverTimeout = () => {
+          if (hoverCloseTimeout !== null) { window.clearTimeout(hoverCloseTimeout); hoverCloseTimeout = null; }
+        };
+        const isPointerInside = () => dropdown.matches(":hover") || panel.matches(":hover");
+        const scheduleClose = () => {
+          clearHoverTimeout();
+          hoverCloseTimeout = window.setTimeout(() => {
+            hoverCloseTimeout = null;
+            if (isPointerInside()) { scheduleClose(); return; }
+            closeDropdown(dropdown);
+          }, 220);
+        };
+
+        dropdown.addEventListener("mouseenter", () => { clearHoverTimeout(); openDropdown(dropdown); });
+        dropdown.addEventListener("mouseleave", scheduleClose);
+        panel.addEventListener("mouseenter", () => { clearHoverTimeout(); openDropdown(dropdown); });
+        panel.addEventListener("mouseleave", scheduleClose);
+      });
+    }
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initDropdowns, { once: true });
+  } else {
+    initDropdowns();
   }
+  document.addEventListener("astro:page-load", initDropdowns);
 </script>

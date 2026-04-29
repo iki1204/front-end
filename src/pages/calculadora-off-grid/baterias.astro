@@ -1,0 +1,484 @@
+---
+import Layout from '../../layouts/LayoutCalculadora.astro';
+---
+
+<Layout title="Unicom - Off Grid">
+  <main class="min-h-screen bg-[#ececec]">
+    <section class="mx-auto grid min-h-screen w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[minmax(340px,40%)_1fr]">
+      <aside class="flex items-center bg-[linear-gradient(180deg,#5a0a0a_0%,#2a0303_100%)] px-[clamp(2.5rem,3.8vw,4rem)] py-10 text-white">
+        <div class="space-y-8 sm:space-y-10">
+          <h1 class="m-0 text-[clamp(2.6rem,4.5vw,5rem)] font-black leading-[0.95] tracking-[-0.07em] text-balance">
+            Simulador de
+            <br />
+            Proyectos
+            <br />
+            Fotovoltaicos
+            <br />
+            Off-Grid.
+            <br />
+            Diseña tu
+            <br />
+            autonomía total
+          </h1>
+
+          <p class="max-w-[38ch] mt-4 text-[clamp(1rem,1.2vw,1.35rem)] font-semibold leading-normal text-red-100">
+            Calcula el sistema solar ideal para operar sin red eléctrica: paneles, inversor y baterías según tu demanda
+            diaria.
+          </p>
+        </div>
+      </aside>
+
+      <section class="mx-auto w-full max-w-5xl rounded-md border border-slate-300 bg-slate-100 shadow-lg">
+        <header class="flex items-center justify-between rounded-t-md bg-[#cc2f1f] px-6 py-4 text-white">
+          <h2 class="font-mono text-xl tracking-wide">Dimensionamiento de Baterías</h2>
+          <span aria-hidden="true" class="text-lg">🔋</span>
+        </header>
+
+        <div class="px-6 py-7">
+          <div class="grid gap-4 md:grid-cols-2">
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-slate-700">Voltaje del sistema (V)</span>
+              <select id="voltajeSistema" disabled class="h-11 w-full rounded border border-slate-400 bg-slate-200 px-3 text-lg text-slate-500 outline-none focus:border-[#cc3b26] disabled:cursor-not-allowed">
+                <option value="12">12 V</option>
+                <option value="24" selected>24 V</option>
+                <option value="48">48 V</option>
+              </select>
+              <label for="activarVoltajeManual" class="mt-3 flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                <input id="activarVoltajeManual" type="checkbox" class="h-4 w-4 rounded border-slate-400 text-[#cc3b26] focus:ring-[#cc3b26]" />
+                Yo se dimensionar mi sistema
+              </label>
+              <p id="voltajeRecomendadoInfo" class="mt-2 text-xs text-slate-500"></p>
+            </label>
+
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-slate-700">Tiempo de Autonomia (horas)</span>
+              <input id="horasAutonomia" type="number" min="1" value="1" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none focus:border-[#cc3b26]" />
+            </label>
+
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-slate-700">Profundidad de descarga (%)</span>
+              <input id="profDescarga" type="number" min="10" max="100" value="80" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none focus:border-[#cc3b26]" />
+            </label>
+
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-slate-700">Voltaje de batería (V)</span>
+              <select id="voltajeSelect" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none focus:border-[#cc3b26]">
+                <option value="12">12 V</option>
+                <option value="24">24 V</option>
+                <option value="48">48 V</option>
+              </select>
+            </label>
+
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-slate-700">Capacidad de batería (Ah)</span>
+              <select id="capacidadSelect" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none focus:border-[#cc3b26]">
+                <option value="100">100 Ah</option>
+                <option value="150">150 Ah</option>
+                <option value="200">200 Ah</option>
+                <option value="250">250 Ah</option>
+              </select>
+            </label>
+
+            <label class="block">
+              <span class="mb-2 block text-sm font-medium text-slate-700">Energía diaria del sistema (Wh)</span>
+              <input
+                id="energiaDiaria"
+                type="text"
+                readonly
+                value="0 Wh"
+                class="h-11 w-full rounded border border-slate-400 bg-slate-200 px-3 text-lg text-slate-700 outline-none"
+              />
+            </label>
+          </div>
+        </div>
+
+        <!-- Resultados -->
+        <div id="resultados" class="hidden border-t border-slate-300 bg-slate-100">
+          <header class="flex items-center justify-between bg-[#cc2f1f] px-6 py-4 text-white">
+            <h2 class="font-mono text-xl tracking-wide">Resultados</h2>
+            <span id="infoBateriaSistema" class="text-sm font-semibold text-red-100"></span>
+          </header>
+          <div class="grid grid-cols-2 gap-4 px-6 py-6 sm:grid-cols-4">
+            <div class="rounded bg-white p-4 shadow-sm text-center">
+              <p class="text-xs uppercase tracking-wide text-slate-500">Baterías en serie</p>
+              <p id="batteriasSerie" class="mt-1 text-3xl font-bold text-[#cc3b26]">--</p>
+            </div>
+            <div class="rounded bg-white p-4 shadow-sm text-center">
+              <p class="text-xs uppercase tracking-wide text-slate-500">Strings en paralelo</p>
+              <p id="batteriasParalelo" class="mt-1 text-3xl font-bold text-[#cc3b26]">--</p>
+            </div>
+            <div class="rounded bg-white p-4 shadow-sm text-center">
+              <p class="text-xs uppercase tracking-wide text-slate-500">Total baterías</p>
+              <p id="totalBaterias" class="mt-1 text-3xl font-bold text-[#cc3b26]">--</p>
+            </div>
+            <div class="rounded bg-white p-4 shadow-sm text-center">
+              <p class="text-xs uppercase tracking-wide text-slate-500">Capacidad total</p>
+              <p id="capacidadTotal" class="mt-1 text-3xl font-bold text-[#cc3b26]">--</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Diagrama GoJS -->
+        <div id="diagramaContainer" class="hidden border-t border-slate-300 bg-slate-100">
+          <header class="flex items-center justify-between bg-[#cc2f1f] px-6 py-4 text-white">
+            <h2 class="font-mono text-xl tracking-wide">Diagrama de Conexión</h2>
+            <span aria-hidden="true" class="text-lg">⚡</span>
+          </header>
+          <div class="px-6 py-6">
+            <div id="myDiagramDiv" class="w-full rounded border border-slate-300 bg-white" style="height: 480px;"></div>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-300 px-6 py-6">
+          <div class="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-start">
+            <a
+              href="/calculadora-off-grid/paneles"
+              class="inline-flex h-11 w-full items-center justify-center rounded-md border border-slate-500 bg-slate-700 px-6 text-base font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-slate-800 sm:w-auto"
+            >
+              Volver a paneles
+            </a>
+            <a
+              id="confirmar-baterias"
+              href="/calculadora-off-grid/baterias"
+              class="inline-flex h-11 w-full items-center justify-center rounded-md border border-[#b92f1e] bg-[#cc3b26] px-8 text-base font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-[#b9301d] sm:w-auto"
+            >
+              Continuar
+            </a>
+          </div>
+        </div>
+
+      </section>
+      
+    </section>
+    
+  </main>
+</Layout>
+
+<script>
+  // ======================= Lógica de cálculo =======================
+  type ConsumoStorage = {
+    totalEnergiaConsumoLoss?: number;
+    totalEnergiaLoss?: number;
+  };
+
+  const CONSUMO_STORAGE_KEY = "unicom.offgrid.consumos";
+
+  const leerDatosGuardados = (): ConsumoStorage => {
+    const valoresIniciales: ConsumoStorage = {
+      totalEnergiaConsumoLoss: 0,
+      totalEnergiaLoss: 0,
+    };
+
+    try {
+      const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
+      if (!consumoGuardado) return valoresIniciales;
+
+      const consumo = JSON.parse(consumoGuardado) as ConsumoStorage;
+      return {
+        totalEnergiaConsumoLoss: typeof consumo.totalEnergiaConsumoLoss === "number" ? consumo.totalEnergiaConsumoLoss : 0,
+        totalEnergiaLoss: typeof consumo.totalEnergiaLoss === "number" ? consumo.totalEnergiaLoss : 0,
+      };
+    } catch (error) {
+      console.error("No se pudieron leer los datos guardados para el cálculo de paneles.", error);
+      return valoresIniciales;
+    }
+  };
+
+  function actualizarCampoEnergiaConsumo(): number {
+    const { totalEnergiaConsumoLoss = 0 } = leerDatosGuardados();
+    const totalEnergiaConsumoLssEl = document.getElementById("energiaDiaria") as HTMLInputElement | null;
+    if (totalEnergiaConsumoLssEl) {
+      totalEnergiaConsumoLssEl.value = `${Number.isInteger(totalEnergiaConsumoLoss) ? totalEnergiaConsumoLoss : totalEnergiaConsumoLoss.toFixed(2)} Wh`;
+    }
+    return totalEnergiaConsumoLoss;
+  }
+
+  function recomendarVoltajeSistema(totalEnergiaConsumoLoss: number): number {
+    if (totalEnergiaConsumoLoss < 2000) return 12;
+    if (totalEnergiaConsumoLoss <= 5000) return 24;
+    return 48;
+  }
+
+  function actualizarControlVoltajeSistema(): void {
+    const voltajeSistemaEl = document.getElementById("voltajeSistema") as HTMLSelectElement | null;
+    const activarVoltajeManualEl = document.getElementById("activarVoltajeManual") as HTMLInputElement | null;
+    const voltajeRecomendadoInfoEl = document.getElementById("voltajeRecomendadoInfo") as HTMLElement | null;
+    if (!voltajeSistemaEl || !activarVoltajeManualEl) return;
+
+    const { totalEnergiaConsumoLoss = 0 } = leerDatosGuardados();
+    const voltajeRecomendado = recomendarVoltajeSistema(totalEnergiaConsumoLoss);
+    const edicionManualActiva = activarVoltajeManualEl.checked;
+
+    if (!edicionManualActiva) {
+      voltajeSistemaEl.value = String(voltajeRecomendado);
+    }
+
+    voltajeSistemaEl.disabled = !edicionManualActiva;
+    voltajeSistemaEl.classList.toggle("bg-slate-200", !edicionManualActiva);
+    voltajeSistemaEl.classList.toggle("text-slate-500", !edicionManualActiva);
+    voltajeSistemaEl.classList.toggle("cursor-not-allowed", !edicionManualActiva);
+    voltajeSistemaEl.classList.toggle("bg-white", edicionManualActiva);
+    voltajeSistemaEl.classList.toggle("text-slate-700", edicionManualActiva);
+
+    if (voltajeRecomendadoInfoEl) {
+      voltajeRecomendadoInfoEl.textContent = edicionManualActiva
+        ? `Modo manual activo. Recomendado: ${voltajeRecomendado} V (consumo ajustado: ${Number.isInteger(totalEnergiaConsumoLoss) ? totalEnergiaConsumoLoss : totalEnergiaConsumoLoss.toFixed(2)} W).`
+        : `Voltaje recomendado automáticamente: ${voltajeRecomendado} V (consumo ajustado: ${Number.isInteger(totalEnergiaConsumoLoss) ? totalEnergiaConsumoLoss : totalEnergiaConsumoLoss.toFixed(2)} W).`;
+    }
+  }
+
+
+  function calculateBattery() {
+    actualizarControlVoltajeSistema();
+    const voltajeSistema = parseInt((document.getElementById("voltajeSistema") as HTMLSelectElement).value);
+    const { totalEnergiaConsumoLoss = 0}  = leerDatosGuardados();
+    const { totalEnergiaLoss = 0 } = leerDatosGuardados();
+    //const horasAutonomia = parseFloat((document.getElementById("horasAutonomia") as HTMLInputElement).value);
+    const profDescarga = parseFloat((document.getElementById("profDescarga") as HTMLInputElement).value) / 100;
+    const voltajeBateria = parseInt((document.getElementById("voltajeSelect") as HTMLSelectElement).value);
+    const capacidadBatAh = parseInt((document.getElementById("capacidadSelect") as HTMLSelectElement).value);
+
+    if (!voltajeSistema || !totalEnergiaConsumoLoss || !profDescarga || !voltajeBateria || !capacidadBatAh) return;
+
+
+    //const energiaAutonomiaWh = totalEnergiaConsumoLoss * (horasAutonomia / 24);
+    const potenciaBateria = Math.round(totalEnergiaConsumoLoss / profDescarga);
+    const capacidadBateria = potenciaBateria / voltajeSistema;
+    const bateriasParalelo = Math.max(1, Math.ceil(capacidadBateria / capacidadBatAh));
+    console.log (bateriasParalelo, capacidadBateria, potenciaBateria, totalEnergiaLoss, profDescarga);
+    const bateriasSerie = Math.max(1, Math.ceil(voltajeSistema / voltajeBateria));
+    const totalBaterias = bateriasSerie * bateriasParalelo;
+    const capacidadTotal = bateriasParalelo * capacidadBatAh;
+    const tiempoAutonomia = totalEnergiaLoss > 0
+      ? (capacidadBatAh * voltajeBateria * profDescarga * totalBaterias) / totalEnergiaLoss
+      : 0;
+
+    // Mostrar resultados
+    (document.getElementById("batteriasSerie") as HTMLElement).textContent = `${bateriasSerie} baterias`;
+    (document.getElementById("batteriasParalelo") as HTMLElement).textContent = `${bateriasParalelo} baterias`;
+    (document.getElementById("totalBaterias") as HTMLElement).textContent = String(totalBaterias);
+    (document.getElementById("capacidadTotal") as HTMLElement).textContent = `${capacidadTotal} Ah`;
+    (document.getElementById("infoBateriaSistema") as HTMLElement).textContent =
+      `Sistema ${voltajeSistema}V · ${bateriasParalelo} streams de ${bateriasSerie} batería(s) · ${tiempoAutonomia.toFixed(2)} horas`;
+
+    document.getElementById("resultados")!.classList.remove("hidden");
+    document.getElementById("diagramaContainer")!.classList.remove("hidden");
+
+    return { bateriasSerie, bateriasParalelo, voltajeBateria, capacidadBatAh };
+  }
+
+  function inicializarEnergia(): void {
+    actualizarCampoEnergiaConsumo();
+    actualizarControlVoltajeSistema();
+  }
+
+  function ejecutarCalculoBaterias(): void {
+    const result = calculateBattery();
+    if (!result) return;
+
+    actualizarDiagramaDesdeValores(
+      result.bateriasSerie,
+      result.bateriasParalelo,
+      result.voltajeBateria,
+      result.capacidadBatAh,
+    );
+  }
+
+  function registrarEventosCalculoBaterias(): void {
+    const fieldIds = ["voltajeSistema", "horasAutonomia", "profDescarga", "voltajeSelect", "capacidadSelect"];
+
+    fieldIds.forEach((fieldId) => {
+      const field = document.getElementById(fieldId) as HTMLInputElement | HTMLSelectElement | null;
+      if (!field || field.dataset.batteryBound === "1") return;
+
+      const eventName = field instanceof HTMLSelectElement ? "change" : "input";
+      field.addEventListener(eventName, ejecutarCalculoBaterias);
+      field.dataset.batteryBound = "1";
+    });
+
+    const activarVoltajeManualEl = document.getElementById("activarVoltajeManual") as HTMLInputElement | null;
+    if (activarVoltajeManualEl && activarVoltajeManualEl.dataset.batteryBound !== "1") {
+      activarVoltajeManualEl.addEventListener("change", () => {
+        actualizarControlVoltajeSistema();
+        ejecutarCalculoBaterias();
+      });
+      activarVoltajeManualEl.dataset.batteryBound = "1";
+    }
+  }
+
+  document.addEventListener("astro:page-load", inicializarEnergia);
+  window.addEventListener("pageshow", inicializarEnergia);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", inicializarEnergia, { once: true });
+  } else {
+    inicializarEnergia();
+  }
+
+  document.addEventListener("astro:page-load", () => {
+    registrarEventosCalculoBaterias();
+    ejecutarCalculoBaterias();
+  });
+
+  window.addEventListener("pageshow", () => {
+    registrarEventosCalculoBaterias();
+    ejecutarCalculoBaterias();
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      registrarEventosCalculoBaterias();
+      ejecutarCalculoBaterias();
+    }, { once: true });
+  } else {
+    registrarEventosCalculoBaterias();
+    ejecutarCalculoBaterias();
+  }
+
+  // ======================= GoJS - Diagrama de Baterías =======================
+  function actualizarDiagramaDesdeValores(series: number, parallel: number, voltajeBateria: number, capacidadBatAh: number) {
+    const go = (window as any).go;
+    if (!go) return;
+    initDiagram(go, series, parallel, voltajeBateria, capacidadBatAh);
+  }
+
+  function initDiagram(go: any, series: number, parallel: number, voltajeBateria: number, capacidadBatAh: number) {
+    const $ = go.GraphObject.make;
+
+    // Destruir instancia previa si existe
+    const existingDiagram = go.Diagram.fromDiv("myDiagramDiv");
+    if (existingDiagram) existingDiagram.div = null;
+
+    const myDiagram = $(go.Diagram, "myDiagramDiv", {
+      "undoManager.isEnabled": false,
+      "isReadOnly": true,
+      "allowMove": false,
+      initialAutoScale: go.Diagram.Uniform,
+      padding: 20,
+    });
+
+    myDiagram.nodeTemplate =
+      $(go.Node, "Spot",
+        { locationSpot: go.Spot.Center },
+        $(go.Shape, "RoundedRectangle", {
+          fill: "#ff8989",
+          stroke: "#cc0000",
+          strokeWidth: 3,
+          width: 110,
+          height: 70,
+        }),
+        $(go.TextBlock, {
+          margin: new go.Margin(0, 0, 0, 0),
+          font: "bold 9pt sans-serif",
+          textAlign: "center",
+          stroke: "#333",
+          wrap: go.TextBlock.WrapFit,
+          width: 90,
+        }, new go.Binding("text")),
+        // Terminal negativo (-)
+        $(go.Panel, "Spot",
+          { alignment: new go.Spot(0, 0.5, -15, 0) },
+          $(go.Shape, "Rectangle", {
+            fill: "#222", stroke: "white", width: 22, height: 22,
+            portId: "neg",
+            fromSpot: go.Spot.Top, toSpot: go.Spot.Bottom,
+            fromLinkable: true, toLinkable: true,
+          }),
+          $(go.TextBlock, { font: "bold 11pt sans-serif", stroke: "white" },
+            new go.Binding("text", "smallText1"))
+        ),
+        // Terminal positivo (+)
+        $(go.Panel, "Spot",
+          { alignment: new go.Spot(1, 0.5, 15, 0) },
+          $(go.Shape, "Rectangle", {
+            fill: "#cc0000", stroke: "#222", width: 22, height: 22,
+            portId: "pos",
+            fromSpot: go.Spot.Top, toSpot: go.Spot.Bottom,
+            fromLinkable: true, toLinkable: true,
+          }),
+          $(go.TextBlock, { font: "bold 11pt sans-serif", stroke: "white" },
+            new go.Binding("text", "smallText2"))
+        )
+      );
+
+    myDiagram.linkTemplate =
+      $(go.Link,
+        { routing: go.Link.Orthogonal, corner: 5 },
+        $(go.Shape, { strokeWidth: 3 }, new go.Binding("stroke", "color"))
+      );
+
+    // Construir nodos y enlaces
+    const nodeDataArray: any[] = [];
+    const linkDataArray: any[] = [];
+    let batCounter = 1;
+
+    for (let p = 0; p < parallel; p++) {
+      for (let s = 0; s < series; s++) {
+        nodeDataArray.push({
+          key: `bat${batCounter}`,
+          text: `Bat ${batCounter}\n${voltajeBateria}V · ${capacidadBatAh}Ah`,
+          smallText1: "−",
+          smallText2: "+",
+          row: p,
+          column: s,
+        });
+
+        // Enlace serie: pos de anterior → neg del actual
+        if (s > 0) {
+          linkDataArray.push({
+            from: `bat${batCounter - 1}`, fromPort: "pos",
+            to: `bat${batCounter}`, toPort: "neg",
+            color: "#111111",
+          });
+        }
+
+        batCounter++;
+      }
+
+      // Enlaces en paralelo: unir extremos de cada string
+      // negativo con negativo (extremo izquierdo) y positivo con positivo (extremo derecho)
+      if (p > 0) {
+        const currentRowStart = p * series + 1;
+        const previousRowStart = (p - 1) * series + 1;
+        const currentRowEnd = currentRowStart + series - 1;
+        const previousRowEnd = previousRowStart + series - 1;
+
+        linkDataArray.push({
+          from: `bat${previousRowStart}`, fromPort: "neg",
+          to: `bat${currentRowStart}`, toPort: "neg",
+          color: "#0055cc",
+        });
+
+        linkDataArray.push({
+          from: `bat${previousRowEnd}`, fromPort: "pos",
+          to: `bat${currentRowEnd}`, toPort: "pos",
+          color: "#0055cc",
+        });
+      }
+    }
+
+    myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
+
+    myDiagram.layout = $(go.GridLayout, {
+      wrappingColumn: series,
+      alignment: go.GridLayout.Position,
+      cellSize: new go.Size(60, 20),
+      spacing: new go.Size(30, 20),
+    });
+
+    myDiagram.layoutDiagram();
+  }
+
+  // Cargar GoJS dinámicamente
+  function loadGoJS() {
+    const w = window as any;
+    if (w.go) return; // ya cargado
+    if (w.__gojsLoading) return;
+    w.__gojsLoading = true;
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/gojs/release/go.js";
+    document.head.appendChild(script);
+  }
+
+  loadGoJS();
+</script>

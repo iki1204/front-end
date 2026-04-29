@@ -220,21 +220,21 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
             </div>
           </section>
 
-            <div class="mt-8 flex flex-wrap gap-3">
-                <a
-                href="/calculadora-off-grid/localidad"
-                class="inline-flex h-11 items-center rounded bg-slate-700 px-6 text-base font-semibold text-white transition hover:bg-slate-800"
-                >
-                Volver a localidad
-                </a>
-                <a
-                id="confirmar-localidad"
-                href="/calculadora-off-grid/baterias"
-                class="inline-flex h-11 items-center rounded bg-[#cc3b26] px-6 text-base font-semibold text-white transition hover:bg-[#b9301d]"
-                >
-                Continuar 
-                </a>
-            </div>
+          <div class="mt-8 flex flex-wrap gap-3">
+              <a
+              href="/calculadora-off-grid/localidad"
+              class="inline-flex h-11 items-center rounded bg-slate-700 px-6 text-base font-semibold text-white transition hover:bg-slate-800"
+              >
+              Volver a localidad
+              </a>
+              <a
+              id="confirmar-localidad"
+              href="/calculadora-off-grid/baterias"
+              class="inline-flex h-11 items-center rounded bg-[#cc3b26] px-6 text-base font-semibold text-white transition hover:bg-[#b9301d]"
+              >
+              Continuar 
+              </a>
+          </div>
         </div>
       </aside>
     </section>
@@ -243,7 +243,12 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
 
 <script>
     type ConsumoStorage = {
-      totalEnergiaDiaria?: number;
+      totalEnergiaConsumo?: number;
+      totalEnergia?: number;
+      totalEnergiaConsumoLoss?: number;
+      totalEnergiaLoss?: number;
+      panelesSolares?: number;
+      panelVatios?: number;
     };
 
     type LocalidadStorage = {
@@ -264,6 +269,7 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
     let resumenDescripcion: HTMLElement | null = null;
     let porcentajePerdidaEl: HTMLSelectElement | null = null;
     let resultadoPanelesEl: HTMLElement | null = null;
+    let resultadoTotalEnergiaEl: HTMLElement | null = null;
     let resultadoPanelesDetalleEl: HTMLElement | null = null;
     let resultadoPanelesToggleEl: HTMLButtonElement | null = null;
     let resultadoPanelesDetalleWrapEl: HTMLElement | null = null;
@@ -274,10 +280,11 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
     let carouselPanelImageEl: HTMLImageElement | null = null;
     let carouselPanelLoaderEl: HTMLElement | null = null;
 
-    let totalWattHour = 0;
+    let totalEnergiaHora = 0;
+    let totalEnergia = 0;
     let horasSol = 0;
     let nombreProvincia = "No seleccionada";
-    let panelWattSeleccionado = 0;
+    let panelVatios = 0;
     let indicePanelActivo = 0;
     let imageLoadRequestId = 0;
 
@@ -291,6 +298,7 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
       resumenDescripcion = document.getElementById("resumen-descripcion");
       porcentajePerdidaEl = document.querySelector<HTMLSelectElement>("#porcentaje-perdida");
       resultadoPanelesEl = document.getElementById("resultado-paneles");
+      resultadoTotalEnergiaEl = document.getElementById("resultado-total-energia");
       resultadoPanelesDetalleEl = document.getElementById("resultado-paneles-detalle");
       resultadoPanelesToggleEl = document.querySelector<HTMLButtonElement>("#resultado-paneles-toggle");
       resultadoPanelesDetalleWrapEl = document.getElementById("resultado-paneles-detalle-wrap");
@@ -303,7 +311,8 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
     };
 
     const leerDatosGuardados = (): void => {
-      totalWattHour = 0;
+      totalEnergiaHora = 0;
+      totalEnergia = 0;
       horasSol = 0;
       nombreProvincia = "No seleccionada";
 
@@ -311,7 +320,10 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
         const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
         if (consumoGuardado) {
           const consumo = JSON.parse(consumoGuardado) as ConsumoStorage;
-          totalWattHour = typeof consumo.totalEnergiaDiaria === "number" ? consumo.totalEnergiaDiaria : 0;
+          totalEnergiaHora = typeof consumo.totalEnergiaConsumo === "number" ? consumo.totalEnergiaConsumo : 0;
+          totalEnergia = typeof consumo.totalEnergia === "number"
+            ? consumo.totalEnergia
+            : 0;
         }
 
         const localidadGuardada = window.localStorage.getItem(LOCALIDAD_STORAGE_KEY);
@@ -325,6 +337,27 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
       }
     };
 
+    const guardarDatos = (totalEnergiaLoss: number, totalEnergiaHoraLoss: number, panelesSolares: number, panelVatios: number): void => {
+      try {
+        const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
+        const consumoActual = consumoGuardado
+          ? JSON.parse(consumoGuardado) as ConsumoStorage
+          : {};
+
+        const consumoActualizado: ConsumoStorage = {
+          ...consumoActual,
+          totalEnergiaLoss: totalEnergiaLoss,
+          totalEnergiaConsumoLoss: totalEnergiaHoraLoss,
+          panelesSolares: panelesSolares,
+          panelVatios: panelVatios,
+        };
+
+        window.localStorage.setItem(CONSUMO_STORAGE_KEY, JSON.stringify(consumoActualizado));
+      } catch (error) {
+        console.error("No se pudo guardar el consumo ajustado en localStorage.", error);
+      }
+    };
+
     const toggleResultadoDetalle = (abierto?: boolean): void => {
       if (!resultadoPanelesToggleEl || !resultadoPanelesDetalleWrapEl) return;
 
@@ -334,7 +367,7 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
 
       resultadoPanelesDetalleWrapEl.classList.toggle("hidden", !shouldOpen);
       resultadoPanelesToggleEl.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
-      resultadoPanelesToggleEl.textContent = shouldOpen ? "− info" : "+ info";
+      resultadoPanelesToggleEl.textContent = shouldOpen ? "- info" : "+ info";
     };
 
     const actualizarResultadoPaneles = (): void => {
@@ -342,28 +375,44 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
 
       const porcentajeSeleccionado = porcentajePerdidaEl ? Number(porcentajePerdidaEl.value) : 15;
       const porcentajePerdida = Number.isFinite(porcentajeSeleccionado) ? porcentajeSeleccionado / 100 : 0.15;
-      const totalWattHourLss = totalWattHour * (1 + porcentajePerdida);
-      const totalWattSolar = horasSol > 0 ? totalWattHourLss / horasSol : 0;
-      const panelesExactos = panelWattSeleccionado > 0 ? totalWattSolar / panelWattSeleccionado : 0;
-      const paneles = panelWattSeleccionado > 0 ? Math.ceil(panelesExactos) : 0;
+      const totalEnergiaHoraLoss = totalEnergiaHora * (1 + porcentajePerdida);
+      const totalEnergiaLoss = totalEnergia * (1 + porcentajePerdida);
+      console.log("Cálculo de paneles:", {
+        totalEnergiaHora,
+        totalEnergia,
+        porcentajeSeleccionado,
+        porcentajePerdida,
+        totalEnergiaHoraLoss,
+        totalEnergiaLoss,
+        horasSol,
+        panelVatios,
+      });
+      const totalEnergiaSolar = horasSol > 0 ? totalEnergiaHoraLoss / horasSol : 0;
+      const panelesExactos = panelVatios > 0 ? totalEnergiaSolar / panelVatios : 0;
+      const paneles = panelVatios > 0 ? Math.ceil(panelesExactos) : 0;
 
-      if (totalWattHour <= 0 || horasSol <= 0) {
-        resultadoPanelesEl.textContent = `0 paneles de ${panelWattSeleccionado} W`;
+      guardarDatos(totalEnergiaLoss, totalEnergiaHoraLoss, paneles, panelVatios);
+
+
+      if (totalEnergiaHora <= 0 || horasSol <= 0) {
+        resultadoPanelesEl.textContent = `0 paneles de ${panelVatios} W`;
         resultadoPanelesDetalleEl.textContent = [
           `• Pérdida: ${porcentajeSeleccionado}%`,
-          `• Consumo diario: ${formatearNumero(totalWattHour)} Wh`,
+          `• Potencia ajustada: ${formatearNumero(totalEnergiaLoss)} W`,
+          `• Consumo diario: ${formatearNumero(totalEnergiaHora)} Wh`,
           `• Horas sol: ${horasSol > 0 ? formatearNumero(horasSol) : "--"}`,
-          `• Provincia: ${nombreProvincia}`,
+          `• Horas de sol pico necesarias: ${horasSol}`,
         ].join("\n");
         return;
       }
 
-      resultadoPanelesEl.textContent = `${paneles} paneles de ${panelWattSeleccionado} W`;
+      resultadoPanelesEl.textContent = `${paneles} paneles de ${panelVatios} W`;
       resultadoPanelesDetalleEl.textContent = [
         `• Pérdida: ${porcentajeSeleccionado}%`,
-        `• Consumo ajustado: ${formatearNumero(totalWattHourLss)} Wh`,
-        `• Potencia solar requerida: ${formatearNumero(totalWattSolar)} W`,
-        `• Provincia: ${nombreProvincia}`,
+        `• Potencia ajustada: ${formatearNumero(totalEnergiaLoss)} W`,
+        `• Consumo ajustado: ${formatearNumero(totalEnergiaHoraLoss)} Wh`,
+        `• Potencia solar requerida: ${formatearNumero(totalEnergiaSolar)} W`,
+        `• Horas de sol pico necesarias: ${horasSol}`,
       ].join("\n");
     };
 
@@ -428,15 +477,15 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
 
     const updateSelection = (dot: HTMLButtonElement): void => {
       indicePanelActivo = Number(dot.dataset.index || 0);
-      panelWattSeleccionado = Number(dot.dataset.watts || 0);
+      panelVatios = Number(dot.dataset.watts || 0);
 
       const imagenPanel = dot.dataset.imagen || PANEL_PLACEHOLDER_CLIENT;
 
-      if (carouselPanelWattsEl) carouselPanelWattsEl.textContent = `${panelWattSeleccionado}W`;
+      if (carouselPanelWattsEl) carouselPanelWattsEl.textContent = `${panelVatios}W`;
       if (carouselPanelUsoEl) carouselPanelUsoEl.textContent = dot.dataset.uso || "";
       actualizarImagenCarrusel(imagenPanel);
 
-      if (resumenWatts) resumenWatts.textContent = `${panelWattSeleccionado}W`;
+      if (resumenWatts) resumenWatts.textContent = `${panelVatios}W`;
       if (resumenEficiencia) resumenEficiencia.textContent = dot.dataset.eficiencia || "";
       if (resumenUso) resumenUso.textContent = dot.dataset.uso || "";
       if (resumenDescripcion) resumenDescripcion.textContent = dot.dataset.descripcion || "";

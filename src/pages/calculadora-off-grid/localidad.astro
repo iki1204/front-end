@@ -10,6 +10,23 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
       crossorigin=""
     />
+    <style>
+      /* Contenedor del mapa forma su propio stacking context con z-index bajo */
+      #mapa-ecuador {
+        position: relative;
+        z-index: 0;
+      }
+      /* Reducir z-indexes internos de Leaflet para que no sobresalgan del header */
+      #mapa-ecuador .leaflet-pane         { z-index: 4; }
+      #mapa-ecuador .leaflet-tile-pane    { z-index: 2; }
+      #mapa-ecuador .leaflet-overlay-pane { z-index: 4; }
+      #mapa-ecuador .leaflet-shadow-pane  { z-index: 5; }
+      #mapa-ecuador .leaflet-marker-pane  { z-index: 6; }
+      #mapa-ecuador .leaflet-tooltip-pane { z-index: 7; }
+      #mapa-ecuador .leaflet-popup-pane   { z-index: 8; }
+      #mapa-ecuador .leaflet-top,
+      #mapa-ecuador .leaflet-bottom       { z-index: 9; }
+    </style>
   </Fragment>
   <main class="min-h-screen bg-[#ececec]">
     <section class="mx-auto grid min-h-screen w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[minmax(340px,40%)_1fr]">
@@ -207,7 +224,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 
       mapaEl.innerHTML = "";
 
-      const mapa = leaflet.map(mapaEl).setView([-1.75, -78.5], 6.5);
+      const mapa = leaflet.map(mapaEl, { scrollWheelZoom: false }).setView([-1.75, -78.5], 6.5);
       leafletWindow.__localidadMap = mapa;
       mapaEl.dataset.mapaInicializado = "1";
 

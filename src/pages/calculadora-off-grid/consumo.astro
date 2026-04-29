@@ -71,6 +71,11 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
           <div id="tabla-consumos" class="divide-y divide-slate-300"></div>
         </div>
 
+        <label for="unlock-inversor" class="inline-flex items-center gap-3 rounded border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700">
+          <input id="unlock-inversor" type="checkbox" class="size-4 accent-[#cc2f1f]" />
+          <span>Conozco el consumo de mi inversor</span>
+        </label>
+
         <div class="space-y-5 pt-2 pb-4">
           <h2 class="font-mono text-3xl text-slate-800">Consumo diario de energía</h2>
 
@@ -115,6 +120,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       cantidad: number;
       potencia: number;
       horas: number;
+      esInversor?: boolean;
     };
 
     type CampoEditable = "cantidad" | "potencia" | "horas";
@@ -122,8 +128,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     type ConsumoStorage = {
       registrosPorId: Record<string, RegistroConsumo>;
       contadorRegistros: number;
-      totalPotencia: number;
-      totalEnergiaDiaria: number;
+      totalEnergia: number;
+      totalEnergiaConsumo: number;
     };
 
     const STORAGE_KEY = "unicom.offgrid.consumos";
@@ -134,8 +140,9 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     let horasEl: HTMLInputElement | null = null;
     let btnCalcularEl: HTMLButtonElement | null = null;
     let tablaConsumosEl: HTMLDivElement | null = null;
-    let totalPotenciaEl: HTMLElement | null = null;
-    let totalWhEl: HTMLElement | null = null;
+    let totalEnergiaEl: HTMLElement | null = null;
+    let totalEnergiaConsumoEl: HTMLElement | null = null;
+    let unlockInversorEl: HTMLInputElement | null = null;
 
     const sincronizarElementosDom = (): void => {
       equipoEl = document.querySelector<HTMLSelectElement>("#equipo");
@@ -144,8 +151,9 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       horasEl = document.querySelector<HTMLInputElement>("#horas");
       btnCalcularEl = document.querySelector<HTMLButtonElement>("#btn-calcular");
       tablaConsumosEl = document.querySelector<HTMLDivElement>("#tabla-consumos");
-      totalPotenciaEl = document.querySelector<HTMLElement>("#total-potencia");
-      totalWhEl = document.querySelector<HTMLElement>("#total-wh");
+      totalEnergiaEl = document.querySelector<HTMLElement>("#total-potencia");
+      totalEnergiaConsumoEl = document.querySelector<HTMLElement>("#total-wh");
+      unlockInversorEl = document.querySelector<HTMLInputElement>("#unlock-inversor");
     };
 
     const esPaginaConsumoActiva = (): boolean => {
@@ -154,7 +162,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         && potenciaEl instanceof HTMLInputElement
         && horasEl instanceof HTMLInputElement
         && btnCalcularEl instanceof HTMLButtonElement
-        && tablaConsumosEl instanceof HTMLDivElement;
+        && tablaConsumosEl instanceof HTMLDivElement
+        && unlockInversorEl instanceof HTMLInputElement;
     };
 
     let electrodomesticos: Electrodomestico[] = [];
@@ -162,8 +171,9 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     let registroEnEdicionId: number | null = null;
     let borradorEdicion: BorradorEdicion | null = null;
     let contadorRegistros = 0;
-    let totalPotenciaGuardada = 0;
-    let totalEnergiaDiariaGuardada = 0;
+    let totalEnergiaGuardada = 0;
+    let totalEnergiaConsumoGuardada = 0;
+    let inversorEditUnlocked = false;
 
     const esCampoEditable = (campo: string): campo is CampoEditable => {
       return ["cantidad", "potencia", "horas"].includes(campo);
@@ -203,17 +213,17 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         return acumulador;
       }, {});
 
-      const totalPotencia = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia), 0);
-      const totalEnergiaDiaria = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia * registro.horas), 0);
+      const totalEnergia = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia), 0);
+      const totalEnergiaConsumo = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia * registro.horas), 0);
 
-      totalPotenciaGuardada = totalPotencia;
-      totalEnergiaDiariaGuardada = totalEnergiaDiaria;
+      totalEnergiaGuardada = totalEnergia;
+      totalEnergiaConsumoGuardada = totalEnergiaConsumo;
 
       const payload: ConsumoStorage = {
         registrosPorId,
         contadorRegistros,
-        totalPotencia,
-        totalEnergiaDiaria
+        totalEnergia,
+        totalEnergiaConsumo
       };
 
       try {
@@ -237,8 +247,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         contadorRegistros = typeof datos.contadorRegistros === "number"
           ? datos.contadorRegistros
           : registrosGuardados.reduce((maximo, registro) => Math.max(maximo, registro.id), 0);
-        totalPotenciaGuardada = typeof datos.totalPotencia === "number" ? datos.totalPotencia : 0;
-        totalEnergiaDiariaGuardada = typeof datos.totalEnergiaDiaria === "number" ? datos.totalEnergiaDiaria : 0;
+        totalEnergiaGuardada = typeof datos.totalEnergia === "number" ? datos.totalEnergia : 0;
+        totalEnergiaConsumoGuardada = typeof datos.totalEnergiaConsumo === "number" ? datos.totalEnergiaConsumo : 0;
         registroEnEdicionId = null;
         borradorEdicion = null;
 
@@ -254,28 +264,51 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 
       if (guardado) {
         cargarRegistrosDesdeStorage();
+        const tieneInversor = registros.some((r) => r.esInversor);
+        if (!tieneInversor) {
+          registros.unshift({
+            id: -1,
+            equipo: "Consumo Inversor",
+            cantidad: 1,
+            potencia: 100,
+            horas: 8,
+            esInversor: true
+          });
+        }
+        renderTabla();
+        actualizarTotales();
         return;
       }
 
-      registros = [];
       contadorRegistros = 0;
-      totalPotenciaGuardada = 0;
-      totalEnergiaDiariaGuardada = 0;
+      totalEnergiaGuardada = 0;
+      totalEnergiaConsumoGuardada = 0;
       registroEnEdicionId = null;
       borradorEdicion = null;
+      
+      registros = [{
+        id: -1,
+        equipo: "Consumo Inversor",
+        cantidad: 1,
+        potencia: 100,
+        horas: 24,
+        esInversor: true
+      }];
+      
       renderTabla();
       actualizarTotales();
     };
 
     const actualizarTotales = (): void => {
-      const totalPotencia = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia), 0);
-      const totalWh = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia * registro.horas), 0);
+      const totalEnergia = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia), 0);
+      const totalEnergiaConsumo = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia * registro.horas), 0);
 
-      totalPotenciaGuardada = totalPotencia;
-      totalEnergiaDiariaGuardada = totalWh;
+      totalEnergiaGuardada = totalEnergia;
+      totalEnergiaConsumoGuardada = totalEnergiaConsumo;
 
-      if (totalPotenciaEl) totalPotenciaEl.textContent = `${formatearNumero(totalPotenciaGuardada)} W`;
-      if (totalWhEl) totalWhEl.textContent = `${formatearNumero(totalEnergiaDiariaGuardada)} Wh`;
+      if (totalEnergiaEl) totalEnergiaEl.textContent = `${formatearNumero(totalEnergiaGuardada)} W`;
+      if (totalEnergiaConsumoEl) totalEnergiaConsumoEl.textContent = `${formatearNumero(totalEnergiaConsumoGuardada)} Wh`;
+      console.log(totalEnergiaConsumoGuardada);
     };
 
     const renderTabla = (): void => {
@@ -288,6 +321,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         const consumo = registro.cantidad * registro.potencia * registro.horas;
         const fila = document.createElement("div");
         fila.className = "grid grid-cols-6 items-center px-2 py-3 text-base text-slate-700";
+        const edicionInversorBloqueada = Boolean(registro.esInversor && !inversorEditUnlocked);
 
         const estaEnEdicion = registroEnEdicionId === registro.id && borradorEdicion !== null;
 
@@ -358,20 +392,22 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
             <span class="flex gap-2 px-2">
               <button
                 type="button"
-                class="rounded cursor-pointer bg-sky-600 px-3 py-1 text-sm font-semibold text-white transition hover:bg-sky-700"
+                class="rounded px-3 py-1 text-sm font-semibold text-white transition ${edicionInversorBloqueada ? "cursor-not-allowed bg-slate-400" : "cursor-pointer bg-sky-600 hover:bg-sky-700"}"
                 data-action="editar"
                 data-id="${registro.id}"
+                ${edicionInversorBloqueada ? "disabled" : ""}
+                title="${edicionInversorBloqueada ? "Activa el checkbox para editar el inversor" : "Editar registro"}"
               >
                 <svg class="h-6 w-6" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11 4H7.2C6.0799 4 5.51984 4 5.09202 4.21799C4.71569 4.40974 4.40973 4.7157 4.21799 5.09202C4 5.51985 4 6.0799 4 7.2V16.8C4 17.9201 4 18.4802 4.21799 18.908C4.40973 19.2843 4.71569 19.5903 5.09202 19.782C5.51984 20 6.0799 20 7.2 20H16.8C17.9201 20 18.4802 20 18.908 19.782C19.2843 19.5903 19.5903 19.2843 19.782 18.908C20 18.4802 20 17.9201 20 16.8V12.5M15.5 5.5L18.3284 8.32843M10.7627 10.2373L17.411 3.58902C18.192 2.80797 19.4584 2.80797 20.2394 3.58902C21.0205 4.37007 21.0205 5.6364 20.2394 6.41745L13.3774 13.2794C12.6158 14.0411 12.235 14.4219 11.8012 14.7247C11.4162 14.9936 11.0009 15.2162 10.564 15.3882C10.0717 15.582 9.54378 15.6885 8.48793 15.9016L8 16L8.04745 15.6678C8.21536 14.4925 8.29932 13.9048 8.49029 13.3561C8.65975 12.8692 8.89125 12.4063 9.17906 11.9786C9.50341 11.4966 9.92319 11.0768 10.7627 10.2373Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
               </button>
-              <button
+              ${registro.esInversor ? '' : `<button
                 type="button"
                 class="rounded cursor-pointer bg-red-600 px-3 py-1 text-sm font-semibold text-white transition hover:bg-red-700"
                 data-action="eliminar"
                 data-id="${registro.id}"
               >
                 <svg class="h-6 w-6 pointer-events-none" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M10 12L14 16M14 12L10 16M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
-              </button>
+              </button>`}
             </span>
           `;
         }
@@ -439,6 +475,10 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     const iniciarEdicionRegistro = (id: number): void => {
       const registro = registros.find((item) => item.id === id);
       if (!registro) return;
+      if (registro.esInversor && !inversorEditUnlocked) {
+        alert("Activa 'Conozco el consumo de mi inversor' para editar este registro.");
+        return;
+      }
 
       registroEnEdicionId = id;
       borradorEdicion = {
@@ -485,6 +525,11 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     };
 
     const eliminarRegistro = (id: number): void => {
+      const registroAEliminar = registros.find((item) => item.id === id);
+      if (registroAEliminar?.esInversor) {
+        alert("No puedes eliminar el consumo del inversor.");
+        return;
+      }
       registros = registros.filter((item) => item.id !== id);
       if (registroEnEdicionId === id) {
         registroEnEdicionId = null;
@@ -498,6 +543,20 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     const manejarCambioEquipo = (): void => {
       if (registroEnEdicionId !== null) return;
       actualizarPotenciaPorEquipo();
+    };
+
+    const manejarCambioCheckboxInversor = (): void => {
+      inversorEditUnlocked = Boolean(unlockInversorEl?.checked);
+
+      if (!inversorEditUnlocked && registroEnEdicionId !== null) {
+        const registroEnEdicion = registros.find((item) => item.id === registroEnEdicionId);
+        if (registroEnEdicion?.esInversor) {
+          cancelarEdicionRegistro();
+          return;
+        }
+      }
+
+      renderTabla();
     };
 
     const manejarClickCalcular = (): void => {
@@ -577,11 +636,18 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         tablaConsumosEl.addEventListener("click", manejarClickTabla);
         tablaConsumosEl.dataset.clickBound = "1";
       }
+
+      if (unlockInversorEl && unlockInversorEl.dataset.listenerBound !== "1") {
+        unlockInversorEl.addEventListener("change", manejarCambioCheckboxInversor);
+        unlockInversorEl.dataset.listenerBound = "1";
+      }
     };
 
     const inicializarPaginaConsumo = (): void => {
       sincronizarElementosDom();
       if (!esPaginaConsumoActiva()) return;
+
+      inversorEditUnlocked = Boolean(unlockInversorEl?.checked);
 
       inicializarConsumosGuardados();
       registrarEventos();

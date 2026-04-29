@@ -30,6 +30,8 @@ const normalizedSearchParam = searchTerms.join(" ");
 const categoryParam = url.searchParams.get("category") ?? "all";
 const brandParam = url.searchParams.get("brand") ?? "all";
 const stockParam = url.searchParams.get("stock") ?? "all";
+const imageParam = url.searchParams.get("image") ?? "all";
+const descriptionParam = url.searchParams.get("description") ?? "all";
 const pageParam = Number.parseInt(url.searchParams.get("page") ?? "1", 10);
 const requestedPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
 const priceParamRaw = Number.parseInt(url.searchParams.get("price") ?? String(MAX_PRICE), 10);
@@ -55,6 +57,8 @@ const hasSearch = searchTerms.length > 0;
 if (hasSearch) {
   applySearchFilters(strapiParams, searchTerms);
 } else {
+  let andFilterIndex = 0;
+
   if (categoryParam !== "all") {
     strapiParams.set("filters[ID_Categoria][$eq]", categoryParam);
   }
@@ -69,6 +73,29 @@ if (hasSearch) {
 
   if (stockParam === "out") {
     strapiParams.set("filters[cantidad_stock][$lte]", "0");
+  }
+
+  if (imageParam === "with") {
+    strapiParams.set(`filters[$and][${andFilterIndex}][imagen][id][$notNull]`, "true");
+    andFilterIndex += 1;
+  }
+
+  if (imageParam === "without") {
+    strapiParams.set(`filters[$and][${andFilterIndex}][imagen][id][$null]`, "true");
+    andFilterIndex += 1;
+  }
+
+  if (descriptionParam === "with") {
+    strapiParams.set(`filters[$and][${andFilterIndex}][descripcion][$notNull]`, "true");
+    andFilterIndex += 1;
+    strapiParams.set(`filters[$and][${andFilterIndex}][descripcion][$ne]`, "");
+    andFilterIndex += 1;
+  }
+
+  if (descriptionParam === "without") {
+    strapiParams.set(`filters[$and][${andFilterIndex}][$or][0][descripcion][$null]`, "true");
+    strapiParams.set(`filters[$and][${andFilterIndex}][$or][1][descripcion][$eq]`, "");
+    andFilterIndex += 1;
   }
 
   if (priceFilterValue < MAX_PRICE) {
@@ -213,8 +240,15 @@ const searchSuggestions = Array.from(
             code: codigo,
             slug,
           },
-        ];
+        ] as const;
       })
+      .filter((suggestion): suggestion is readonly [string, {
+        label: string;
+        value: string;
+        searchValue: string;
+        code: string;
+        slug: string;
+      }] => suggestion !== null)
   ).values(),
 );
 
@@ -257,7 +291,7 @@ const showRightDots = endPage < totalPages;
 ) : null}
 
   <div
-    class="fixed inset-0 z-[999] flex items-center justify-center bg-white/80 text-zinc-900 backdrop-blur-sm transition-opacity dark:bg-zinc-950/80 dark:text-white"
+    class="fixed inset-0 z-999 flex items-center justify-center bg-white/80 text-zinc-900 backdrop-blur-sm transition-opacity dark:bg-zinc-950/80 dark:text-white"
     data-preloader
     role="status"
     aria-live="polite"
@@ -415,6 +449,66 @@ const showRightDots = endPage < totalPages;
           </select>
         </div>
 
+        <div class="group relative block" data-admin-visible>
+          <label for="mobileImage" class="text-base font-semibold text-zinc-900 dark:text-white mb-4">
+            Filtrar por imagen:
+          </label>
+          <select
+            id="mobileImage"
+            class="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+            onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
+          >
+            <option
+              value={Astro.url.pathname + buildQueryString({ image: "all", page: 1, search: null })}
+              selected={imageParam === "all"}
+            >
+              TODOS
+            </option>
+            <option
+              value={Astro.url.pathname + buildQueryString({ image: "with", page: 1, search: null })}
+              selected={imageParam === "with"}
+            >
+              Con imagen
+            </option>
+            <option
+              value={Astro.url.pathname + buildQueryString({ image: "without", page: 1, search: null })}
+              selected={imageParam === "without"}
+            >
+              Sin imagen
+            </option>
+          </select>
+        </div>
+
+        <div class="group relative block" data-admin-visible>
+          <label for="mobileDescription" class="text-base font-semibold text-zinc-900 dark:text-white mb-4">
+            Filtrar por descripción:
+          </label>
+          <select
+            id="mobileDescription"
+            class="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+            onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
+          >
+            <option
+              value={Astro.url.pathname + buildQueryString({ description: "all", page: 1, search: null })}
+              selected={descriptionParam === "all"}
+            >
+              TODAS
+            </option>
+            <option
+              value={Astro.url.pathname + buildQueryString({ description: "with", page: 1, search: null })}
+              selected={descriptionParam === "with"}
+            >
+              Con descripción
+            </option>
+            <option
+              value={Astro.url.pathname + buildQueryString({ description: "without", page: 1, search: null })}
+              selected={descriptionParam === "without"}
+            >
+              Sin descripción
+            </option>
+          </select>
+        </div>
+
         <div class="group relative block"
           data-auth-visible="authenticated"
         >
@@ -423,6 +517,8 @@ const showRightDots = endPage < totalPages;
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="brand" value={brandParam} />
               <input type="hidden" name="stock" value={stockParam} />
+              <input type="hidden" name="image" value={imageParam} />
+              <input type="hidden" name="description" value={descriptionParam} />
               <input type="hidden" name="page" value="1" />
               <label for="priceRangeMobile" class="text-sm text-zinc-600 dark:text-zinc-300">Ajusta el rango de precio:</label>
               <div class="flex flex-col gap-3" data-price-range>
@@ -726,6 +822,68 @@ const showRightDots = endPage < totalPages;
             </ul>
           </div>
 
+          <div class="mt-6 border-t border-zinc-300 pt-6 dark:border-zinc-800" data-admin-visible>
+            <h2 class="sticky inline-flex text-lg font-semibold mb-4 text-zinc-900 dark:text-white">
+              <svg class="h-4 w-4 mt-1 mr-2" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M1 1H15V15H1V1ZM6 9L8 11L13 6V13H3V12L6 9ZM6.5 7C7.32843 7 8 6.32843 8 5.5C8 4.67157 7.32843 4 6.5 4C5.67157 4 5 4.67157 5 5.5C5 6.32843 5.67157 7 6.5 7Z" fill="#ff0000"></path> </g></svg>
+              Imagen
+            </h2>
+            <ul class="flex flex-col gap-2 text-sm">
+              {[
+                { label: "Todos", value: "all" },
+                { label: "Con imagen", value: "with" },
+                { label: "Sin imagen", value: "without" },
+              ].map((option) => {
+                const isActive = imageParam === option.value;
+                return (
+                  <li>
+                    <a
+                      href={Astro.url.pathname + buildQueryString({ image: option.value, page: 1, search: null })}
+                      class={`flex items-center justify-between rounded-2xl border px-4 py-2 font-medium transition ${
+                        isActive
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-zinc-300 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-red-900 dark:bg-zinc-900 dark:text-zinc-200"
+                      }`}
+                      aria-current={isActive ? "true" : undefined}
+                    >
+                      <span>{option.label}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          <div class="mt-6 border-t border-zinc-300 pt-6 dark:border-zinc-800" data-admin-visible>
+            <h2 class="sticky inline-flex text-lg font-semibold mb-4 text-zinc-900 dark:text-white">
+              <svg class="h-4 w-4 mt-1 mr-2" viewBox="0 0 24.00 24.00" xmlns="http://www.w3.org/2000/svg" fill="#ff0000" stroke="#ff0000" transform="rotate(0)" stroke-width="0.00024000000000000003"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.576"></g><g id="SVGRepo_iconCarrier"><path d="M7 11.805c0-1.885-.825-2.726-2.896-2.726a3.945 3.945 0 0 0-2.79.927l.736.728a3.206 3.206 0 0 1 2.085-.728 1.699 1.699 0 0 1 1.74 1.794v.2h-.45C3.7 12 1 11.805 1 14.016 1 15.316 2.185 16 3.61 16a2.69 2.69 0 0 0 2.31-1.17h.03a4.541 4.541 0 0 0 .074.999h1.08A7.116 7.116 0 0 1 7 14.673zM5.875 13.37c-.03 1.085-.72 1.689-2.07 1.689-.885 0-1.545-.314-1.545-1.157 0-.899.96-.96 2.445-.96h1.17zm6.675-4.344a3.329 3.329 0 0 0-2.52 1.134H10V5H9v10.83h1v-1.177h.03A3.085 3.085 0 0 0 12.73 16a3.33 3.33 0 0 0 3.37-3.487 3.326 3.326 0 0 0-3.55-3.487zm-.003 5.953A2.407 2.407 0 0 1 10 12.513a2.407 2.407 0 0 1 2.547-2.467 2.293 2.293 0 0 1 2.406 2.467 2.293 2.293 0 0 1-2.406 2.466zm6.416-2.502a2.412 2.412 0 0 0 2.401 2.492 2.003 2.003 0 0 0 1.733-.83l.844.787A3.335 3.335 0 0 1 21.364 16a3.357 3.357 0 0 1-3.524-3.523 3.302 3.302 0 0 1 3.524-3.422 3.413 3.413 0 0 1 2.621.959l-.903.788a2.105 2.105 0 0 0-1.718-.817 2.327 2.327 0 0 0-2.401 2.492z"></path><path fill="none" d="M0 0h24v24H0z"></path></g></svg>
+              Descripción
+            </h2>
+            <ul class="flex flex-col gap-2 text-sm">
+              {[
+                { label: "Todas", value: "all" },
+                { label: "Con descripción", value: "with" },
+                { label: "Sin descripción", value: "without" },
+              ].map((option) => {
+                const isActive = descriptionParam === option.value;
+                return (
+                  <li>
+                    <a
+                      href={Astro.url.pathname + buildQueryString({ description: option.value, page: 1, search: null })}
+                      class={`flex items-center justify-between rounded-2xl border px-4 py-2 font-medium transition ${
+                        isActive
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-zinc-300 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-red-900 dark:bg-zinc-900 dark:text-zinc-200"
+                      }`}
+                      aria-current={isActive ? "true" : undefined}
+                    >
+                      <span>{option.label}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
           <!-- Filtro de precio -->
           <div class="mt-6 border-t border-zinc-300 pt-6 dark:border-zinc-800" data-auth-visible="authenticated">
             <h2 class="sticky inline-flex text-lg font-semibold mb-4 text-zinc-900 dark:text-white">
@@ -736,6 +894,8 @@ const showRightDots = endPage < totalPages;
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="brand" value={brandParam} />
               <input type="hidden" name="stock" value={stockParam} />
+              <input type="hidden" name="image" value={imageParam} />
+              <input type="hidden" name="description" value={descriptionParam} />
               <input type="hidden" name="page" value="1" />
               <label for="priceRangeDesktop" class="text-sm text-zinc-600 dark:text-zinc-300">Ajusta el rango de precio:</label>
               <div class="flex flex-col gap-3" data-price-range>
@@ -795,6 +955,8 @@ const showRightDots = endPage < totalPages;
                 <input type="hidden" name="category" value="all" />
                 <input type="hidden" name="brand" value="all" />
                 <input type="hidden" name="stock" value="all" />
+                <input type="hidden" name="image" value="all" />
+                <input type="hidden" name="description" value="all" />
                 <input type="hidden" name="price" value="all" />
                 <input type="hidden" name="page" value="1" />
                 {searchSuggestions.length > 0 && (
@@ -818,7 +980,7 @@ const showRightDots = endPage < totalPages;
                             class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-zinc-700 transition hover:-translate-y-px hover:bg-primary/10 hover:text-primary hover:shadow-sm dark:text-zinc-200 dark:hover:bg-red-900/40 dark:hover:text-red-200"
                           >
                             <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-[11px] font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-                              <span class="max-w-[3.5rem] truncate">
+                              <span class="max-w-14 truncate">
                                 {(suggestion.code || suggestion.label.slice(0, 2)).toUpperCase()}
                               </span>
                             </span>
