@@ -14,7 +14,7 @@ export default defineConfig({
   ),
   alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   vite: { plugins: [tailwindcss()], server:{
-    allowedHosts: ["sistema.unicomec.com", "unicomec.com", "www.unicomec.com", "www.sistema.unicomec.com"],  
+    allowedHosts: ["unicomec.com", "www.unicomec.com"],  
     }	 
   },
   integrations: [
