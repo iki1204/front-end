@@ -223,6 +223,7 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
           <div class="mt-8 flex flex-wrap gap-3">
               <a
               href="/calculadora-off-grid/localidad"
+              data-nav-loading
               class="inline-flex h-11 items-center rounded bg-slate-700 px-6 text-base font-semibold text-white transition hover:bg-slate-800"
               >
               Volver a localidad
@@ -230,6 +231,7 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
               <a
               id="confirmar-localidad"
               href="/calculadora-off-grid/baterias"
+              data-nav-loading
               class="inline-flex h-11 items-center rounded bg-[#cc3b26] px-6 text-base font-semibold text-white transition hover:bg-[#b9301d]"
               >
               Continuar 
@@ -242,6 +244,8 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
 </Layout>
 
 <script>
+  import { registerNavigationPreloader } from "../../lib/navigationPreloader";
+
     type ConsumoStorage = {
       totalEnergiaConsumo?: number;
       totalEnergia?: number;
@@ -537,6 +541,7 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
 
       leerDatosGuardados();
       registrarEventos();
+      registerNavigationPreloader();
       toggleResultadoDetalle(false);
 
       const dotSeleccionado = dots.find((dot) => dot.getAttribute("aria-pressed") === "true") ?? dots[0];

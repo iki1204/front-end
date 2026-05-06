@@ -94,6 +94,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
           <div class="flex justify-start pb-2">
             <a
               href="/calculadora-off-grid/localidad"
+              data-nav-loading
               class="inline-flex h-11 items-center rounded bg-[#cc2f1f] px-8 text-lg font-semibold text-white transition hover:bg-[#b9301d]"
             >
               Siguiente
@@ -107,6 +108,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 </Layout>
 
   <script>
+    import { registerNavigationPreloader } from "../../lib/navigationPreloader";
+
     type Electrodomestico = {
       id?: string;
       nombre: string;
@@ -291,7 +294,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         equipo: "Consumo Inversor",
         cantidad: 1,
         potencia: 100,
-        horas: 24,
+        horas: 5,
         esInversor: true
       }];
       
@@ -651,6 +654,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 
       inicializarConsumosGuardados();
       registrarEventos();
+      registerNavigationPreloader();
       void cargarElectrodomesticos();
     };
 

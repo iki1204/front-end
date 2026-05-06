@@ -190,8 +190,9 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
   const fecha = String(formData.get("fechaNacimiento") ?? "").trim();
   const telefono = String(formData.get("telefono") ?? "").trim();
   const password = String(formData.get("password") ?? "").trim();
-  const asesor = "Lizeth";
-  const tipoUsuario = "pvp3";
+  const asesores = ["Lizeth", "Moises", "Katya", "Samantha", "Edison"]
+  const asesor = asesores[Math.floor(Math.random() * asesores.length)];
+  const tipoUsuario = "pvp2";
 
 
   if (!username || !password || !email || !nombre || !apellido || !direccion || !fecha || !telefono) {

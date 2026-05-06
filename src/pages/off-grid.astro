@@ -21,7 +21,7 @@ import Layout from '../layouts/LayoutCalculadora.astro';
             autonomía total
           </h1>
 
-          <p class="max-w-[38ch] mt-4 text-[clamp(1rem,1.2vw,1.35rem)] font-semibold leading-[1.5] text-red-100">
+          <p class="max-w-[38ch] mt-4 text-[clamp(1rem,1.2vw,1.35rem)] font-semibold leading-normal text-red-100">
             Calcula el sistema solar ideal para operar sin red eléctrica: paneles, inversor y baterías según tu demanda
             diaria.
           </p>
@@ -53,7 +53,9 @@ import Layout from '../layouts/LayoutCalculadora.astro';
 
           <a
             href="/calculadora-off-grid/consumo"
-            class="inline-flex rounded-full bg-[linear-gradient(90deg,#ef4444_0%,#7f1d1d_100%)] px-8 py-3 text-xs font-extrabold uppercase tracking-[0.07em] text-white transition duration-200 hover:-translate-y-px hover:brightness-110 sm:px-10 sm:py-3.5 sm:text-sm"
+            data-nav-loading
+            class="inline-flex items-center justify-center gap-2 rounded-full bg-[linear-gradient(90deg,#ef4444_0%,#7f1d1d_100%)] px-8 py-3 text-xs font-extrabold uppercase tracking-[0.07em] text-white transition duration-200 hover:-translate-y-px hover:brightness-110 sm:px-10 sm:py-3.5 sm:text-sm"
+            aria-live="polite"
           >
             Inicio
           </a>
@@ -62,3 +64,20 @@ import Layout from '../layouts/LayoutCalculadora.astro';
     </section>
   </main>
 </Layout>
+
+<script>
+  import { registerNavigationPreloader } from "../lib/navigationPreloader";
+
+  const inicializarPreloaderOffGrid = (): void => {
+    registerNavigationPreloader();
+  };
+
+  document.addEventListener("astro:page-load", inicializarPreloaderOffGrid);
+  window.addEventListener("pageshow", inicializarPreloaderOffGrid);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", inicializarPreloaderOffGrid, { once: true });
+  } else {
+    inicializarPreloaderOffGrid();
+  }
+</script>

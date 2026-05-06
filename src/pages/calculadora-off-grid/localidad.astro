@@ -80,6 +80,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       <div class="mt-8 flex flex-wrap gap-3">
         <a
           href="/calculadora-off-grid/consumo"
+          data-nav-loading
           class="inline-flex h-11 items-center rounded bg-slate-700 px-6 text-base font-semibold text-white transition hover:bg-slate-800"
         >
           Volver a consumo
@@ -87,6 +88,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         <a
           id="confirmar-localidad"
           href="/calculadora-off-grid/paneles"
+          data-nav-loading
           class="inline-flex h-11 items-center rounded bg-[#cc2f1f] px-6 text-base font-semibold text-white transition hover:bg-[#b9301d]"
         >
           Confirmar siguiente
@@ -100,6 +102,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 </Layout>
 
 <script>
+  import { registerNavigationPreloader } from "../../lib/navigationPreloader";
+
   type Provincia = {
     nombre: string;
     lat: number;
@@ -278,6 +282,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
   const ejecutarMapa = (): void => {
     cargarProvinciaSeleccionada();
     registrarConfirmacionLocalidad();
+    registerNavigationPreloader();
 
     requestAnimationFrame(() => {
       void iniciarMapa();
