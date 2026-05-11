@@ -31,7 +31,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       <section class="mx-auto w-full max-w-5xl rounded-md border border-slate-300 bg-slate-100 shadow-lg">
         <header class="flex items-center justify-between rounded-t-md bg-[#cc2f1f] px-6 py-4 text-white">
           <h2 class="font-mono text-xl tracking-wide">Dimensionamiento de Baterías</h2>
-          <span aria-hidden="true" class="text-lg">🔋</span>
+          <svg class="h-6 w-6" viewBox="0 0 24.00 24.00" xmlns="http://www.w3.org/2000/svg" fill="#ffffff" stroke="#ffffff" stroke-width="0.00024000000000000003"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M24,0V24H0V0Z" fill="none"></path> <path d="M20,10V8.33A1.34,1.34,0,0,0,18.67,7H3.34A1.34,1.34,0,0,0,2,8.33v7.33A1.34,1.34,0,0,0,3.33,17H18.67A1.34,1.34,0,0,0,20,15.67V14h2V10Zm-8.5,3v2L4,11H9.5V9L17,13Z"></path> </g></svg>
         </header>
 
         <div class="border-b border-slate-300 bg-white/70 px-6 py-4">
@@ -48,7 +48,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
               data-mode="calculo-baterias"
               aria-pressed="true"
             >
-              Calculo de baterias
+              Cálculo de baterías
             </button>
             <button
               type="button"
@@ -56,30 +56,30 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
               data-mode="tiempo-autonomia"
               aria-pressed="false"
             >
-              Tiempo de autonomia
+              Tiempo de autonomía
             </button>
           </div>
         </div>
 
         <div id="calculo-baterias-view">
           <div class="px-6 py-7">
-              <label class="block">
-                <span class="mb-2 block text-sm font-medium text-slate-700">Energía diaria del sistema (Wh)</span>
-                <h3 id="energiaDiaria" class="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500"></h3>
-              </label>
+            <div class="mb-5 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+              <p class="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Energía Ajustada del sistema</p>
+              <h3 id="energiaAjustada" class="text-3xl font-black text-slate-900">-- Wh</h3>
+            </div>
             <div class="grid gap-4 md:grid-cols-2">
               <label class="block">
                 <span class="mb-2 block text-sm font-medium text-slate-700">Voltaje del sistema (V)</span>
-                <select id="voltajeSistema" disabled class="h-11 w-full rounded border border-slate-400 bg-slate-200 px-3 text-lg text-slate-500 outline-none focus:border-[#cc3b26] disabled:cursor-not-allowed">
+                <select id="voltajeSistemaAutonomia" disabled class="h-11 w-full rounded border border-slate-400 bg-slate-200 px-3 text-lg text-slate-500 outline-none focus:border-[#cc3b26] disabled:cursor-not-allowed">
                   <option value="12">12 V</option>
-                  <option value="24" selected>24 V</option>
+                  <option value="24">24 V</option>
                   <option value="48">48 V</option>
                 </select>
-                <label for="activarVoltajeManual" class="mt-3 flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
-                  <input id="activarVoltajeManual" type="checkbox" class="h-4 w-4 rounded border-slate-400 text-[#cc3b26] focus:ring-[#cc3b26]" />
+                <label for="activarVoltajeManualAutonomia" class="mt-3 flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                  <input id="activarVoltajeManualAutonomia" type="checkbox" class="h-4 w-4 rounded border-slate-400 text-[#cc3b26] focus:ring-[#cc3b26]" />
                   Yo se dimensionar mi sistema
                 </label>
-                <p id="voltajeRecomendadoInfo" class="mt-2 text-xs text-slate-500"></p>
+                <p id="voltajeRecomendadoInfoAutonomia" class="mt-2 text-xs text-slate-500"></p>
               </label>
 
               <label class="block">
@@ -105,8 +105,6 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
                   <option value="250">250 Ah</option>
                 </select>
               </label>
-
-
             </div>
           </div>
 
@@ -114,7 +112,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
           <div id="resultados" class="hidden border-t border-slate-300 bg-slate-100">
             <header class="flex items-center justify-between bg-[#cc2f1f] px-6 py-4 text-white">
               <h2 class="font-mono text-xl tracking-wide">Resultados</h2>
-              <span id="infoBateriaSistema" class="text-sm font-semibold text-red-100"></span>
+              <svg fill="#ffffff" class="h-6 w-6" viewBox="-32 0 512 512" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zM160 368c0 8.84-7.16 16-16 16h-32c-8.84 0-16-7.16-16-16V240c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v128zm96 0c0 8.84-7.16 16-16 16h-32c-8.84 0-16-7.16-16-16V144c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v224zm96 0c0 8.84-7.16 16-16 16h-32c-8.84 0-16-7.16-16-16v-64c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v64z"></path></g></svg>
             </header>
             <div class="grid grid-cols-2 gap-4 px-6 py-6 sm:grid-cols-4">
               <div class="rounded bg-white p-4 shadow-sm text-center">
@@ -134,13 +132,30 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
                 <p id="tiempoAutonomia" class="mt-1 text-3xl font-bold text-[#cc3b26]">--</p>
               </div>
             </div>
+
+            <div class="px-6 pb-6">
+              <button
+                id="infoBateriaToggle"
+                type="button"
+                class="inline-flex cursor-pointer items-center rounded-full border border-red-200 bg-white px-3 py-1 text-sm font-semibold text-[#b9301d] transition hover:border-[#cc2f1f] hover:text-[#cc2f1f]"
+                aria-expanded="false"
+                aria-controls="infoBateriaSistemaWrap"
+              >
+                + info completa
+              </button>
+
+              <div id="infoBateriaSistemaWrap" class="hidden mt-3 rounded-xl border border-red-100 bg-white p-4 shadow-sm">
+                <p class="m-0 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Resumen del sistema</p>
+                <p id="infoBateriaSistema" class="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-700"></p>
+              </div>
+            </div>
           </div>
 
           <!-- Diagrama GoJS -->
           <div id="diagramaContainer" class="hidden border-t border-slate-300 bg-slate-100">
             <header class="flex items-center justify-between bg-[#cc2f1f] px-6 py-4 text-white">
               <h2 class="font-mono text-xl tracking-wide">Diagrama de Conexión</h2>
-              <span aria-hidden="true" class="text-lg">⚡</span>
+              <svg fill="#000000" class="h-6 w-6" viewBox="0 0 24 24" id="thunder" data-name="Flat Color" xmlns="http://www.w3.org/2000/svg" class="icon flat-color"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path id="primary" d="M18.82,9.18A2,2,0,0,0,17,8H15.19l1.33-3.26a2,2,0,0,0-.19-1.84A2.06,2.06,0,0,0,14.62,2H10.28A2,2,0,0,0,8.37,3.27l-3.23,8a2,2,0,0,0,.2,1.83,2.06,2.06,0,0,0,1.71.9H9.81L8,20.74a1,1,0,0,0,.5,1.15A1.12,1.12,0,0,0,9,22a1,1,0,0,0,.76-.35l8.8-10.37A2,2,0,0,0,18.82,9.18Z" style="fill: #ffffff;"></path></g></svg>
             </header>
             <div class="px-6 py-6">
               <div id="myDiagramDiv" class="w-full rounded border border-slate-300 bg-white" style="height: 480px;"></div>
@@ -148,36 +163,93 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
           </div>
         </div>
 
-        <div id="tiempo-autonomia-view" class="hidden border-t border-slate-300 bg-slate-50 px-6 py-7">
-          <!-- 
-          <div class="mb-5">
-            <h3 class="font-mono text-lg tracking-wide text-slate-800">Tiempo de autonomia</h3>
-            <p class="mt-1 text-sm text-slate-600">Configura solo los parámetros necesarios para este modo.</p>
+        <div id="tiempo-autonomia-view" class="hidden border-t border-slate-300 bg-slate-50">
+          <div class="px-6 py-7">
+            <div class="mb-5 grid gap-4 md:grid-cols-2">
+              <div class="rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+                <p class="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Consumo base del sistema</p>
+                <h3 id="consumoAutonomiaValor" class="text-3xl font-black text-slate-900">-- Wh</h3>
+              </div>
+
+              <div class="rounded-xl border border-[#f0c6bf] bg-linear-to-br from-white via-[#fff8f6] to-[#fff0eb] px-5 py-4 shadow-[0_18px_50px_-30px_rgba(204,59,38,0.55)]">
+                <p class="mb-1 text-center text-xs font-semibold uppercase tracking-[0.18em] text-[#cc3b26]">Autonomia deseada</p>
+                <div class="flex items-end justify-center gap-2">
+                  <input id="autonomiaDeseada" type="number" min="1" step="0.1" value="6" class="h-12 w-32 rounded-2xl border border-[#e7b7ae] bg-white px-4 text-center text-xl font-black text-slate-900 outline-none transition focus:border-[#cc3b26] focus:ring-4 focus:ring-[#cc3b26]/10" />
+                  <span class="mb-1 rounded-full bg-[#cc3b26] px-3 py-1 text-sm font-bold text-white shadow-sm">horas</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-2 mt-10">
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-slate-700">Voltaje del sistema (V)</span>
+                <select id="voltajeSistema" disabled class="h-11 w-full rounded border border-slate-400 bg-slate-200 px-3 text-lg text-slate-500 outline-none focus:border-[#cc3b26] disabled:cursor-not-allowed">
+                  <option value="12">12 V</option>
+                  <option value="24">24 V</option>
+                  <option value="48">48 V</option>
+                </select>
+                <label for="activarVoltajeManual" class="mt-3 flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                  <input id="activarVoltajeManual" type="checkbox" class="h-4 w-4 rounded border-slate-400 text-[#cc3b26] focus:ring-[#cc3b26]" />
+                  Yo se dimensionar mi sistema
+                </label>
+                <p id="voltajeRecomendadoInfo" class="mt-2 text-xs text-slate-500"></p>
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-slate-700">Voltaje de bateria (V)</span>
+                <select id="voltajeAutonomia" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none focus:border-[#cc3b26]">
+                  <option value="12">12 V</option>
+                  <option value="24">24 V</option>
+                  <option value="48">48 V</option>
+                </select>
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-slate-700">Capacidad de bateria (Ah)</span>
+                <select id="capacidadAutonomia" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none focus:border-[#cc3b26]">
+                  <option value="100">100 Ah</option>
+                  <option value="150">150 Ah</option>
+                  <option value="200">200 Ah</option>
+                  <option value="250">250 Ah</option>
+                </select>
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-sm font-medium text-slate-700">Profundidad de descarga (%)</span>
+                <input id="profDescargaAutonomia" type="number" min="10" max="100" value="80" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none focus:border-[#cc3b26]" />
+              </label>
+            </div>
           </div>
 
-          <div class="grid gap-4 md:grid-cols-3">
-            <label class="block">
-              <span class="mb-2 block text-sm font-medium text-slate-700">Tiempo de Autonomia (horas)</span>
-              <input id="horasAutonomiaSolo" type="number" min="1" value="1" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none focus:border-[#cc3b26]" />
-            </label>
-
-            <label class="block">
-              <span class="mb-2 block text-sm font-medium text-slate-700">Capacidad de batería (Ah)</span>
-              <select id="capacidadSelectSolo" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none focus:border-[#cc3b26]">
-                <option value="100">100 Ah</option>
-                <option value="150">150 Ah</option>
-                <option value="200">200 Ah</option>
-                <option value="250">250 Ah</option>
-              </select>
-            </label>
-
-            <label class="block">
-              <span class="mb-2 block text-sm font-medium text-slate-700">Profundidad de descarga (%)</span>
-              <input id="profDescargaSolo" type="number" min="10" max="100" value="80" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none focus:border-[#cc3b26]" />
-            </label>
+          <div id="resultadosAutonomia" class="mt-6 border-t border-slate-300 bg-slate-100">
+            <header class="flex items-center justify-between bg-[#cc2f1f] px-6 py-4 text-white">
+              <h2 class="font-mono text-xl tracking-wide">Resultados</h2>
+              <svg fill="#ffffff" class="h-6 w-6" viewBox="-32 0 512 512" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zM160 368c0 8.84-7.16 16-16 16h-32c-8.84 0-16-7.16-16-16V240c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v128zm96 0c0 8.84-7.16 16-16 16h-32c-8.84 0-16-7.16-16-16V144c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v224zm96 0c0 8.84-7.16 16-16 16h-32c-8.84 0-16-7.16-16-16v-64c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v64z"></path></g></svg>
+            </header>
+            <div class="grid grid-cols-1 gap-4 px-6 py-6 sm:grid-cols-3">
+              <div class="rounded bg-white p-4 shadow-sm text-center">
+                <p class="text-xs uppercase tracking-wide text-slate-500">Capacidad del banco de Bateria</p>
+                <p id="bancoBaterias" class="mt-1 text-3xl font-bold text-[#cc3b26]">--</p>
+              </div>
+              <div class="rounded bg-white p-4 shadow-sm text-center">
+                <p class="text-xs uppercase tracking-wide text-slate-500">Total baterias</p>
+                <p id="totalAutonomia" class="mt-1 text-3xl font-bold text-[#cc3b26]">--</p>
+              </div>
+              <div class="rounded bg-white p-4 shadow-sm text-center">
+                <p class="text-xs uppercase tracking-wide text-slate-500">Configuracion</p>
+                <p id="configAutonomia" class="mt-1 text-lg font-bold text-slate-700">--</p>
+              </div>
+            </div>
           </div>
-          -->
-          <h2 class="text-4xl "> Muy Pronto ...</h2>
+
+          <div id="diagramaContainerAutonomia" class="border-t border-slate-300 bg-slate-100">
+            <header class="flex items-center justify-between bg-[#cc2f1f] px-6 py-4 text-white">
+              <h2 class="font-mono text-xl tracking-wide">Diagrama de Conexión</h2>
+              <svg fill="#000000" class="h-6 w-6" viewBox="0 0 24 24" id="thunder" data-name="Flat Color" xmlns="http://www.w3.org/2000/svg" class="icon flat-color"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path id="primary" d="M18.82,9.18A2,2,0,0,0,17,8H15.19l1.33-3.26a2,2,0,0,0-.19-1.84A2.06,2.06,0,0,0,14.62,2H10.28A2,2,0,0,0,8.37,3.27l-3.23,8a2,2,0,0,0,.2,1.83,2.06,2.06,0,0,0,1.71.9H9.81L8,20.74a1,1,0,0,0,.5,1.15A1.12,1.12,0,0,0,9,22a1,1,0,0,0,.76-.35l8.8-10.37A2,2,0,0,0,18.82,9.18Z" style="fill: #ffffff;"></path></g></svg>
+            </header>
+            <div class="px-6 py-6">
+              <div id="myDiagramDivAutonomia" class="w-full rounded border border-slate-300 bg-white" style="height: 480px;"></div>
+            </div>
+          </div>
         </div>
 
         <div class="border-t border-slate-300 px-6 py-6">
@@ -191,7 +263,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
             </a>
             <a
               id="confirmar-baterias"
-              href="/calculadora-off-grid/baterias"
+              href="/calculadora-off-grid/inversores"
               data-nav-loading
               class="inline-flex h-11 w-full items-center justify-center rounded-md border border-[#b92f1e] bg-[#cc3b26] px-8 text-base font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-[#b9301d] sm:w-auto"
             >
@@ -213,16 +285,185 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
   // ======================= Lógica de cálculo =======================
   type ConsumoStorage = {
     totalEnergiaConsumoLoss?: number;
-    totalEnergiaLoss?: number;
+    totalEnergiaConsumo?: number;
+    totalEnergia?: number;
+    bateriaConfiguracion?: BatteryStoredState;
+  };
+
+  type BatteryMode = "calculo-baterias" | "tiempo-autonomia";
+
+  type BatteryModeState = {
+    voltajeSistema: number;
+    voltajeBateria: number;
+    capacidadBateriaAh: number;
+    profDescarga: number;
+    modoManualVoltaje: boolean;
+    bateriasSerie: number;
+    bateriasParalelo: number;
+    capacidadBancoAh: number;
+    totalBaterias: number;
+    tiempoAutonomiaHoras: number;
+    autonomiaDeseada: number;
+  };
+
+  type BatteryStoredState = {
+    modoActivo: BatteryMode;
+    calculoBaterias: BatteryModeState;
+    tiempoAutonomia: BatteryModeState;
   };
 
   const CONSUMO_STORAGE_KEY = "unicom.offgrid.consumos";
-  let modoBateriaActivo: "calculo-baterias" | "tiempo-autonomia" = "calculo-baterias";
+  const DEFAULT_BATTERY_MODE_STATE: BatteryModeState = {
+    voltajeSistema: 12,
+    voltajeBateria: 12,
+    capacidadBateriaAh: 100,
+    profDescarga: 80,
+    modoManualVoltaje: false,
+    bateriasSerie: 0,
+    bateriasParalelo: 0,
+    capacidadBancoAh: 0,
+    totalBaterias: 0,
+    tiempoAutonomiaHoras: 0,
+    autonomiaDeseada: 6,
+  };
+
+  const DEFAULT_BATTERY_STATE: BatteryStoredState = {
+    modoActivo: "calculo-baterias",
+    calculoBaterias: { ...DEFAULT_BATTERY_MODE_STATE },
+    tiempoAutonomia: { ...DEFAULT_BATTERY_MODE_STATE },
+  };
+
+  let modoBateriaActivo: BatteryMode = "calculo-baterias";
+
+  const esNumeroValido = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
+
+  const normalizarModoBateria = (value: unknown): BatteryMode => value === "tiempo-autonomia" ? "tiempo-autonomia" : "calculo-baterias";
+
+  const normalizarEstadoModo = (value: unknown): BatteryModeState => {
+    const source = (value ?? {}) as Partial<BatteryModeState>;
+    return {
+      voltajeSistema: esNumeroValido(source.voltajeSistema) ? source.voltajeSistema : DEFAULT_BATTERY_MODE_STATE.voltajeSistema,
+      voltajeBateria: esNumeroValido(source.voltajeBateria) ? source.voltajeBateria : DEFAULT_BATTERY_MODE_STATE.voltajeBateria,
+      capacidadBateriaAh: esNumeroValido(source.capacidadBateriaAh) ? source.capacidadBateriaAh : DEFAULT_BATTERY_MODE_STATE.capacidadBateriaAh,
+      profDescarga: esNumeroValido(source.profDescarga) ? source.profDescarga : DEFAULT_BATTERY_MODE_STATE.profDescarga,
+      modoManualVoltaje: source.modoManualVoltaje === true,
+      bateriasSerie: esNumeroValido(source.bateriasSerie) ? source.bateriasSerie : DEFAULT_BATTERY_MODE_STATE.bateriasSerie,
+      bateriasParalelo: esNumeroValido(source.bateriasParalelo) ? source.bateriasParalelo : DEFAULT_BATTERY_MODE_STATE.bateriasParalelo,
+      capacidadBancoAh: esNumeroValido(source.capacidadBancoAh) ? source.capacidadBancoAh : DEFAULT_BATTERY_MODE_STATE.capacidadBancoAh,
+      totalBaterias: esNumeroValido(source.totalBaterias) ? source.totalBaterias : DEFAULT_BATTERY_MODE_STATE.totalBaterias,
+      tiempoAutonomiaHoras: esNumeroValido(source.tiempoAutonomiaHoras) ? source.tiempoAutonomiaHoras : DEFAULT_BATTERY_MODE_STATE.tiempoAutonomiaHoras,
+      autonomiaDeseada: esNumeroValido(source.autonomiaDeseada) ? source.autonomiaDeseada : DEFAULT_BATTERY_MODE_STATE.autonomiaDeseada,
+    };
+  };
+
+  const leerEstadoBateriaGuardado = (): BatteryStoredState => {
+    try {
+      const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
+      if (!consumoGuardado) {
+        return {
+          modoActivo: DEFAULT_BATTERY_STATE.modoActivo,
+          calculoBaterias: { ...DEFAULT_BATTERY_STATE.calculoBaterias },
+          tiempoAutonomia: { ...DEFAULT_BATTERY_STATE.tiempoAutonomia },
+        };
+      }
+
+      const consumo = JSON.parse(consumoGuardado) as ConsumoStorage;
+      const estado = (consumo.bateriaConfiguracion ?? {}) as Partial<BatteryStoredState>;
+
+      return {
+        modoActivo: normalizarModoBateria(estado.modoActivo),
+        calculoBaterias: normalizarEstadoModo(estado.calculoBaterias),
+        tiempoAutonomia: normalizarEstadoModo(estado.tiempoAutonomia),
+      };
+    } catch (error) {
+      console.error("No se pudo leer la configuración de baterías guardada.", error);
+      return {
+        modoActivo: DEFAULT_BATTERY_STATE.modoActivo,
+        calculoBaterias: { ...DEFAULT_BATTERY_STATE.calculoBaterias },
+        tiempoAutonomia: { ...DEFAULT_BATTERY_STATE.tiempoAutonomia },
+      };
+    }
+  };
+
+  const guardarEstadoBateria = (updater: (current: BatteryStoredState) => BatteryStoredState): void => {
+    try {
+      const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
+      const consumoActual = consumoGuardado
+        ? JSON.parse(consumoGuardado) as ConsumoStorage
+        : {};
+
+      const estadoActual = leerEstadoBateriaGuardado();
+      const estadoSiguiente = updater(estadoActual);
+
+      const consumoActualizado: ConsumoStorage = {
+        ...consumoActual,
+        bateriaConfiguracion: {
+          modoActivo: normalizarModoBateria(estadoSiguiente.modoActivo),
+          calculoBaterias: normalizarEstadoModo(estadoSiguiente.calculoBaterias),
+          tiempoAutonomia: normalizarEstadoModo(estadoSiguiente.tiempoAutonomia),
+        },
+      };
+
+      window.localStorage.setItem(CONSUMO_STORAGE_KEY, JSON.stringify(consumoActualizado));
+    } catch (error) {
+      console.error("No se pudo guardar la configuración de baterías.", error);
+    }
+  };
+
+  const setSelectValueIfExists = (elementId: string, value: number): void => {
+    const selectEl = document.getElementById(elementId) as HTMLSelectElement | null;
+    if (!selectEl) return;
+    const target = String(value);
+    const exists = Array.from(selectEl.options).some((option) => option.value === target);
+    if (exists) selectEl.value = target;
+  };
+
+  const setInputNumberValue = (elementId: string, value: number): void => {
+    const inputEl = document.getElementById(elementId) as HTMLInputElement | null;
+    if (!inputEl || !Number.isFinite(value)) return;
+    inputEl.value = String(value);
+  };
+
+  const aplicarEstadoCalculoEnFormulario = (state: BatteryModeState): void => {
+    setSelectValueIfExists("voltajeSistemaAutonomia", state.voltajeSistema);
+    setSelectValueIfExists("voltajeSelect", state.voltajeBateria);
+    setSelectValueIfExists("capacidadSelect", state.capacidadBateriaAh);
+    setInputNumberValue("profDescarga", state.profDescarga);
+
+    const manualCalculoEl = document.getElementById("activarVoltajeManualAutonomia") as HTMLInputElement | null;
+    const manualAutonomiaEl = document.getElementById("activarVoltajeManual") as HTMLInputElement | null;
+    if (manualCalculoEl) manualCalculoEl.checked = state.modoManualVoltaje;
+    if (manualAutonomiaEl) manualAutonomiaEl.checked = state.modoManualVoltaje;
+
+    actualizarControlVoltajeSistema(state.modoManualVoltaje);
+  };
+
+  const aplicarEstadoAutonomiaEnFormulario = (state: BatteryModeState): void => {
+    setSelectValueIfExists("voltajeSistema", state.voltajeSistema);
+    setSelectValueIfExists("voltajeAutonomia", state.voltajeBateria);
+    setSelectValueIfExists("capacidadAutonomia", state.capacidadBateriaAh);
+    setInputNumberValue("profDescargaAutonomia", state.profDescarga);
+    setInputNumberValue("autonomiaDeseada", state.autonomiaDeseada);
+
+    const manualCalculoEl = document.getElementById("activarVoltajeManualAutonomia") as HTMLInputElement | null;
+    const manualAutonomiaEl = document.getElementById("activarVoltajeManual") as HTMLInputElement | null;
+    if (manualCalculoEl) manualCalculoEl.checked = state.modoManualVoltaje;
+    if (manualAutonomiaEl) manualAutonomiaEl.checked = state.modoManualVoltaje;
+
+    actualizarControlVoltajeSistema(state.modoManualVoltaje);
+  };
+
+  const restaurarFormularioBateriasDesdeStorage = (): void => {
+    const estadoGuardado = leerEstadoBateriaGuardado();
+    aplicarEstadoCalculoEnFormulario(estadoGuardado.calculoBaterias);
+    aplicarEstadoAutonomiaEnFormulario(estadoGuardado.tiempoAutonomia);
+  };
 
   const leerDatosGuardados = (): ConsumoStorage => {
     const valoresIniciales: ConsumoStorage = {
       totalEnergiaConsumoLoss: 0,
-      totalEnergiaLoss: 0,
+      totalEnergiaConsumo: 0,
+      totalEnergia: 0,
     };
 
     try {
@@ -232,7 +473,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       const consumo = JSON.parse(consumoGuardado) as ConsumoStorage;
       return {
         totalEnergiaConsumoLoss: typeof consumo.totalEnergiaConsumoLoss === "number" ? consumo.totalEnergiaConsumoLoss : 0,
-        totalEnergiaLoss: typeof consumo.totalEnergiaLoss === "number" ? consumo.totalEnergiaLoss : 0,
+        totalEnergiaConsumo: typeof consumo.totalEnergiaConsumo === "number" ? consumo.totalEnergiaConsumo : 0,
+        totalEnergia: typeof consumo.totalEnergia === "number" ? consumo.totalEnergia : 0,
       };
     } catch (error) {
       console.error("No se pudieron leer los datos guardados para el cálculo de paneles.", error);
@@ -241,12 +483,23 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
   };
 
   function actualizarCampoEnergiaConsumo(): number {
-    const { totalEnergiaConsumoLoss = 0 } = leerDatosGuardados();
-    const totalEnergiaConsumoLssEl = document.getElementById("energiaDiaria") as HTMLInputElement | null;
-    if (totalEnergiaConsumoLssEl) {
-      totalEnergiaConsumoLssEl.value = `${Number.isInteger(totalEnergiaConsumoLoss) ? totalEnergiaConsumoLoss : totalEnergiaConsumoLoss.toFixed(2)} Wh`;
+    const { totalEnergiaConsumo = 0 } = leerDatosGuardados();
+    const totalEnergiaConsumoEl = document.getElementById("energiaAjustada") as HTMLElement | null;
+    const profDescargaEl = document.getElementById("profDescarga") as HTMLInputElement | null;
+    const profDescargaValor = obtenerDod(profDescargaEl);
+    const profDescarga = validarDodParaCalculo(profDescargaValor) ? (profDescargaValor! / 100) : 0.8;
+    const energiaAjustada = totalEnergiaConsumo / profDescarga;
+    if (totalEnergiaConsumoEl) {
+      totalEnergiaConsumoEl.textContent = `${Number.isInteger(energiaAjustada) ? energiaAjustada : energiaAjustada.toFixed(2)} Wh`;
     }
-    return totalEnergiaConsumoLoss;
+    return energiaAjustada;
+  }
+
+  function actualizarConsumoAutonomia(): void {
+    const { totalEnergia = 0 } = leerDatosGuardados();
+    const consumoAutonomiaEl = document.getElementById("consumoAutonomiaValor") as HTMLElement | null;
+    if (!consumoAutonomiaEl) return;
+    consumoAutonomiaEl.textContent = `${Number.isInteger(totalEnergia) ? totalEnergia : totalEnergia.toFixed(2)} W`;
   }
 
   function recomendarVoltajeSistema(totalEnergiaConsumoLoss: number): number {
@@ -255,19 +508,56 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     return 48;
   }
 
-  function actualizarControlVoltajeSistema(): void {
-    const voltajeSistemaEl = document.getElementById("voltajeSistema") as HTMLSelectElement | null;
+  // Obtiene el valor de DOD del input sin validar (permite campos vacíos)
+  function obtenerDod(inputEl: HTMLInputElement | null): number | null {
+    if (!inputEl || inputEl.value.trim() === "") return null;
+    const valor = Number.parseFloat(inputEl.value);
+    return Number.isFinite(valor) ? valor : null;
+  }
+
+  // Valida que el DOD sea válido para cálculos (no 0, null, NaN)
+  function validarDodParaCalculo(dodValue: number | null): boolean {
+    return dodValue !== null && dodValue !== 0 && Number.isFinite(dodValue) && dodValue > 0;
+  }
+
+  // Normaliza DOD a rango 10-100 (solo en blur para UI)
+  function normalizarDodEnBlur(inputEl: HTMLInputElement | null): void {
+    if (!inputEl || inputEl.value.trim() === "") return; // Permite campo vacío
+
+    const valor = Number.parseFloat(inputEl.value);
+    if (!Number.isFinite(valor)) return; // Si no es número, no modifica
+
+    let normalizado = valor;
+    if (normalizado < 10) normalizado = 10;
+    if (normalizado > 100) normalizado = 100;
+
+    inputEl.value = String(normalizado);
+  }
+
+  function actualizarControlVoltajeSistema(edicionManualForzada?: boolean): void {
+    const voltajeSistemaEl = document.getElementById("voltajeSistemaAutonomia") as HTMLSelectElement | null;
+    const voltajeSistemaAutonomiaEl = document.getElementById("voltajeSistema") as HTMLSelectElement | null;
     const voltajeBateriaEl = document.getElementById("voltajeSelect") as HTMLSelectElement | null;
-    const activarVoltajeManualEl = document.getElementById("activarVoltajeManual") as HTMLInputElement | null;
-    const voltajeRecomendadoInfoEl = document.getElementById("voltajeRecomendadoInfo") as HTMLElement | null;
+    const activarVoltajeManualEl = document.getElementById("activarVoltajeManualAutonomia") as HTMLInputElement | null;
+    const activarVoltajeManualAutonomiaEl = document.getElementById("activarVoltajeManual") as HTMLInputElement | null;
+    const voltajeRecomendadoInfoEl = document.getElementById("voltajeRecomendadoInfoAutonomia") as HTMLElement | null;
+    const voltajeRecomendadoInfoAutonomiaEl = document.getElementById("voltajeRecomendadoInfo") as HTMLElement | null;
     if (!voltajeSistemaEl || !activarVoltajeManualEl) return;
 
     const { totalEnergiaConsumoLoss = 0 } = leerDatosGuardados();
     const voltajeRecomendado = recomendarVoltajeSistema(totalEnergiaConsumoLoss);
-    const edicionManualActiva = activarVoltajeManualEl.checked;
+    const edicionManualActiva = edicionManualForzada ?? activarVoltajeManualEl.checked;
+
+    activarVoltajeManualEl.checked = edicionManualActiva;
+    if (activarVoltajeManualAutonomiaEl) {
+      activarVoltajeManualAutonomiaEl.checked = edicionManualActiva;
+    }
 
     if (!edicionManualActiva) {
       voltajeSistemaEl.value = String(voltajeRecomendado);
+      if (voltajeSistemaAutonomiaEl) {
+        voltajeSistemaAutonomiaEl.value = String(voltajeRecomendado);
+      }
     }
 
     voltajeSistemaEl.disabled = !edicionManualActiva;
@@ -276,6 +566,15 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     voltajeSistemaEl.classList.toggle("cursor-not-allowed", !edicionManualActiva);
     voltajeSistemaEl.classList.toggle("bg-white", edicionManualActiva);
     voltajeSistemaEl.classList.toggle("text-slate-700", edicionManualActiva);
+
+    if (voltajeSistemaAutonomiaEl) {
+      voltajeSistemaAutonomiaEl.disabled = !edicionManualActiva;
+      voltajeSistemaAutonomiaEl.classList.toggle("bg-slate-200", !edicionManualActiva);
+      voltajeSistemaAutonomiaEl.classList.toggle("text-slate-500", !edicionManualActiva);
+      voltajeSistemaAutonomiaEl.classList.toggle("cursor-not-allowed", !edicionManualActiva);
+      voltajeSistemaAutonomiaEl.classList.toggle("bg-white", edicionManualActiva);
+      voltajeSistemaAutonomiaEl.classList.toggle("text-slate-700", edicionManualActiva);
+    }
 
     if (voltajeBateriaEl) {
       const voltajeSistemaActual = voltajeSistemaEl.value;
@@ -288,35 +587,50 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       }
     }
 
+    const textoVoltaje = edicionManualActiva
+      ? `Modo manual activo. Recomendado: ${voltajeRecomendado} V (para consumo ajustado: ${Number.isInteger(totalEnergiaConsumoLoss) ? totalEnergiaConsumoLoss : totalEnergiaConsumoLoss.toFixed(2)} Wh).`
+      : `Voltaje recomendado automáticamente: ${voltajeRecomendado} V (para consumo ajustado: ${Number.isInteger(totalEnergiaConsumoLoss) ? totalEnergiaConsumoLoss : totalEnergiaConsumoLoss.toFixed(2)} Wh).`;
+
     if (voltajeRecomendadoInfoEl) {
-      voltajeRecomendadoInfoEl.textContent = edicionManualActiva
-        ? `Modo manual activo. Recomendado: ${voltajeRecomendado} V (consumo ajustado: ${Number.isInteger(totalEnergiaConsumoLoss) ? totalEnergiaConsumoLoss : totalEnergiaConsumoLoss.toFixed(2)} W).`
-        : `Voltaje recomendado automáticamente: ${voltajeRecomendado} V (consumo ajustado: ${Number.isInteger(totalEnergiaConsumoLoss) ? totalEnergiaConsumoLoss : totalEnergiaConsumoLoss.toFixed(2)} W).`;
+      voltajeRecomendadoInfoEl.textContent = textoVoltaje;
+    }
+
+    if (voltajeRecomendadoInfoAutonomiaEl) {
+      voltajeRecomendadoInfoAutonomiaEl.textContent = textoVoltaje;
     }
   }
 
 
   function calculateBattery() {
     actualizarControlVoltajeSistema();
-    const voltajeSistema = parseInt((document.getElementById("voltajeSistema") as HTMLSelectElement).value);
-    const { totalEnergiaConsumoLoss = 0}  = leerDatosGuardados();
-    const { totalEnergiaLoss = 0 } = leerDatosGuardados();
-    //const horasAutonomia = parseFloat((document.getElementById("horasAutonomia") as HTMLInputElement).value);
-    const profDescarga = parseFloat((document.getElementById("profDescarga") as HTMLInputElement).value) / 100;
+    const energiaAjustada = actualizarCampoEnergiaConsumo();
+    const voltajeSistema = parseInt((document.getElementById("voltajeSistemaAutonomia") as HTMLSelectElement).value);
+    const { totalEnergiaConsumo = 0}  = leerDatosGuardados();
+    const { totalEnergia = 0 } = leerDatosGuardados();
+    const profDescargaEl = document.getElementById("profDescarga") as HTMLInputElement | null;
+    const profDescargaValor = obtenerDod(profDescargaEl);
+    
+    // Valida que DOD sea válido (no 0, null, NaN)
+    if (!validarDodParaCalculo(profDescargaValor)) {
+      console.warn("DOD (Profundidad de Descarga) inválida o vacía. Ingrese un valor entre 10 y 100.");
+      document.getElementById("resultados")?.classList.add("hidden");
+      document.getElementById("diagramaContainer")?.classList.add("hidden");
+      return;
+    }
+    
+    const profDescarga = profDescargaValor! / 100;
     const voltajeBateria = parseInt((document.getElementById("voltajeSelect") as HTMLSelectElement).value);
     const capacidadBatAh = parseInt((document.getElementById("capacidadSelect") as HTMLSelectElement).value);
 
-    if (!voltajeSistema || !totalEnergiaConsumoLoss || !profDescarga || !voltajeBateria || !capacidadBatAh) return;
+    if (!voltajeSistema || !totalEnergiaConsumo || !voltajeBateria || !capacidadBatAh) return;
 
-    const potenciaBateria = Math.round(totalEnergiaConsumoLoss / profDescarga);
-    const capacidadBateria = potenciaBateria / voltajeSistema;
-    const bateriasParalelo = Math.max(1, Math.ceil(capacidadBateria / capacidadBatAh));
-    console.log (bateriasParalelo, capacidadBateria, potenciaBateria, totalEnergiaLoss, profDescarga);
+    const capacidadBancoBaterias = energiaAjustada / voltajeSistema;
+    const bateriasParalelo = Math.max(1, Math.ceil(capacidadBancoBaterias / capacidadBatAh));
     const bateriasSerie = Math.max(1, Math.ceil(voltajeSistema / voltajeBateria));
     const totalBaterias = bateriasSerie * bateriasParalelo;
-    const capacidadTotal = bateriasParalelo * capacidadBatAh;
-    const tiempoAutonomia = totalEnergiaLoss > 0
-      ? (capacidadBatAh * voltajeBateria * profDescarga * totalBaterias) / totalEnergiaLoss
+    
+    const tiempoAutonomia = totalEnergia > 0
+      ? (capacidadBatAh * voltajeBateria * profDescarga * totalBaterias) / totalEnergia
       : 0;
 
     // Mostrar resultados
@@ -325,7 +639,29 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     (document.getElementById("totalBaterias") as HTMLElement).textContent = String(totalBaterias);
     (document.getElementById("tiempoAutonomia") as HTMLElement).textContent = `${tiempoAutonomia.toFixed(2)} horas`;
     (document.getElementById("infoBateriaSistema") as HTMLElement).textContent =
-      `Sistema ${voltajeSistema}V · ${bateriasParalelo} streams de ${bateriasSerie} batería(s) · ${tiempoAutonomia.toFixed(2)} horas`;
+      `- Sistema ${voltajeSistema}V
+       - Banco de batería(s): ${totalBaterias} batería(s) en paralelo con ${bateriasSerie} en serie
+       - Tiempo de autonomía: ${tiempoAutonomia.toFixed(2)} horas
+       - ${capacidadBancoBaterias.toFixed(2)} Ah de capacidad total
+       `;
+
+    guardarEstadoBateria((actual) => ({
+      ...actual,
+      modoActivo: modoBateriaActivo,
+      calculoBaterias: {
+        ...actual.calculoBaterias,
+        voltajeSistema,
+        voltajeBateria,
+        capacidadBateriaAh: capacidadBatAh,
+        profDescarga: profDescargaValor ?? actual.calculoBaterias.profDescarga,
+        modoManualVoltaje: (document.getElementById("activarVoltajeManualAutonomia") as HTMLInputElement | null)?.checked === true,
+        bateriasSerie,
+        bateriasParalelo,
+        capacidadBancoAh: Number(capacidadBancoBaterias.toFixed(2)),
+        totalBaterias,
+        tiempoAutonomiaHoras: Number(tiempoAutonomia.toFixed(2)),
+      },
+    }));
 
     document.getElementById("resultados")!.classList.remove("hidden");
     document.getElementById("diagramaContainer")!.classList.remove("hidden");
@@ -334,7 +670,9 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
   }
 
   function inicializarEnergia(): void {
+    restaurarFormularioBateriasDesdeStorage();
     actualizarCampoEnergiaConsumo();
+    actualizarConsumoAutonomia();
     actualizarControlVoltajeSistema();
   }
 
@@ -351,25 +689,159 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
   }
 
   function registrarEventosCalculoBaterias(): void {
-    const fieldIds = ["voltajeSistema", "horasAutonomia", "profDescarga", "voltajeSelect", "capacidadSelect"];
+    const fieldIds = ["voltajeSistemaAutonomia", "profDescarga", "voltajeSelect", "capacidadSelect"];
 
     fieldIds.forEach((fieldId) => {
       const field = document.getElementById(fieldId) as HTMLInputElement | HTMLSelectElement | null;
       if (!field || field.dataset.batteryBound === "1") return;
 
       const eventName = field instanceof HTMLSelectElement ? "change" : "input";
-      field.addEventListener(eventName, ejecutarCalculoBaterias);
+      field.addEventListener(eventName, () => {
+        guardarEstadoBateria((actual) => ({
+          ...actual,
+          calculoBaterias: {
+            ...actual.calculoBaterias,
+            voltajeSistema: Number((document.getElementById("voltajeSistemaAutonomia") as HTMLSelectElement | null)?.value ?? actual.calculoBaterias.voltajeSistema),
+            voltajeBateria: Number((document.getElementById("voltajeSelect") as HTMLSelectElement | null)?.value ?? actual.calculoBaterias.voltajeBateria),
+            capacidadBateriaAh: Number((document.getElementById("capacidadSelect") as HTMLSelectElement | null)?.value ?? actual.calculoBaterias.capacidadBateriaAh),
+            profDescarga: Number((document.getElementById("profDescarga") as HTMLInputElement | null)?.value ?? actual.calculoBaterias.profDescarga),
+          },
+        }));
+        ejecutarCalculoBaterias();
+      });
       field.dataset.batteryBound = "1";
     });
 
-    const activarVoltajeManualEl = document.getElementById("activarVoltajeManual") as HTMLInputElement | null;
-    if (activarVoltajeManualEl && activarVoltajeManualEl.dataset.batteryBound !== "1") {
-      activarVoltajeManualEl.addEventListener("change", () => {
-        actualizarControlVoltajeSistema();
+    const activarVoltajeManualEl = document.getElementById("activarVoltajeManualAutonomia") as HTMLInputElement | null;
+    const activarVoltajeManualAutonomiaEl = document.getElementById("activarVoltajeManual") as HTMLInputElement | null;
+
+    [activarVoltajeManualEl, activarVoltajeManualAutonomiaEl].forEach((checkbox) => {
+      if (!checkbox || checkbox.dataset.batteryBound === "1") return;
+
+      checkbox.addEventListener("change", () => {
+        actualizarControlVoltajeSistema(checkbox.checked);
+        guardarEstadoBateria((actual) => ({
+          ...actual,
+          calculoBaterias: {
+            ...actual.calculoBaterias,
+            modoManualVoltaje: checkbox.checked,
+          },
+          tiempoAutonomia: {
+            ...actual.tiempoAutonomia,
+            modoManualVoltaje: checkbox.checked,
+          },
+        }));
         ejecutarCalculoBaterias();
+        calcularTiempoAutonomiaObjetivo();
       });
-      activarVoltajeManualEl.dataset.batteryBound = "1";
+      checkbox.dataset.batteryBound = "1";
+    });
+  }
+
+  function registrarValidadoresDod(): void {
+    const dodIds = ["profDescarga", "profDescargaAutonomia"];
+
+    dodIds.forEach((dodId) => {
+      const inputEl = document.getElementById(dodId) as HTMLInputElement | null;
+      if (!inputEl || inputEl.dataset.dodBound === "1") return;
+
+      // Solo valida/normaliza en blur para permitir edición temporal
+      inputEl.addEventListener("blur", () => {
+        normalizarDodEnBlur(inputEl);
+      });
+      
+      inputEl.dataset.dodBound = "1";
+    });
+  }
+
+  function obtenerElementoAutonomia<T extends HTMLElement>(selector: string): T | null {
+    const vistaAutonomia = document.getElementById("tiempo-autonomia-view");
+    if (!vistaAutonomia) return null;
+    return vistaAutonomia.querySelector(selector) as T | null;
+  }
+
+  function calcularTiempoAutonomiaObjetivo() {
+    const { totalEnergia = 0 } = leerDatosGuardados();
+    actualizarConsumoAutonomia();
+
+    const energiaAjustada = actualizarCampoEnergiaConsumo();
+    const autonomiaDeseada = parseFloat((document.getElementById("autonomiaDeseada") as HTMLInputElement | null)?.value ?? "0");
+    const voltajeSistema = parseFloat(obtenerElementoAutonomia<HTMLSelectElement>("#voltajeSistema")?.value ?? "0");
+    const capacidadAh = parseFloat((document.getElementById("capacidadAutonomia") as HTMLSelectElement | null)?.value ?? "0");
+    const voltaje = parseFloat((document.getElementById("voltajeAutonomia") as HTMLSelectElement | null)?.value ?? "0");
+    const dodEl = document.getElementById("profDescargaAutonomia") as HTMLInputElement | null;
+    const dodValor = obtenerDod(dodEl);
+    
+    // Valida que DOD sea válido (no 0, null, NaN)
+    if (!validarDodParaCalculo(dodValor)) {
+      console.warn("DOD (Profundidad de Descarga) inválida o vacía. Ingrese un valor entre 10 y 100.");
+      document.getElementById("resultadosAutonomia")?.classList.add("hidden");
+      return;
     }
+    
+    const dod = dodValor! / 100;
+    if (!autonomiaDeseada || !voltajeSistema || !capacidadAh || !voltaje || !totalEnergia) return;
+
+    const capacidadBancoBaterias = energiaAjustada / voltajeSistema;
+    const serie = Math.max(1, Math.ceil(voltajeSistema / voltaje));
+
+    const totalBaterias = (autonomiaDeseada * totalEnergia) / (capacidadAh * voltaje * dod);
+    const paralelo = Math.max(1, Math.ceil(totalBaterias / serie));
+    const totalFinal = paralelo * serie;
+
+    const bancoBateriasEl = document.getElementById("bancoBaterias") as HTMLElement | null;
+    const totalEl = document.getElementById("totalAutonomia") as HTMLElement | null;
+    const configEl = document.getElementById("configAutonomia") as HTMLElement | null;
+
+    if (bancoBateriasEl) bancoBateriasEl.textContent = String(capacidadBancoBaterias.toFixed(2));
+    if (totalEl) totalEl.textContent = String(totalFinal);
+    if (configEl) configEl.textContent = `${serie} en serie x ${paralelo} en paralelo`;
+
+    guardarEstadoBateria((actual) => ({
+      ...actual,
+      modoActivo: modoBateriaActivo,
+      tiempoAutonomia: {
+        ...actual.tiempoAutonomia,
+        voltajeSistema,
+        voltajeBateria: voltaje,
+        capacidadBateriaAh: capacidadAh,
+        profDescarga: dodValor ?? actual.tiempoAutonomia.profDescarga,
+        autonomiaDeseada,
+        modoManualVoltaje: (document.getElementById("activarVoltajeManual") as HTMLInputElement | null)?.checked === true,
+        bateriasSerie: serie,
+        bateriasParalelo: paralelo,
+        capacidadBancoAh: Number(capacidadBancoBaterias.toFixed(2)),
+        totalBaterias: totalFinal,
+      },
+    }));
+
+    actualizarDiagramaDesdeValores(serie, paralelo, voltaje, capacidadAh, "myDiagramDivAutonomia");
+  }
+
+  function registrarEventosCalculoAutonomia(): void {
+    const selectores = ["#voltajeSistema", "#autonomiaDeseada", "#voltajeAutonomia", "#capacidadAutonomia", "#profDescargaAutonomia"];
+
+    selectores.forEach((selector) => {
+      const field = obtenerElementoAutonomia<HTMLInputElement | HTMLSelectElement>(selector);
+      if (!field || field.dataset.autonomiaBound === "1") return;
+
+      const eventName = field instanceof HTMLSelectElement ? "change" : "input";
+      field.addEventListener(eventName, () => {
+        guardarEstadoBateria((actual) => ({
+          ...actual,
+          tiempoAutonomia: {
+            ...actual.tiempoAutonomia,
+            voltajeSistema: Number(obtenerElementoAutonomia<HTMLSelectElement>("#voltajeSistema")?.value ?? actual.tiempoAutonomia.voltajeSistema),
+            voltajeBateria: Number((document.getElementById("voltajeAutonomia") as HTMLSelectElement | null)?.value ?? actual.tiempoAutonomia.voltajeBateria),
+            capacidadBateriaAh: Number((document.getElementById("capacidadAutonomia") as HTMLSelectElement | null)?.value ?? actual.tiempoAutonomia.capacidadBateriaAh),
+            profDescarga: Number((document.getElementById("profDescargaAutonomia") as HTMLInputElement | null)?.value ?? actual.tiempoAutonomia.profDescarga),
+            autonomiaDeseada: Number((document.getElementById("autonomiaDeseada") as HTMLInputElement | null)?.value ?? actual.tiempoAutonomia.autonomiaDeseada),
+          },
+        }));
+        calcularTiempoAutonomiaObjetivo();
+      });
+      field.dataset.autonomiaBound = "1";
+    });
   }
 
   function registrarEventosMenuModoBateria(): void {
@@ -379,41 +851,74 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     const botones = Array.from(menu.querySelectorAll<HTMLButtonElement>(".battery-mode-btn"));
     if (botones.length === 0) return;
 
-    const aplicarModoInterfaz = (modo: "calculo-baterias" | "tiempo-autonomia"): void => {
+    const actualizarBotonesModo = (modo: BatteryMode): void => {
+      botones.forEach((item) => {
+        const activo = item.dataset.mode === modo;
+        item.setAttribute("aria-pressed", activo ? "true" : "false");
+        item.classList.toggle("bg-[#cc3b26]", activo);
+        item.classList.toggle("text-white", activo);
+        item.classList.toggle("text-slate-600", !activo);
+        item.classList.toggle("hover:text-slate-900", !activo);
+      });
+    };
+
+    const aplicarModoInterfaz = (modo: BatteryMode): void => {
       const vistaCalculo = document.getElementById("calculo-baterias-view");
       const vistaAutonomia = document.getElementById("tiempo-autonomia-view");
       modoBateriaActivo = modo;
+
+       guardarEstadoBateria((actual) => ({
+        ...actual,
+        modoActivo: modo,
+      }));
+
+      const estado = leerEstadoBateriaGuardado();
+      if (modo === "calculo-baterias") {
+        aplicarEstadoCalculoEnFormulario(estado.calculoBaterias);
+      } else {
+        aplicarEstadoAutonomiaEnFormulario(estado.tiempoAutonomia);
+      }
 
       vistaCalculo?.classList.toggle("hidden", modo !== "calculo-baterias");
       vistaAutonomia?.classList.toggle("hidden", modo !== "tiempo-autonomia");
 
       if (modo === "calculo-baterias") {
         ejecutarCalculoBaterias();
+        return;
       }
+
+      calcularTiempoAutonomiaObjetivo();
     };
 
     botones.forEach((boton) => {
       boton.addEventListener("click", () => {
-        const modo = (boton.dataset.mode === "tiempo-autonomia" ? "tiempo-autonomia" : "calculo-baterias") as "calculo-baterias" | "tiempo-autonomia";
-
-        botones.forEach((item) => {
-          const activo = item === boton;
-          item.setAttribute("aria-pressed", activo ? "true" : "false");
-          item.classList.toggle("bg-[#cc3b26]", activo);
-          item.classList.toggle("text-white", activo);
-          item.classList.toggle("text-slate-600", !activo);
-          item.classList.toggle("hover:text-slate-900", !activo);
-        });
+        const modo = normalizarModoBateria(boton.dataset.mode);
+        actualizarBotonesModo(modo);
 
         aplicarModoInterfaz(modo);
       });
     });
 
-    const botonInicialActivo = botones.find((item) => item.getAttribute("aria-pressed") === "true") ?? botones[0];
-    const modoInicial = (botonInicialActivo?.dataset.mode === "tiempo-autonomia" ? "tiempo-autonomia" : "calculo-baterias") as "calculo-baterias" | "tiempo-autonomia";
+    const modoInicial = leerEstadoBateriaGuardado().modoActivo;
+    actualizarBotonesModo(modoInicial);
     aplicarModoInterfaz(modoInicial);
 
     menu.dataset.modeBound = "1";
+  }
+
+  function registrarToggleInfoResultados(): void {
+    const toggleEl = document.getElementById("infoBateriaToggle") as HTMLButtonElement | null;
+    const wrapEl = document.getElementById("infoBateriaSistemaWrap") as HTMLElement | null;
+    if (!toggleEl || !wrapEl || toggleEl.dataset.bound === "1") return;
+
+    toggleEl.addEventListener("click", () => {
+      const abierto = wrapEl.classList.contains("hidden");
+      wrapEl.classList.toggle("hidden", !abierto);
+      toggleEl.setAttribute("aria-expanded", abierto ? "true" : "false");
+      toggleEl.textContent = abierto ? "- info completa" : "+ info completa";
+    });
+
+    toggleEl.dataset.bound = "1";
   }
 
   document.addEventListener("astro:page-load", inicializarEnergia);
@@ -427,56 +932,72 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 
   document.addEventListener("astro:page-load", () => {
     registerNavigationPreloader();
+    registrarValidadoresDod();
     registrarEventosMenuModoBateria();
     registrarEventosCalculoBaterias();
+    registrarEventosCalculoAutonomia();
+    registrarToggleInfoResultados();
     ejecutarCalculoBaterias();
+    calcularTiempoAutonomiaObjetivo();
   });
 
   window.addEventListener("pageshow", () => {
     registerNavigationPreloader();
+    registrarValidadoresDod();
     registrarEventosMenuModoBateria();
     registrarEventosCalculoBaterias();
+    registrarEventosCalculoAutonomia();
+    registrarToggleInfoResultados();
     ejecutarCalculoBaterias();
+    calcularTiempoAutonomiaObjetivo();
   });
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       registerNavigationPreloader();
+      registrarValidadoresDod();
       registrarEventosMenuModoBateria();
       registrarEventosCalculoBaterias();
+      registrarEventosCalculoAutonomia();
+      registrarToggleInfoResultados();
       ejecutarCalculoBaterias();
+      calcularTiempoAutonomiaObjetivo();
     }, { once: true });
   } else {
     registerNavigationPreloader();
+    registrarValidadoresDod();
     registrarEventosMenuModoBateria();
     registrarEventosCalculoBaterias();
+    registrarEventosCalculoAutonomia();
+    registrarToggleInfoResultados();
     ejecutarCalculoBaterias();
+    calcularTiempoAutonomiaObjetivo();
   }
 
   // ======================= GoJS - Diagrama de Baterías =======================
-  function actualizarDiagramaDesdeValores(series: number, parallel: number, voltajeBateria: number, capacidadBatAh: number) {
+  function actualizarDiagramaDesdeValores(series: number, parallel: number, voltajeBateria: number, capacidadBatAh: number, diagramDivId = "myDiagramDiv") {
     const go = (window as any).go;
     if (!go) {
       void loadGoJS()
         .then(() => {
-          actualizarDiagramaDesdeValores(series, parallel, voltajeBateria, capacidadBatAh);
+          actualizarDiagramaDesdeValores(series, parallel, voltajeBateria, capacidadBatAh, diagramDivId);
         })
         .catch((error) => {
           console.error("No se pudo inicializar GoJS para el diagrama de baterias.", error);
         });
       return;
     }
-    initDiagram(go, series, parallel, voltajeBateria, capacidadBatAh);
+    initDiagram(go, series, parallel, voltajeBateria, capacidadBatAh, diagramDivId);
   }
 
-  function initDiagram(go: any, series: number, parallel: number, voltajeBateria: number, capacidadBatAh: number) {
+  function initDiagram(go: any, series: number, parallel: number, voltajeBateria: number, capacidadBatAh: number, diagramDivId: string) {
     const $ = go.GraphObject.make;
 
     // Destruir instancia previa si existe
-    const existingDiagram = go.Diagram.fromDiv("myDiagramDiv");
+    const existingDiagram = go.Diagram.fromDiv(diagramDivId);
     if (existingDiagram) existingDiagram.div = null;
 
-    const myDiagram = $(go.Diagram, "myDiagramDiv", {
+    const myDiagram = $(go.Diagram, diagramDivId, {
       "undoManager.isEnabled": false,
       "isReadOnly": true,
       "allowMove": false,

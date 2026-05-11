@@ -253,6 +253,7 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
       totalEnergiaLoss?: number;
       panelesSolares?: number;
       panelVatios?: number;
+      porcentajePerdida?: number;
     };
 
     type LocalidadStorage = {
@@ -289,6 +290,8 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
     let horasSol = 0;
     let nombreProvincia = "No seleccionada";
     let panelVatios = 0;
+    let panelVatiosGuardado = 0;
+    let porcentajePerdidaGuardado = 15;
     let indicePanelActivo = 0;
     let imageLoadRequestId = 0;
 
@@ -319,6 +322,8 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
       totalEnergia = 0;
       horasSol = 0;
       nombreProvincia = "No seleccionada";
+      panelVatiosGuardado = 0;
+      porcentajePerdidaGuardado = 15;
 
       try {
         const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
@@ -328,6 +333,10 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
           totalEnergia = typeof consumo.totalEnergia === "number"
             ? consumo.totalEnergia
             : 0;
+          panelVatiosGuardado = typeof consumo.panelVatios === "number" ? consumo.panelVatios : 0;
+          porcentajePerdidaGuardado = typeof consumo.porcentajePerdida === "number"
+            ? consumo.porcentajePerdida
+            : 15;
         }
 
         const localidadGuardada = window.localStorage.getItem(LOCALIDAD_STORAGE_KEY);
@@ -341,7 +350,13 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
       }
     };
 
-    const guardarDatos = (totalEnergiaLoss: number, totalEnergiaHoraLoss: number, panelesSolares: number, panelVatios: number): void => {
+    const guardarDatos = (
+      totalEnergiaLoss: number,
+      totalEnergiaHoraLoss: number,
+      panelesSolares: number,
+      panelVatios: number,
+      porcentajePerdida: number,
+    ): void => {
       try {
         const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
         const consumoActual = consumoGuardado
@@ -354,11 +369,12 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
           totalEnergiaConsumoLoss: totalEnergiaHoraLoss,
           panelesSolares: panelesSolares,
           panelVatios: panelVatios,
+          porcentajePerdida: porcentajePerdida,
         };
 
         window.localStorage.setItem(CONSUMO_STORAGE_KEY, JSON.stringify(consumoActualizado));
       } catch (error) {
-        console.error("No se pudo guardar el consumo ajustado en localStorage.", error);
+        console.error("No se pudo guardar el consumo con pérdida en localStorage.", error);
       }
     };
 
@@ -395,16 +411,16 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
       const panelesExactos = panelVatios > 0 ? totalEnergiaSolar / panelVatios : 0;
       const paneles = panelVatios > 0 ? Math.ceil(panelesExactos) : 0;
 
-      guardarDatos(totalEnergiaLoss, totalEnergiaHoraLoss, paneles, panelVatios);
+      guardarDatos(totalEnergiaLoss, totalEnergiaHoraLoss, paneles, panelVatios, porcentajeSeleccionado);
 
 
       if (totalEnergiaHora <= 0 || horasSol <= 0) {
         resultadoPanelesEl.textContent = `0 paneles de ${panelVatios} W`;
         resultadoPanelesDetalleEl.textContent = [
           `• Pérdida: ${porcentajeSeleccionado}%`,
-          `• Potencia ajustada: ${formatearNumero(totalEnergiaLoss)} W`,
-          `• Consumo diario: ${formatearNumero(totalEnergiaHora)} Wh`,
-          `• Horas sol: ${horasSol > 0 ? formatearNumero(horasSol) : "--"}`,
+          `• Consumo considerando pérdidas: ${formatearNumero(totalEnergiaLoss)} W`,
+          `• Energia considerando pérdidas: ${formatearNumero(totalEnergiaHoraLoss)} Wh`,
+          `• Potencia solar requerida: ${formatearNumero(totalEnergiaSolar)} W`,
           `• Horas de sol pico necesarias: ${horasSol}`,
         ].join("\n");
         return;
@@ -413,8 +429,8 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
       resultadoPanelesEl.textContent = `${paneles} paneles de ${panelVatios} W`;
       resultadoPanelesDetalleEl.textContent = [
         `• Pérdida: ${porcentajeSeleccionado}%`,
-        `• Potencia ajustada: ${formatearNumero(totalEnergiaLoss)} W`,
-        `• Consumo ajustado: ${formatearNumero(totalEnergiaHoraLoss)} Wh`,
+        `• Consumo considerando pérdidas: ${formatearNumero(totalEnergiaLoss)} W`,
+        `• Energia considerando pérdidas: ${formatearNumero(totalEnergiaHoraLoss)} Wh`,
         `• Potencia solar requerida: ${formatearNumero(totalEnergiaSolar)} W`,
         `• Horas de sol pico necesarias: ${horasSol}`,
       ].join("\n");
@@ -540,11 +556,20 @@ const panelInicial: PanelOption = opcionesVatios[0] ?? {
       if (dots.length === 0) return;
 
       leerDatosGuardados();
+
+      if (porcentajePerdidaEl) {
+        const optionExists = Array.from(porcentajePerdidaEl.options)
+          .some((option) => Number(option.value) === porcentajePerdidaGuardado);
+        porcentajePerdidaEl.value = optionExists ? String(porcentajePerdidaGuardado) : "15";
+      }
+
       registrarEventos();
       registerNavigationPreloader();
       toggleResultadoDetalle(false);
 
-      const dotSeleccionado = dots.find((dot) => dot.getAttribute("aria-pressed") === "true") ?? dots[0];
+      const dotSeleccionado = dots.find((dot) => Number(dot.dataset.watts || 0) === panelVatiosGuardado)
+        ?? dots.find((dot) => dot.getAttribute("aria-pressed") === "true")
+        ?? dots[0];
       if (dotSeleccionado) {
         updateSelection(dotSeleccionado);
       } else {

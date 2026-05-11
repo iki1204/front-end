@@ -1,0 +1,461 @@
+---
+import Layout from '../../layouts/LayoutCalculadora.astro';
+import { getInvertersData } from "../../lib/api";
+
+type InverterOption = {
+  nombre: string;
+  potencia: number;
+  voltaje: number;
+  pvMaxVoltage: number;
+  pvMaxCurrent: number;
+  pvMaxPower: number;
+  mpptMin: number;
+  mpptMax: number;
+  imagen: string;
+};
+
+type StrapiMediaItem = {
+  url?: string | null;
+};
+
+type StrapiMediaField =
+  | StrapiMediaItem
+  | StrapiMediaItem[]
+  | { data?: StrapiMediaItem | StrapiMediaItem[] | null }
+  | null
+  | undefined;
+
+const STRAPI_BASE_URL = import.meta.env.VITE_STRAPI_URL ?? "https://api.unicomec.com";
+const INVERTER_PLACEHOLDER = "/images/placeholder.png";
+
+const resolveInverterImage = (imageField: StrapiMediaField): string => {
+  const normalizedField = imageField as {
+    data?: StrapiMediaItem | StrapiMediaItem[] | null;
+    url?: string | null;
+  } | null | undefined;
+
+  const candidateUrl = Array.isArray(imageField)
+    ? imageField[0]?.url
+    : Array.isArray(normalizedField?.data)
+      ? normalizedField.data[0]?.url
+      : normalizedField?.data && !Array.isArray(normalizedField.data)
+        ? normalizedField.data.url
+        : normalizedField?.url;
+
+  if (!candidateUrl) return INVERTER_PLACEHOLDER;
+  return candidateUrl.startsWith("http") ? candidateUrl : `${STRAPI_BASE_URL}${candidateUrl}`;
+};
+
+const ordenarInversoresPorPotencia = (inversores: InverterOption[]): InverterOption[] => {
+  return [...inversores].sort((a, b) => a.potencia - b.potencia);
+};
+
+const opcionesInversores: InverterOption[] = await getInvertersData().then((response) => {
+  if (response?.data) {
+    const inversoresMapeados = response.data.map((item: any): InverterOption => ({
+      potencia: Number(item.potencia ?? 0),
+      nombre: String(item.nombre ?? "--"),
+      voltaje: Number(item.voltaje ?? 0),
+      pvMaxVoltage: Number(item.pvMaxVoltage ?? 0),
+      pvMaxCurrent: Number(item.pvMaxCurrent ?? 0),
+      pvMaxPower: Number(item.pvMaxPower ?? 0),
+      mpptMin: Number(item.mpptMin ?? 0),
+      mpptMax: Number(item.mpptMax ?? 0),
+      imagen: resolveInverterImage(item.imagen),
+    }));
+
+    return ordenarInversoresPorPotencia(inversoresMapeados);
+  }
+
+  return [];
+}).catch((error) => {
+  console.error("Error al obtener los datos de los inversores:", error);
+  return [];
+});
+
+const inverterInicial: InverterOption = opcionesInversores[0] ?? {
+  potencia: 0,
+  nombre: "Sin inversores disponibles",
+  voltaje: 0,
+  pvMaxVoltage: 0,
+  pvMaxCurrent: 0,
+  pvMaxPower: 0,
+  mpptMin: 0,
+  mpptMax: 0,
+  imagen: INVERTER_PLACEHOLDER,
+};
+
+---
+
+<Layout title="Unicom - Off Grid">
+  <main class="min-h-screen bg-[#ececec]">
+    <section class="mx-auto grid min-h-screen w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[minmax(340px,40%)_1fr]">
+      <aside class="flex items-center bg-[linear-gradient(180deg,#5a0a0a_0%,#2a0303_100%)] px-[clamp(2.5rem,3.8vw,4rem)] py-10 text-white">
+        <div class="space-y-8 sm:space-y-10">
+          <h1 class="m-0 text-[clamp(2.6rem,4.5vw,5rem)] font-black leading-[0.95] tracking-[-0.07em] text-balance">
+            Selecciona tu
+            <br />
+            Inversor
+            <br />
+            Ideal
+          </h1>
+
+          <p class="max-w-[38ch] mt-4 text-[clamp(1rem,1.2vw,1.35rem)] font-semibold leading-normal text-red-100">
+            Elige el inversor adecuado para convertir la energía de tus baterías en corriente alterna y alimentar tus dispositivos.
+          </p>
+        </div>
+      </aside>
+
+       <aside class="m-4 rounded-3xl border border-slate-300 bg-slate-100 p-6 text-slate-800 shadow-lg lg:m-6 lg:p-8">
+        <section class="mt-8 rounded-2xl border border-slate-300 bg-white p-4 shadow-sm">
+          <p class="m-0 text-xs uppercase tracking-[0.12em] text-slate-500">Selecciona el inversor</p>
+
+          <div class="mt-4 flex items-center justify-between gap-3">
+            <button
+              id="inverter-prev"
+              type="button"
+              class="flex cursor-pointer h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-slate-100 text-xl text-slate-700 transition hover:border-[#cc2f1f] hover:text-[#cc2f1f] disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Inversor anterior"
+            >
+              ‹
+            </button>
+
+            <div class="min-w-0 flex-1 text-center">
+              <div class="relative mx-auto flex h-90 w-full items-center justify-center overflow-hidden rounded-lg">
+                <div
+                  id="carousel-inverter-loader"
+                  class="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-lg  "
+                >
+                  <span class="h-11 w-11 animate-spin rounded-full border-[3px] border-slate-300 border-t-[#cc2f1f]"></span>
+                  <span class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Cargando...</span>
+                </div>
+
+                <img
+                  id="carousel-inverter-image"
+                  src={inverterInicial.imagen}
+                  data-current-src=""
+                  alt="Inversor seleccionado"
+                  class="mx-auto h-90 w-auto rounded-lg object-contain p-2 opacity-0 transition-opacity duration-200"
+                />
+              </div>
+              <p class="m-0 mt-3 text-sm uppercase tracking-[0.14em] text-slate-500">Inversor</p>
+              <p class="m-0 mt-1 text-4xl font-extrabold text-slate-900" id="carousel-inverter-potencia">{inverterInicial.potencia}W</p>
+            </div>
+
+            <button
+              id="inverter-next"
+              type="button"
+              class="flex cursor-pointer h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-slate-100 text-xl text-slate-700 transition hover:border-[#cc2f1f] hover:text-[#cc2f1f] disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Siguiente inversor"
+            >
+              ›
+            </button>
+          </div>
+
+          <div class="mt-4 flex justify-center gap-2" id="inverter-carousel-dots">
+            {opcionesInversores.map((opcion, index) => (
+              <button
+                type="button"
+                class={`inverter-dot h-2.5 w-2.5 rounded-full transition ${index === 0 ? 'bg-[#cc2f1f]' : 'bg-slate-300'}`}
+                data-index={index}
+                data-potencia={opcion.potencia}
+                data-nombre={opcion.nombre}
+                data-voltaje={opcion.voltaje}
+                data-pv-max-voltage={opcion.pvMaxVoltage}
+                data-pv-max-current={opcion.pvMaxCurrent}
+                data-pv-max-power={opcion.pvMaxPower}
+                data-mppt-min={opcion.mpptMin}
+                data-mppt-max={opcion.mpptMax}
+                data-imagen={opcion.imagen ?? '/images/placeholder.png'}
+                aria-label={`Seleccionar inversor de ${opcion.potencia}W`}
+                aria-pressed={index === 0 ? 'true' : 'false'}
+              ></button>
+            ))}
+          </div>
+        </section>
+        <h2 class="m-0 mt-6 text-2xl font-bold text-slate-800">Resumen de selección</h2>
+
+        <div class="mt-6 space-y-5">
+          <section class="rounded-2xl border border-slate-300 bg-white p-5 shadow-sm">
+            <p class="m-0 text-xs uppercase tracking-[0.12em] text-slate-500">Resumen de selección</p>
+            <div class="mt-3 flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p class="m-0 text-4xl font-black text-slate-900" id="resumen-potencia">{inverterInicial.potencia}W</p>
+                <p class="m-0 mt-1 text-sm font-semibold text-slate-600" id="resumen-nombre">{inverterInicial.nombre}</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="rounded-xl border border-red-200 bg-red-50 p-4">
+            <p class="m-0 text-xs uppercase tracking-[0.12em] text-[#cc2f1f]">Inversor seleccionado:</p>
+            <p class="m-0 mt-2 text-3xl font-black text-slate-900" id="resultado-inversor">Inversor de {inverterInicial.potencia} W</p>
+
+            <button
+              id="resultado-inversor-toggle"
+              type="button"
+              class="mt-3 inline-flex cursor-pointer items-center rounded-full border border-red-200 bg-white px-3 py-1 text-sm font-semibold text-[#b9301d] transition hover:border-[#cc2f1f] hover:text-[#cc2f1f]"
+              aria-expanded="false"
+              aria-controls="resultado-inversor-detalle-wrap"
+            >
+              + info
+            </button>
+
+            <div id="resultado-inversor-detalle-wrap" class="hidden">
+              <p class="m-0 mt-3 whitespace-pre-line rounded-lg border border-red-100 bg-white/70 p-3 text-sm leading-6 text-slate-600" id="resultado-inversor-detalle"></p>
+            </div>
+          </section>
+
+          <div class="mt-8 flex flex-wrap gap-3">
+              <a
+              href="/calculadora-off-grid/baterias"
+              data-nav-loading
+              class="inline-flex h-11 items-center rounded bg-slate-700 px-6 text-base font-semibold text-white transition hover:bg-slate-800"
+              >
+              Volver a baterías
+              </a>
+              <a
+              id="confirmar-inversor"
+              href="/calculadora-off-grid/off-grid"
+              data-nav-loading
+              class="inline-flex h-11 items-center rounded bg-[#cc3b26] px-6 text-base font-semibold text-white transition hover:bg-[#b9301d]"
+              >
+              Continuar 
+              </a>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+</Layout>
+
+<script>
+  import { registerNavigationPreloader } from "../../lib/navigationPreloader";
+
+    type ConsumoStorage = {
+      inversorPotencia?: number;
+      inversorModelo?: string;
+      inversorEficiencia?: string;
+    };
+
+    const CONSUMO_STORAGE_KEY = "unicom.offgrid.consumos";
+    const INVERTER_PLACEHOLDER_CLIENT = "/images/placeholder.png";
+
+    let dots: HTMLButtonElement[] = [];
+    let resumenPotencia: HTMLElement | null = null;
+    let resumenEficiencia: HTMLElement | null = null;
+    let resumenModelo: HTMLElement | null = null;
+    let resumenDescripcion: HTMLElement | null = null;
+    let resultadoInversorEl: HTMLElement | null = null;
+    let resultadoInversorDetalleEl: HTMLElement | null = null;
+    let resultadoInversorToggleEl: HTMLButtonElement | null = null;
+    let resultadoInversorDetalleWrapEl: HTMLElement | null = null;
+    let inverterPrevEl: HTMLButtonElement | null = null;
+    let inverterNextEl: HTMLButtonElement | null = null;
+    let carouselInverterPotenciaEl: HTMLElement | null = null;
+    let carouselInverterModeloEl: HTMLElement | null = null;
+    let carouselInverterImageEl: HTMLImageElement | null = null;
+    let carouselInverterLoaderEl: HTMLElement | null = null;
+
+    let inversorPotencia = 0;
+    let inversorModelo = "";
+    let inversorEficiencia = "";
+    let indiceInverterActivo = 0;
+    let imageLoadRequestId = 0;
+
+    const guardarDatos = (potencia: number, modelo: string, eficiencia: string): void => {
+      try {
+        const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
+        const consumoActual = consumoGuardado
+          ? JSON.parse(consumoGuardado) as ConsumoStorage
+          : {};
+
+        const consumoActualizado: ConsumoStorage = {
+          ...consumoActual,
+          inversorPotencia: potencia,
+          inversorModelo: modelo,
+          inversorEficiencia: eficiencia,
+        };
+
+        window.localStorage.setItem(CONSUMO_STORAGE_KEY, JSON.stringify(consumoActualizado));
+      } catch (error) {
+        console.error("No se pudo guardar el inversor en localStorage.", error);
+      }
+    };
+
+    const toggleResultadoDetalle = (abierto?: boolean): void => {
+      if (!resultadoInversorToggleEl || !resultadoInversorDetalleWrapEl) return;
+
+      const shouldOpen = typeof abierto === "boolean"
+        ? abierto
+        : resultadoInversorDetalleWrapEl.classList.contains("hidden");
+
+      resultadoInversorDetalleWrapEl.classList.toggle("hidden", !shouldOpen);
+      resultadoInversorToggleEl.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+      resultadoInversorToggleEl.textContent = shouldOpen ? "- info" : "+ info";
+    };
+
+    const actualizarResultadoInversor = (): void => {
+      if (!resultadoInversorEl || !resultadoInversorDetalleEl) return;
+
+      resultadoInversorEl.textContent = `Inversor de ${inversorPotencia} W`;
+      resultadoInversorDetalleEl.textContent = [
+        `• Modelo: ${inversorModelo}`,
+        `• Potencia: ${inversorPotencia} W`,
+        `• Eficiencia: ${inversorEficiencia}`,
+      ].join("\n");
+    };
+
+    const sincronizarElementos = (): void => {
+      dots = Array.from(document.querySelectorAll<HTMLButtonElement>(".inverter-dot"));
+      resumenPotencia = document.getElementById("resumen-potencia");
+      resumenEficiencia = document.getElementById("resumen-eficiencia");
+      resumenModelo = document.getElementById("resumen-modelo");
+      resumenDescripcion = document.getElementById("resumen-descripcion");
+      resultadoInversorEl = document.getElementById("resultado-inversor");
+      resultadoInversorDetalleEl = document.getElementById("resultado-inversor-detalle");
+      resultadoInversorToggleEl = document.querySelector<HTMLButtonElement>("#resultado-inversor-toggle");
+      resultadoInversorDetalleWrapEl = document.getElementById("resultado-inversor-detalle-wrap");
+      inverterPrevEl = document.querySelector<HTMLButtonElement>("#inverter-prev");
+      inverterNextEl = document.querySelector<HTMLButtonElement>("#inverter-next");
+      carouselInverterPotenciaEl = document.getElementById("carousel-inverter-potencia");
+      carouselInverterModeloEl = document.getElementById("carousel-inverter-modelo");
+      carouselInverterImageEl = document.querySelector<HTMLImageElement>("#carousel-inverter-image");
+      carouselInverterLoaderEl = document.getElementById("carousel-inverter-loader");
+    };
+
+    const actualizarCarrusel = (): void => {
+      if (dots.length === 0) return;
+
+      dots.forEach((dot, index) => {
+        const isActive = index === indiceInverterActivo;
+        dot.classList.toggle("bg-[#cc2f1f]", isActive);
+        dot.classList.toggle("bg-slate-300", !isActive);
+        dot.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+
+      if (inverterPrevEl) inverterPrevEl.disabled = indiceInverterActivo === 0;
+      if (inverterNextEl) inverterNextEl.disabled = indiceInverterActivo === dots.length - 1;
+    };
+
+    const actualizarEstadoPreloader = (cargando: boolean): void => {
+      if (carouselInverterLoaderEl) {
+        carouselInverterLoaderEl.classList.toggle("hidden", !cargando);
+      }
+
+      if (carouselInverterImageEl) {
+        carouselInverterImageEl.classList.toggle("opacity-0", cargando);
+        carouselInverterImageEl.classList.toggle("opacity-100", !cargando);
+      }
+    };
+
+    const actualizarImagenCarrusel = (imagen: string): void => {
+      if (!carouselInverterImageEl) return;
+
+      const imageUrl = imagen?.trim() ? imagen : INVERTER_PLACEHOLDER_CLIENT;
+      const currentImage = carouselInverterImageEl.dataset.currentSrc || "";
+
+      if (currentImage === imageUrl && carouselInverterImageEl.complete && carouselInverterImageEl.naturalWidth > 0) {
+        actualizarEstadoPreloader(false);
+        return;
+      }
+
+      imageLoadRequestId += 1;
+      const requestId = imageLoadRequestId;
+      const preloadedImage = new Image();
+
+      actualizarEstadoPreloader(true);
+
+      preloadedImage.onload = () => {
+        if (!carouselInverterImageEl || requestId !== imageLoadRequestId) return;
+        carouselInverterImageEl.src = imageUrl;
+        carouselInverterImageEl.dataset.currentSrc = imageUrl;
+        actualizarEstadoPreloader(false);
+      };
+
+      preloadedImage.onerror = () => {
+        if (!carouselInverterImageEl || requestId !== imageLoadRequestId) return;
+        carouselInverterImageEl.dataset.currentSrc = INVERTER_PLACEHOLDER_CLIENT;
+        actualizarEstadoPreloader(false);
+      };
+
+      preloadedImage.src = imageUrl;
+    };
+
+    const updateSelection = (dot: HTMLButtonElement): void => {
+      indiceInverterActivo = Number(dot.dataset.index || 0);
+      inversorPotencia = Number(dot.dataset.potencia || 0);
+      inversorModelo = dot.dataset.modelo || "";
+      inversorEficiencia = dot.dataset.eficiencia || "";
+
+      const imagenInversor = dot.dataset.imagen || INVERTER_PLACEHOLDER_CLIENT;
+
+      if (carouselInverterPotenciaEl) carouselInverterPotenciaEl.textContent = `${inversorPotencia}W`;
+      if (carouselInverterModeloEl) carouselInverterModeloEl.textContent = inversorModelo;
+      actualizarImagenCarrusel(imagenInversor);
+
+      if (resumenPotencia) resumenPotencia.textContent = `${inversorPotencia}W`;
+      if (resumenEficiencia) resumenEficiencia.textContent = inversorEficiencia;
+      if (resumenModelo) resumenModelo.textContent = inversorModelo;
+      if (resumenDescripcion) resumenDescripcion.textContent = dot.dataset.descripcion || "";
+
+      actualizarCarrusel();
+      actualizarResultadoInversor();
+      guardarDatos(inversorPotencia, inversorModelo, inversorEficiencia);
+    };
+
+    const registrarEventos = (): void => {
+      dots.forEach((dot) => {
+        if (dot.dataset.listenerBound === "1") return;
+        dot.addEventListener("click", () => updateSelection(dot));
+        dot.dataset.listenerBound = "1";
+      });
+
+      if (inverterPrevEl && inverterPrevEl.dataset.listenerBound !== "1") {
+        inverterPrevEl.addEventListener("click", () => {
+          if (indiceInverterActivo <= 0) return;
+          const siguienteDot = dots[indiceInverterActivo - 1];
+          if (siguienteDot) updateSelection(siguienteDot);
+        });
+        inverterPrevEl.dataset.listenerBound = "1";
+      }
+
+      if (inverterNextEl && inverterNextEl.dataset.listenerBound !== "1") {
+        inverterNextEl.addEventListener("click", () => {
+          if (indiceInverterActivo >= dots.length - 1) return;
+          const siguienteDot = dots[indiceInverterActivo + 1];
+          if (siguienteDot) updateSelection(siguienteDot);
+        });
+        inverterNextEl.dataset.listenerBound = "1";
+      }
+
+      if (resultadoInversorToggleEl && resultadoInversorToggleEl.dataset.listenerBound !== "1") {
+        resultadoInversorToggleEl.addEventListener("click", () => toggleResultadoDetalle());
+        resultadoInversorToggleEl.dataset.listenerBound = "1";
+      }
+    };
+
+    const inicializarPaginaInversores = (): void => {
+      sincronizarElementos();
+      if (dots.length === 0) return;
+
+      registrarEventos();
+      registerNavigationPreloader();
+      toggleResultadoDetalle(false);
+
+      const dotSeleccionado = dots.find((dot) => dot.getAttribute("aria-pressed") === "true") ?? dots[0];
+      if (dotSeleccionado) {
+        updateSelection(dotSeleccionado);
+      } else {
+        actualizarResultadoInversor();
+      }
+    };
+
+    document.addEventListener("astro:page-load", inicializarPaginaInversores);
+    window.addEventListener("pageshow", inicializarPaginaInversores);
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", inicializarPaginaInversores, { once: true });
+    } else {
+      inicializarPaginaInversores();
+    }
+  </script>

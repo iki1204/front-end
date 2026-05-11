@@ -39,6 +39,14 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
           </select>
         </div>
 
+        <label
+          for="agregar-inversor"
+          class="inline-flex w-fit cursor-pointer items-center gap-3 rounded-full border border-[#f3b2aa] bg-[#fff4f2] px-4 py-2 text-sm font-semibold text-[#9f2f20] transition hover:border-[#e28579]"
+        >
+          <input id="agregar-inversor" type="checkbox" class="size-4 accent-[#cc2f1f]" />
+          <span>Agregar consumo del inversor</span>
+        </label>
+
         <div class="grid gap-4 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
           <label class="block">
             <span class="mb-2 block text-sm text-slate-700">Cantidad</span>
@@ -70,11 +78,6 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 
           <div id="tabla-consumos" class="divide-y divide-slate-300"></div>
         </div>
-
-        <label for="unlock-inversor" class="inline-flex items-center gap-3 rounded border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700">
-          <input id="unlock-inversor" type="checkbox" class="size-4 accent-[#cc2f1f]" />
-          <span>Conozco el consumo de mi inversor</span>
-        </label>
 
         <div class="space-y-5 pt-2 pb-4">
           <h2 class="font-mono text-3xl text-slate-800">Consumo diario de energía</h2>
@@ -145,7 +148,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     let tablaConsumosEl: HTMLDivElement | null = null;
     let totalEnergiaEl: HTMLElement | null = null;
     let totalEnergiaConsumoEl: HTMLElement | null = null;
-    let unlockInversorEl: HTMLInputElement | null = null;
+    let agregarInversorEl: HTMLInputElement | null = null;
 
     const sincronizarElementosDom = (): void => {
       equipoEl = document.querySelector<HTMLSelectElement>("#equipo");
@@ -156,7 +159,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       tablaConsumosEl = document.querySelector<HTMLDivElement>("#tabla-consumos");
       totalEnergiaEl = document.querySelector<HTMLElement>("#total-potencia");
       totalEnergiaConsumoEl = document.querySelector<HTMLElement>("#total-wh");
-      unlockInversorEl = document.querySelector<HTMLInputElement>("#unlock-inversor");
+      agregarInversorEl = document.querySelector<HTMLInputElement>("#agregar-inversor");
     };
 
     const esPaginaConsumoActiva = (): boolean => {
@@ -166,7 +169,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         && horasEl instanceof HTMLInputElement
         && btnCalcularEl instanceof HTMLButtonElement
         && tablaConsumosEl instanceof HTMLDivElement
-        && unlockInversorEl instanceof HTMLInputElement;
+        && agregarInversorEl instanceof HTMLInputElement;
     };
 
     let electrodomesticos: Electrodomestico[] = [];
@@ -176,7 +179,34 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     let contadorRegistros = 0;
     let totalEnergiaGuardada = 0;
     let totalEnergiaConsumoGuardada = 0;
-    let inversorEditUnlocked = false;
+
+    const crearRegistroInversor = (): RegistroConsumo => ({
+      id: -1,
+      equipo: "Consumo Inversor",
+      cantidad: 1,
+      potencia: 100,
+      horas: 5,
+      esInversor: true
+    });
+
+    const sincronizarRegistroInversor = (): void => {
+      if (!(agregarInversorEl instanceof HTMLInputElement)) return;
+
+      const incluirInversor = agregarInversorEl.checked;
+      const inversorActual = registros.find((item) => item.esInversor);
+
+      if (incluirInversor && !inversorActual) {
+        registros.unshift(crearRegistroInversor());
+      }
+
+      if (!incluirInversor && inversorActual) {
+        registros = registros.filter((item) => !item.esInversor);
+        if (registroEnEdicionId === inversorActual.id) {
+          registroEnEdicionId = null;
+          borradorEdicion = null;
+        }
+      }
+    };
 
     const esCampoEditable = (campo: string): campo is CampoEditable => {
       return ["cantidad", "potencia", "horas"].includes(campo);
@@ -267,16 +297,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 
       if (guardado) {
         cargarRegistrosDesdeStorage();
-        const tieneInversor = registros.some((r) => r.esInversor);
-        if (!tieneInversor) {
-          registros.unshift({
-            id: -1,
-            equipo: "Consumo Inversor",
-            cantidad: 1,
-            potencia: 100,
-            horas: 8,
-            esInversor: true
-          });
+        if (agregarInversorEl instanceof HTMLInputElement) {
+          agregarInversorEl.checked = false;
         }
         renderTabla();
         actualizarTotales();
@@ -288,15 +310,12 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       totalEnergiaConsumoGuardada = 0;
       registroEnEdicionId = null;
       borradorEdicion = null;
-      
-      registros = [{
-        id: -1,
-        equipo: "Consumo Inversor",
-        cantidad: 1,
-        potencia: 100,
-        horas: 5,
-        esInversor: true
-      }];
+
+      registros = [];
+
+      if (agregarInversorEl instanceof HTMLInputElement) {
+        agregarInversorEl.checked = false;
+      }
       
       renderTabla();
       actualizarTotales();
@@ -324,7 +343,6 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         const consumo = registro.cantidad * registro.potencia * registro.horas;
         const fila = document.createElement("div");
         fila.className = "grid grid-cols-6 items-center px-2 py-3 text-base text-slate-700";
-        const edicionInversorBloqueada = Boolean(registro.esInversor && !inversorEditUnlocked);
 
         const estaEnEdicion = registroEnEdicionId === registro.id && borradorEdicion !== null;
 
@@ -395,11 +413,10 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
             <span class="flex gap-2 px-2">
               <button
                 type="button"
-                class="rounded px-3 py-1 text-sm font-semibold text-white transition ${edicionInversorBloqueada ? "cursor-not-allowed bg-slate-400" : "cursor-pointer bg-sky-600 hover:bg-sky-700"}"
+                class="rounded cursor-pointer bg-sky-600 px-3 py-1 text-sm font-semibold text-white transition hover:bg-sky-700"
                 data-action="editar"
                 data-id="${registro.id}"
-                ${edicionInversorBloqueada ? "disabled" : ""}
-                title="${edicionInversorBloqueada ? "Activa el checkbox para editar el inversor" : "Editar registro"}"
+                title="Editar registro"
               >
                 <svg class="h-6 w-6" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11 4H7.2C6.0799 4 5.51984 4 5.09202 4.21799C4.71569 4.40974 4.40973 4.7157 4.21799 5.09202C4 5.51985 4 6.0799 4 7.2V16.8C4 17.9201 4 18.4802 4.21799 18.908C4.40973 19.2843 4.71569 19.5903 5.09202 19.782C5.51984 20 6.0799 20 7.2 20H16.8C17.9201 20 18.4802 20 18.908 19.782C19.2843 19.5903 19.5903 19.2843 19.782 18.908C20 18.4802 20 17.9201 20 16.8V12.5M15.5 5.5L18.3284 8.32843M10.7627 10.2373L17.411 3.58902C18.192 2.80797 19.4584 2.80797 20.2394 3.58902C21.0205 4.37007 21.0205 5.6364 20.2394 6.41745L13.3774 13.2794C12.6158 14.0411 12.235 14.4219 11.8012 14.7247C11.4162 14.9936 11.0009 15.2162 10.564 15.3882C10.0717 15.582 9.54378 15.6885 8.48793 15.9016L8 16L8.04745 15.6678C8.21536 14.4925 8.29932 13.9048 8.49029 13.3561C8.65975 12.8692 8.89125 12.4063 9.17906 11.9786C9.50341 11.4966 9.92319 11.0768 10.7627 10.2373Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
               </button>
@@ -478,10 +495,6 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     const iniciarEdicionRegistro = (id: number): void => {
       const registro = registros.find((item) => item.id === id);
       if (!registro) return;
-      if (registro.esInversor && !inversorEditUnlocked) {
-        alert("Activa 'Conozco el consumo de mi inversor' para editar este registro.");
-        return;
-      }
 
       registroEnEdicionId = id;
       borradorEdicion = {
@@ -549,17 +562,10 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     };
 
     const manejarCambioCheckboxInversor = (): void => {
-      inversorEditUnlocked = Boolean(unlockInversorEl?.checked);
-
-      if (!inversorEditUnlocked && registroEnEdicionId !== null) {
-        const registroEnEdicion = registros.find((item) => item.id === registroEnEdicionId);
-        if (registroEnEdicion?.esInversor) {
-          cancelarEdicionRegistro();
-          return;
-        }
-      }
-
+      sincronizarRegistroInversor();
       renderTabla();
+      actualizarTotales();
+      guardarRegistrosEnStorage();
     };
 
     const manejarClickCalcular = (): void => {
@@ -640,9 +646,9 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         tablaConsumosEl.dataset.clickBound = "1";
       }
 
-      if (unlockInversorEl && unlockInversorEl.dataset.listenerBound !== "1") {
-        unlockInversorEl.addEventListener("change", manejarCambioCheckboxInversor);
-        unlockInversorEl.dataset.listenerBound = "1";
+      if (agregarInversorEl && agregarInversorEl.dataset.listenerBound !== "1") {
+        agregarInversorEl.addEventListener("change", manejarCambioCheckboxInversor);
+        agregarInversorEl.dataset.listenerBound = "1";
       }
     };
 
@@ -650,9 +656,11 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       sincronizarElementosDom();
       if (!esPaginaConsumoActiva()) return;
 
-      inversorEditUnlocked = Boolean(unlockInversorEl?.checked);
-
       inicializarConsumosGuardados();
+      sincronizarRegistroInversor();
+      renderTabla();
+      actualizarTotales();
+      guardarRegistrosEnStorage();
       registrarEventos();
       registerNavigationPreloader();
       void cargarElectrodomesticos();

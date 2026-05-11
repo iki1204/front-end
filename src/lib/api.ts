@@ -124,6 +124,10 @@ export async function getPanelsData() {
   return fetchAPI("panels?populate=*");
 }
 
+export async function getInvertersData() {
+  return fetchAPI("inversors?populate=*");
+}
+
 export async function getUsuarios(params?: QueryParams) {
   return fetchAPI("users", params);
 }
