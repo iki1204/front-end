@@ -183,6 +183,7 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
   const feedback = form.querySelector<HTMLElement>("[data-register-feedback]");
   const formData = new FormData(form);
   const username = String(formData.get("username") ?? "").trim();
+  const dni = String(formData.get("dni") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const nombre = String(formData.get("name") ?? "").trim();
   const apellido = String(formData.get("lastname") ?? "").trim();
@@ -192,10 +193,10 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
   const password = String(formData.get("password") ?? "").trim();
   const asesores = ["Lizeth", "Moises", "Katya", "Samantha", "Edison"]
   const asesor = asesores[Math.floor(Math.random() * asesores.length)];
-  const tipoUsuario = "pvp2";
 
 
-  if (!username || !password || !email || !nombre || !apellido || !direccion || !fecha || !telefono) {
+
+  if (!username || !password || !email || !nombre || !apellido || !direccion || !fecha || !telefono || !dni) {
     setFeedbackMessage(feedback, "Completa los campos para registrarte.", "error");
     return;
   }
@@ -210,7 +211,7 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
   setFeedbackMessage(feedback, "Creando tu cuenta...", "neutral");
 
   try {
-    const response = await postUsuarioRegister({ username, email, password, nombre, apellido, direccion, fecha, telefono, asesor, tipoUsuario });
+    const response = await postUsuarioRegister({ username, email, password, nombre, apellido, direccion, fecha, telefono, dni, asesor});
     setFeedbackMessage(feedback, "Registro exitoso. redirigiendo ...", "success");
     window.location.assign("/success-register");
   } catch (error) {
@@ -242,7 +243,6 @@ const initLogin = () => {
   if (hasActiveSession(storedSession)) {
     const user = storedSession?.user ?? {};
     const displayName = user?.nombre ?? user?.username ?? user?.email ?? "tu cuenta";
-
     setStatusMessage(status, `Sesión restaurada para ${displayName}`);
     setFeedbackMessage(feedback, "Tienes una sesión activa, redirigiendo...", "success");
     toggleLoginFormAvailability(form, true, lockedBanner);

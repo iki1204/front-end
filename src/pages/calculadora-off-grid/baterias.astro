@@ -120,7 +120,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
                 <p id="batteriasSerie" class="mt-1 text-3xl font-bold text-[#cc3b26]">--</p>
               </div>
               <div class="rounded bg-white p-4 shadow-sm text-center">
-                <p class="text-xs uppercase tracking-wide text-slate-500">Strings en paralelo</p>
+                <p class="text-xs uppercase tracking-wide text-slate-500">Baterías en paralelo</p>
                 <p id="batteriasParalelo" class="mt-1 text-3xl font-bold text-[#cc3b26]">--</p>
               </div>
               <div class="rounded bg-white p-4 shadow-sm text-center">
@@ -263,7 +263,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
             </a>
             <a
               id="confirmar-baterias"
-              href="/calculadora-off-grid/baterias"
+              href="/calculadora-off-grid/calculadora"
               data-nav-loading
               class="inline-flex h-11 w-full items-center justify-center rounded-md border border-[#b92f1e] bg-[#cc3b26] px-8 text-base font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-[#b9301d] sm:w-auto"
             >
@@ -1002,6 +1002,9 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       "isReadOnly": true,
       "allowMove": false,
       initialAutoScale: go.Diagram.Uniform,
+      contentAlignment: go.Spot.Center,
+      minScale: 0.08,
+      maxScale: 1.2,
       padding: 20,
     });
 
@@ -1115,6 +1118,30 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     });
 
     myDiagram.layoutDiagram();
+
+    const ajustarZoomParaDiagramaGrande = (): void => {
+      const bounds = myDiagram.documentBounds;
+      const viewport = myDiagram.viewportBounds;
+      if (bounds.width <= 0 || bounds.height <= 0 || viewport.width <= 0 || viewport.height <= 0) return;
+
+      const scaleX = viewport.width / bounds.width;
+      const scaleY = viewport.height / bounds.height;
+      let fitScale = Math.min(scaleX, scaleY, 1) * 0.95;
+
+      // Cuando hay 4 baterías en serie, fuerza un poco más de zoom out para mejorar visibilidad.
+      if (series === 4) {
+        fitScale = Math.min(fitScale, 0.78);
+      }
+
+      const clampedScale = Math.max(myDiagram.minScale, Math.min(myDiagram.maxScale, fitScale));
+
+      myDiagram.scale = clampedScale;
+      myDiagram.centerRect(bounds);
+    };
+
+    requestAnimationFrame(() => {
+      ajustarZoomParaDiagramaGrande();
+    });
   }
 
   // Cargar GoJS dinámicamente

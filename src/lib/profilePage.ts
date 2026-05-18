@@ -28,6 +28,7 @@ const KNOWN_USER_FIELDS = new Set([
   "provider",
   "publishedAt",
   "password",
+  "admin"
 ]);
 
 const toDisplayString = (value: unknown) => {

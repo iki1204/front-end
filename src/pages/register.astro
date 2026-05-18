@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Container from "../components/Container.astro";
-import { getUsuarios } from "../lib/api";
 import sesionScript from "../lib/sesionWidget.ts?url";
 
 
@@ -21,20 +20,34 @@ import sesionScript from "../lib/sesionWidget.ts?url";
 
 
         <form data-register-form class="mt-8 space-y-6">
-           <div>
-            <label for="username" class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-              Usuario
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              required
-              placeholder="Ejemplo"
-              class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-            />
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label for="username" class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+                Usuario
+              </label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                required
+                placeholder="Ejemplo"
+                class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label for="dni" class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+                Cedula o RUC
+              </label>
+              <input
+                type="text"
+                id="dni"
+                name="dni"
+                required
+                placeholder="Ejemplo"
+                class="mt-2 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+              />
+            </div>
           </div>
-
           <div>
             <label for="email" class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
               Correo
