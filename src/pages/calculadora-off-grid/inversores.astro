@@ -107,7 +107,25 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
           <span class="hidden h-[2px] w-24 bg-gradient-to-l from-transparent to-[#ff6a00] sm:block"></span>
         </div>
         <section class="mt-2 rounded-2xl">
-          <div class="mt-4 rounded-2xl bg-[radial-gradient(circle_at_40%_20%,#ef4444_0%,#b91c1c_45%,#7f1d1d_100%)] p-1 text-white">
+          <div
+            id="inverter-empty-state"
+            class="mt-4 hidden rounded-2xl border border-[#ffb28a] bg-[linear-gradient(145deg,#fff6ef_0%,#ffe7da_45%,#ffd9c9_100%)] p-8 text-center text-[#7a1f10] shadow-[0_18px_42px_rgba(169,54,21,0.2)]"
+          >
+            <span class="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[#ff6a00]/15 text-[#c2410c]">
+              <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"></circle>
+                <line x1="12" y1="8" x2="12" y2="13"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </span>
+            <h3 class="text-2xl font-black uppercase tracking-[0.08em] text-[#8f1c12] sm:text-3xl" id="inverter-empty-title">Potencia fuera de rango</h3>
+            <p class="mt-3 text-lg font-semibold text-[#9f2d1b]" id="inverter-empty-message">losiento, no tenemos un inversor para ti</p>
+            <p class="mx-auto mt-4 max-w-2xl text-sm text-[#7a1f10]/80 sm:text-base" id="inverter-empty-detail">
+              Tu consumo requiere una potencia superior a 12000W. Escríbenos para ayudarte con una solución personalizada.
+            </p>
+          </div>
+
+          <div id="inverter-carousel-state" class="mt-4 rounded-2xl bg-[radial-gradient(circle_at_40%_20%,#ef4444_0%,#b91c1c_45%,#7f1d1d_100%)] p-1 text-white">
             <div class="relative px-2 sm:px-3 lg:px-14">
               <button
                 id="inverter-prev"
@@ -263,9 +281,9 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
                     <h2 class="mb-2 text-3xl font-bold text-[#222] underline decoration-red-600/70" id="resumen-consumo-kwh">
                     -- <span class="text-xl font-normal">kWh/mes</span>
                     </h2>
-                    <svg class="h-18 w-18 absolute -right-8 bottom-2" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512.005 512.005" xml:space="preserve" fill="#ff9999"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="78.604" y="345.85" style="fill:#ff9999;" width="84.325" height="166.145"></rect> <rect x="237.747" y="250.924" width="84.325" height="261.081"></rect> <rect x="396.889" y="144.117" style="fill:#ff9999;" width="84.325" height="367.888"></rect> <path style="fill:#ff9999;" d="M32.07,276.408l-1.28-7.888c135.008-29.64,256.365-103.241,345.048-209.264l6.184,5.08 C292.08,171.836,168.99,246.43,32.07,276.408z"></path> <polygon style="fill:#ff9999;" points="337.526,32.536 435.726,0 416.318,99.864 "></polygon> </g></svg>
-                    <p class="text-gray-600">Promedio diario:</p>
-                    <strong class="text-[#d71900]" id="resumen-consumo-diario">-- kWh/día</strong>
+                    <svg class="h-18 w-18 absolute -right-12 bottom-2" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512.005 512.005" xml:space="preserve" fill="#ff9999"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <rect x="78.604" y="345.85" style="fill:#ff9999;" width="84.325" height="166.145"></rect> <rect x="237.747" y="250.924" width="84.325" height="261.081"></rect> <rect x="396.889" y="144.117" style="fill:#ff9999;" width="84.325" height="367.888"></rect> <path style="fill:#ff9999;" d="M32.07,276.408l-1.28-7.888c135.008-29.64,256.365-103.241,345.048-209.264l6.184,5.08 C292.08,171.836,168.99,246.43,32.07,276.408z"></path> <polygon style="fill:#ff9999;" points="337.526,32.536 435.726,0 416.318,99.864 "></polygon> </g></svg>
+                    <p class="text-gray-600">Promedio mensual:</p>
+                    <strong class="text-[#d71900]" id="resumen-consumo-mes">-- kWh/mes</strong>
                 </div>
             </div>
 
@@ -280,7 +298,7 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
                     <h2 class="mb-2 text-3xl font-bold text-[#222] underline decoration-orange-600/70">
                     <span id="resumen-paneles-cantidad">--</span> <span class="text-xl font-normal">Paneles</span>
                     </h2>
-                    <svg class="h-22 w-22 absolute -right-1 bottom-1" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="#ffffff" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M861 656.7l144.6-144.6L861 367.6V163.1H656.6L512 18.6 367.4 163.1H163v204.5L18.4 512.1 163 656.7v204.4h204.4L512 1005.7l144.6-144.6H861z" fill="#FCD170"></path><path d="M512 1015.7c-2.6 0-5.1-1-7.1-2.9L363.3 871.1H163c-5.5 0-10-4.5-10-10V660.8L11.4 519.2c-1.9-1.9-2.9-4.4-2.9-7.1 0-2.7 1.1-5.2 2.9-7.1L153 363.4V163.1c0-5.5 4.5-10 10-10h200.3L504.9 11.5c1.9-1.9 4.4-2.9 7.1-2.9s5.2 1.1 7.1 2.9l141.6 141.6H861c5.5 0 10 4.5 10 10v200.3L1012.6 505c1.9 1.9 2.9 4.4 2.9 7.1 0 2.7-1.1 5.2-2.9 7.1L871 660.8v200.3c0 5.5-4.5 10-10 10H660.7l-141.6 141.6c-2 2-4.5 3-7.1 3zM173 851.1h194.4c2.7 0 5.2 1.1 7.1 2.9L512 991.6l137.5-137.5c1.9-1.9 4.4-2.9 7.1-2.9H851V656.7c0-2.7 1.1-5.2 2.9-7.1l137.5-137.5-137.5-137.5c-1.9-1.9-2.9-4.4-2.9-7.1V173.1H656.6c-2.7 0-5.2-1.1-7.1-2.9L512 32.7 374.5 170.2c-1.9 1.9-4.4 2.9-7.1 2.9H173v194.4c0 2.7-1.1 5.2-2.9 7.1L32.6 512.1l137.5 137.5c1.9 1.9 2.9 4.4 2.9 7.1v194.4z" fill=""></path><path d="M512 512.1m-257.8 0a257.8 257.8 0 1 0 515.6 0 257.8 257.8 0 1 0-515.6 0Z" fill="#F7DDAD"></path><path d="M512 779.9c-71.5 0-138.8-27.9-189.4-78.4-50.6-50.6-78.4-117.8-78.4-189.4s27.9-138.8 78.4-189.4c50.6-50.6 117.8-78.4 189.4-78.4 71.5 0 138.8 27.9 189.4 78.4 50.6 50.6 78.4 117.8 78.4 189.4S752 650.9 701.4 701.5 583.5 779.9 512 779.9z m0-515.6c-66.2 0-128.4 25.8-175.2 72.6-46.8 46.8-72.6 109-72.6 175.2s25.8 128.4 72.6 175.2c46.8 46.8 109 72.6 175.2 72.6 66.2 0 128.4-25.8 175.2-72.6 46.8-46.8 72.6-109 72.6-175.2S734 383.7 687.2 336.9c-46.8-46.8-109-72.6-175.2-72.6z" fill=""></path></g></svg>
+                    <svg class="h-22 w-22 absolute -right-1 -bottom-1" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="#ffffff" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M861 656.7l144.6-144.6L861 367.6V163.1H656.6L512 18.6 367.4 163.1H163v204.5L18.4 512.1 163 656.7v204.4h204.4L512 1005.7l144.6-144.6H861z" fill="#FCD170"></path><path d="M512 1015.7c-2.6 0-5.1-1-7.1-2.9L363.3 871.1H163c-5.5 0-10-4.5-10-10V660.8L11.4 519.2c-1.9-1.9-2.9-4.4-2.9-7.1 0-2.7 1.1-5.2 2.9-7.1L153 363.4V163.1c0-5.5 4.5-10 10-10h200.3L504.9 11.5c1.9-1.9 4.4-2.9 7.1-2.9s5.2 1.1 7.1 2.9l141.6 141.6H861c5.5 0 10 4.5 10 10v200.3L1012.6 505c1.9 1.9 2.9 4.4 2.9 7.1 0 2.7-1.1 5.2-2.9 7.1L871 660.8v200.3c0 5.5-4.5 10-10 10H660.7l-141.6 141.6c-2 2-4.5 3-7.1 3zM173 851.1h194.4c2.7 0 5.2 1.1 7.1 2.9L512 991.6l137.5-137.5c1.9-1.9 4.4-2.9 7.1-2.9H851V656.7c0-2.7 1.1-5.2 2.9-7.1l137.5-137.5-137.5-137.5c-1.9-1.9-2.9-4.4-2.9-7.1V173.1H656.6c-2.7 0-5.2-1.1-7.1-2.9L512 32.7 374.5 170.2c-1.9 1.9-4.4 2.9-7.1 2.9H173v194.4c0 2.7-1.1 5.2-2.9 7.1L32.6 512.1l137.5 137.5c1.9 1.9 2.9 4.4 2.9 7.1v194.4z" fill=""></path><path d="M512 512.1m-257.8 0a257.8 257.8 0 1 0 515.6 0 257.8 257.8 0 1 0-515.6 0Z" fill="#F7DDAD"></path><path d="M512 779.9c-71.5 0-138.8-27.9-189.4-78.4-50.6-50.6-78.4-117.8-78.4-189.4s27.9-138.8 78.4-189.4c50.6-50.6 117.8-78.4 189.4-78.4 71.5 0 138.8 27.9 189.4 78.4 50.6 50.6 78.4 117.8 78.4 189.4S752 650.9 701.4 701.5 583.5 779.9 512 779.9z m0-515.6c-66.2 0-128.4 25.8-175.2 72.6-46.8 46.8-72.6 109-72.6 175.2s25.8 128.4 72.6 175.2c46.8 46.8 109 72.6 175.2 72.6 66.2 0 128.4-25.8 175.2-72.6 46.8-46.8 72.6-109 72.6-175.2S734 383.7 687.2 336.9c-46.8-46.8-109-72.6-175.2-72.6z" fill=""></path></g></svg>
                     <p class="text-gray-600">Potencia total:</p>
                     <strong class="text-[#d71900]" id="resumen-paneles-potencia">-- kWp</strong>
                 </div>
@@ -298,7 +316,8 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
                 <h2 class="mb-2 text-3xl font-bold text-[#222] underline decoration-red-400/90">
                 <span id="resumen-baterias-cantidad">--</span> <span class="text-xl font-normal">Unidad</span>
                 </h2>
-                <svg class="h-18 w-18 absolute right-1 top-9" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:#ffc58f;} </style> <g> <path class="st0" d="M44.515,479.271c0.013,0.973,0.354,1.708,0.978,2.357c0.645,0.631,1.396,0.973,2.353,0.973h416.309 c0.957,0,1.708-0.342,2.352-0.973c0.624-0.649,0.97-1.384,0.978-2.357v-32.755H44.515V479.271z"></path> <path class="st0" d="M182.252,261.401c0.252,40.516,33.16,73.306,73.75,73.306c40.73,0,73.751-33.02,73.751-73.759 c0-1.818-0.086-3.612-0.218-5.379C250.285,326.168,254.273,197.846,182.252,261.401z"></path> <path class="st0" d="M287.109,249.489c4.219,0,7.63-3.424,7.63-7.634c0-4.202-3.411-7.626-7.63-7.626 c-4.201,0-7.62,3.424-7.62,7.626C279.489,246.065,282.908,249.489,287.109,249.489z"></path> <path class="st0" d="M250.067,227.202c3.552,0,6.426-2.869,6.426-6.421c0-3.535-2.873-6.413-6.426-6.413 c-3.544,0-6.413,2.878-6.413,6.413C243.655,224.333,246.523,227.202,250.067,227.202z"></path> <path class="st0" d="M416.397,307.57v-78.25h-27.594c2.426,10.152,3.741,20.75,3.741,31.628c0,16.361-2.9,32.064-8.206,46.622 H416.397z"></path> <path class="st0" d="M466.507,0.99c-0.644-0.632-1.395-0.973-2.352-0.99H47.845c-0.957,0.017-1.708,0.358-2.353,0.99 c-0.624,0.641-0.965,1.392-0.978,2.348v426.534h422.97V3.338C467.477,2.382,467.13,1.631,466.507,0.99z M123.611,42.421h264.779 v44.761H123.611V42.421z M433.052,324.221h-56.113c-6.456,12.305-14.7,23.516-24.426,33.242 c-24.694,24.703-58.88,40.039-96.511,40.03c-37.635,0.009-71.82-15.327-96.515-40.03c-24.707-24.694-40.039-58.876-40.03-96.515 c-0.009-37.622,15.323-71.812,40.03-96.506c24.695-24.703,58.88-40.03,96.515-40.03c37.631,0,71.816,15.327,96.511,40.03 c13.556,13.542,24.256,29.962,31.184,48.211h49.355V324.221z"></path> <path class="st0" d="M256.002,141.062c-33.071,0-62.996,13.431-84.736,35.154c-21.727,21.749-35.154,51.669-35.154,84.731 c0,33.071,13.428,63,35.154,84.74c21.74,21.74,51.665,35.155,84.736,35.155c33.067,0,62.991-13.415,84.732-35.155 c21.727-21.74,35.154-51.669,35.154-84.74c0-33.062-13.428-62.982-35.154-84.731C318.993,154.494,289.069,141.062,256.002,141.062z M256.002,357.532c-53.257,0-96.579-43.335-96.579-96.584c0-53.248,43.322-96.574,96.579-96.574 c53.253,0,96.576,43.326,96.576,96.574C352.577,314.196,309.255,357.532,256.002,357.532z"></path> <rect x="77.842" y="494.512" class="st0" width="52.463" height="17.488"></rect> <rect x="381.69" y="494.512" class="st0" width="52.463" height="17.488"></rect> </g> </g></svg>
+                <svg class="h-18 w-18 absolute right-1 top-12" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:#ffc58f;} </style> <g> <path class="st0" d="M44.515,479.271c0.013,0.973,0.354,1.708,0.978,2.357c0.645,0.631,1.396,0.973,2.353,0.973h416.309 c0.957,0,1.708-0.342,2.352-0.973c0.624-0.649,0.97-1.384,0.978-2.357v-32.755H44.515V479.271z"></path> <path class="st0" d="M182.252,261.401c0.252,40.516,33.16,73.306,73.75,73.306c40.73,0,73.751-33.02,73.751-73.759 c0-1.818-0.086-3.612-0.218-5.379C250.285,326.168,254.273,197.846,182.252,261.401z"></path> <path class="st0" d="M287.109,249.489c4.219,0,7.63-3.424,7.63-7.634c0-4.202-3.411-7.626-7.63-7.626 c-4.201,0-7.62,3.424-7.62,7.626C279.489,246.065,282.908,249.489,287.109,249.489z"></path> <path class="st0" d="M250.067,227.202c3.552,0,6.426-2.869,6.426-6.421c0-3.535-2.873-6.413-6.426-6.413 c-3.544,0-6.413,2.878-6.413,6.413C243.655,224.333,246.523,227.202,250.067,227.202z"></path> <path class="st0" d="M416.397,307.57v-78.25h-27.594c2.426,10.152,3.741,20.75,3.741,31.628c0,16.361-2.9,32.064-8.206,46.622 H416.397z"></path> <path class="st0" d="M466.507,0.99c-0.644-0.632-1.395-0.973-2.352-0.99H47.845c-0.957,0.017-1.708,0.358-2.353,0.99 c-0.624,0.641-0.965,1.392-0.978,2.348v426.534h422.97V3.338C467.477,2.382,467.13,1.631,466.507,0.99z M123.611,42.421h264.779 v44.761H123.611V42.421z M433.052,324.221h-56.113c-6.456,12.305-14.7,23.516-24.426,33.242 c-24.694,24.703-58.88,40.039-96.511,40.03c-37.635,0.009-71.82-15.327-96.515-40.03c-24.707-24.694-40.039-58.876-40.03-96.515 c-0.009-37.622,15.323-71.812,40.03-96.506c24.695-24.703,58.88-40.03,96.515-40.03c37.631,0,71.816,15.327,96.511,40.03 c13.556,13.542,24.256,29.962,31.184,48.211h49.355V324.221z"></path> <path class="st0" d="M256.002,141.062c-33.071,0-62.996,13.431-84.736,35.154c-21.727,21.749-35.154,51.669-35.154,84.731 c0,33.071,13.428,63,35.154,84.74c21.74,21.74,51.665,35.155,84.736,35.155c33.067,0,62.991-13.415,84.732-35.155 c21.727-21.74,35.154-51.669,35.154-84.74c0-33.062-13.428-62.982-35.154-84.731C318.993,154.494,289.069,141.062,256.002,141.062z M256.002,357.532c-53.257,0-96.579-43.335-96.579-96.584c0-53.248,43.322-96.574,96.579-96.574 c53.253,0,96.576,43.326,96.576,96.574C352.577,314.196,309.255,357.532,256.002,357.532z"></path> <rect x="77.842" y="494.512" class="st0" width="52.463" height="17.488"></rect> <rect x="381.69" y="494.512" class="st0" width="52.463" height="17.488"></rect> </g> </g></svg>
+                <p class="text-gray-600">Banco de baterias:</p>
                 <strong class="text-[#d71900]" id="resumen-baterias-capacidad">-- Ah</strong>
             </div>
             </div>
@@ -339,17 +358,25 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
       inversorEficienciaPorcentaje?: number;
     };
 
+    type InverterEmptyStateConfig = {
+      title: string;
+      message: string;
+      detail?: string;
+    };
+
     const CONSUMO_STORAGE_KEY = "unicom.offgrid.consumos";
     const INVERTER_PLACEHOLDER_CLIENT = "/images/placeholder.png";
+    const MAX_INVERTER_POWER = 12000;
 
     let dots: HTMLButtonElement[] = [];
-    let resultadoInversorEl: HTMLElement | null = null;
-    let resultadoInversorDetalleEl: HTMLElement | null = null;
-    let resultadoInversorToggleEl: HTMLButtonElement | null = null;
-    let resultadoInversorDetalleWrapEl: HTMLElement | null = null;
     let scrollToResumenButtonEl: HTMLButtonElement | null = null;
     let inverterPrevEl: HTMLButtonElement | null = null;
     let inverterNextEl: HTMLButtonElement | null = null;
+    let inverterEmptyStateEl: HTMLElement | null = null;
+    let inverterCarouselStateEl: HTMLElement | null = null;
+    let inverterEmptyTitleEl: HTMLElement | null = null;
+    let inverterEmptyMessageEl: HTMLElement | null = null;
+    let inverterEmptyDetailEl: HTMLElement | null = null;
     let carouselInverterPotenciaEl: HTMLElement | null = null;
     let carouselInverterModeloEl: HTMLElement | null = null;
     let carouselInverterMarcaEl: HTMLElement | null = null;
@@ -362,7 +389,7 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
     let carouselInverterPvPowerEl: HTMLElement | null = null;
     let carouselInverterMpptEl: HTMLElement | null = null;
     let resumenConsumoKwhEl: HTMLElement | null = null;
-    let resumenConsumoDiarioEl: HTMLElement | null = null;
+    let resumenConsumoMesEl: HTMLElement | null = null;
     let resumenPanelesTipoEl: HTMLElement | null = null;
     let resumenPanelesCantidadEl: HTMLElement | null = null;
     let resumenPanelesPotenciaEl: HTMLElement | null = null;
@@ -408,31 +435,6 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
       }
     };
 
-    const toggleResultadoDetalle = (abierto?: boolean): void => {
-      if (!resultadoInversorToggleEl || !resultadoInversorDetalleWrapEl) return;
-
-      const shouldOpen = typeof abierto === "boolean"
-        ? abierto
-        : resultadoInversorDetalleWrapEl.classList.contains("hidden");
-
-      resultadoInversorDetalleWrapEl.classList.toggle("hidden", !shouldOpen);
-      resultadoInversorToggleEl.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
-      resultadoInversorToggleEl.textContent = shouldOpen ? "- info" : "+ info";
-    };
-
-    const actualizarResultadoInversor = (): void => {
-      if (!resultadoInversorEl || !resultadoInversorDetalleEl) return;
-
-      resultadoInversorEl.textContent = `Inversor de ${inversorPotencia} W`;
-      resultadoInversorDetalleEl.textContent = [
-        `• Modelo: ${inversorModelo}`,
-        `• Marca: ${inversorMarca}`,
-        `• Tipo: ${inversorTipo}`,
-        `• Potencia: ${inversorPotencia} W`,
-        `• Eficiencia: ${inversorEficiencia}`,
-      ].join("\n");
-    };
-
     const cargarDatosLocalStorage = (): void => {
       try {
         const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
@@ -442,20 +444,19 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
         }
 
         const datos = JSON.parse(consumoGuardado) as any;
-        const totalEnergiaConsumo = Number(datos.totalEnergiaConsumo) || 0;
+        const totalEnergiaConsumoLoss = Number(datos.totalEnergiaConsumoLoss) || 0;
         const panelesSolares = Number(datos.panelesSolares) || 0;
         const panelVatios = Number(datos.panelVatios) || 0;
         const totalBaterias = Number(datos.bateriaConfiguracion?.calculoBaterias?.totalBaterias) || 0;
         const capacidadBancoAh = Number(datos.bateriaConfiguracion?.calculoBaterias?.capacidadBancoAh) || 0;
 
         // Actualizar consumo (convertir Wh a kWh para mes/día)
-        const consumoMesKwh = (totalEnergiaConsumo * 30) / 1000; // Wh * 30 días / 1000
-        const consumoDiarioKwh = totalEnergiaConsumo / 1000; // Wh a kWh
+        const consumoMesKwh = (totalEnergiaConsumoLoss * 30) / 1000; // Wh * 30 días / 1000
         if (resumenConsumoKwhEl) {
-          resumenConsumoKwhEl.textContent = `${Number.isInteger(consumoMesKwh) ? consumoMesKwh : consumoMesKwh.toFixed(2)} `;
+          resumenConsumoKwhEl.textContent = `${Number.isInteger(totalEnergiaConsumoLoss) ? totalEnergiaConsumoLoss : totalEnergiaConsumoLoss.toFixed(2)} Wh`;
         }
-        if (resumenConsumoDiarioEl) {
-          resumenConsumoDiarioEl.textContent = `${Number.isInteger(consumoDiarioKwh) ? consumoDiarioKwh : consumoDiarioKwh.toFixed(2)} kWh/día`;
+        if (resumenConsumoMesEl) {
+          resumenConsumoMesEl.textContent = `${Number.isInteger(consumoMesKwh) ? consumoMesKwh : consumoMesKwh.toFixed(2)} kWh/mes`;
         }
 
         // Actualizar paneles
@@ -490,13 +491,14 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
 
     const sincronizarElementos = (): void => {
       dots = Array.from(document.querySelectorAll<HTMLButtonElement>(".inverter-dot"));
-      resultadoInversorEl = document.getElementById("resultado-inversor");
-      resultadoInversorDetalleEl = document.getElementById("resultado-inversor-detalle");
-      resultadoInversorToggleEl = document.querySelector<HTMLButtonElement>("#resultado-inversor-toggle");
-      resultadoInversorDetalleWrapEl = document.getElementById("resultado-inversor-detalle-wrap");
       scrollToResumenButtonEl = document.querySelector<HTMLButtonElement>("#scroll-to-resumen-button");
       inverterPrevEl = document.querySelector<HTMLButtonElement>("#inverter-prev");
       inverterNextEl = document.querySelector<HTMLButtonElement>("#inverter-next");
+      inverterEmptyStateEl = document.getElementById("inverter-empty-state");
+      inverterCarouselStateEl = document.getElementById("inverter-carousel-state");
+      inverterEmptyTitleEl = document.getElementById("inverter-empty-title");
+      inverterEmptyMessageEl = document.getElementById("inverter-empty-message");
+      inverterEmptyDetailEl = document.getElementById("inverter-empty-detail");
       carouselInverterPotenciaEl = document.getElementById("carousel-inverter-potencia");
       carouselInverterModeloEl = document.getElementById("carousel-inverter-modelo");
       carouselInverterMarcaEl = document.getElementById("carousel-inverter-marca");
@@ -509,7 +511,7 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
       carouselInverterPvPowerEl = document.getElementById("carousel-inverter-pv-power");
       carouselInverterMpptEl = document.getElementById("carousel-inverter-mppt");
       resumenConsumoKwhEl = document.getElementById("resumen-consumo-kwh");
-      resumenConsumoDiarioEl = document.getElementById("resumen-consumo-diario");
+      resumenConsumoMesEl = document.getElementById("resumen-consumo-mes");
       resumenPanelesTipoEl = document.getElementById("resumen-paneles-tipo");
       resumenPanelesCantidadEl = document.getElementById("resumen-paneles-cantidad");
       resumenPanelesPotenciaEl = document.getElementById("resumen-paneles-potencia");
@@ -626,7 +628,6 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
       if (carouselInverterMpptEl) carouselInverterMpptEl.textContent = `${mpptMin}V - ${mpptMax}V`;
       actualizarImagenCarrusel(imagenInversor);
       actualizarCarrusel();
-      actualizarResultadoInversor();
       guardarDatos(inversorPotencia, inversorModelo, inversorEficiencia, inversorMarca, inversorTipo, eficienciaPorcentaje);
     };
 
@@ -655,11 +656,6 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
         inverterNextEl.dataset.listenerBound = "1";
       }
 
-      if (resultadoInversorToggleEl && resultadoInversorToggleEl.dataset.listenerBound !== "1") {
-        resultadoInversorToggleEl.addEventListener("click", () => toggleResultadoDetalle());
-        resultadoInversorToggleEl.dataset.listenerBound = "1";
-      }
-
       if (scrollToResumenButtonEl && scrollToResumenButtonEl.dataset.listenerBound !== "1") {
         scrollToResumenButtonEl.addEventListener("click", () => {
           const resumenHeading = document.querySelector<HTMLHeadingElement>("h2.text-2xl.font-bold.text-slate-800");
@@ -671,20 +667,172 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
       }
     };
 
+    const calcularPotenciaInversorRequerida = (totalEnergiaLoss: number): number => {
+        console.log("Calculando potencia requerida para el inversor con totalEnergiaLoss:", totalEnergiaLoss);
+      switch (true) {
+        case totalEnergiaLoss <= 292:
+          return 350;
+        case totalEnergiaLoss <= 417:
+          return 500;
+        case totalEnergiaLoss <= 833:
+          return 1000;
+        case totalEnergiaLoss <= 1667:
+          return 2000;
+        case totalEnergiaLoss <= 2500:
+          return 3000;
+        case totalEnergiaLoss <= 4166:
+          return 5000;
+        case totalEnergiaLoss <= 5000:
+          return 6000;
+        case totalEnergiaLoss <= 8333:
+          return 10000;
+        case totalEnergiaLoss <= 9600:
+          return 12000;
+        default:
+          return 12001;
+      }
+    };
+
+    const obtenerPotenciaInversorRequerida = (): number | null => {
+      try {
+        const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
+        if (!consumoGuardado) return null;
+
+        const datos = JSON.parse(consumoGuardado) as { totalEnergiaLoss?: number };
+        const totalEnergiaLoss = Number(datos.totalEnergiaLoss) || 0;
+        return calcularPotenciaInversorRequerida(totalEnergiaLoss);
+      } catch (error) {
+        console.error("Error al obtener la potencia requerida del inversor.", error);
+        return null;
+      }
+    };
+
+    const filtrarCarruselPorNecesidad = (): number | null => {
+      const potenciaRequerida = obtenerPotenciaInversorRequerida();
+      if (potenciaRequerida === null) return null;
+
+      const todosLosDots = Array.from(document.querySelectorAll<HTMLButtonElement>(".inverter-dot"));
+      const potenciasOrdenadas = Array.from(new Set(
+        todosLosDots
+          .map((dot) => Number(dot.dataset.potencia || 0))
+          .filter((potencia) => Number.isFinite(potencia) && potencia > 0),
+      )).sort((a, b) => a - b);
+
+      const indiceBase = potenciasOrdenadas.findIndex((potencia) => potencia >= potenciaRequerida);
+      const potenciasRecomendadas = new Set<number>();
+
+      if (indiceBase !== -1) {
+        potenciasRecomendadas.add(potenciasOrdenadas[indiceBase]);
+        const siguientePotencia = potenciasOrdenadas[indiceBase + 1];
+        if (typeof siguientePotencia === "number") {
+          potenciasRecomendadas.add(siguientePotencia);
+        }
+      }
+
+      const dotsFiltrados = todosLosDots.filter(
+        (dot) => potenciasRecomendadas.has(Number(dot.dataset.potencia || 0)),
+      );
+      const visibles = new Set(dotsFiltrados);
+
+      todosLosDots.forEach((dot) => {
+        const mostrar = visibles.has(dot);
+        dot.classList.toggle("hidden", !mostrar);
+        dot.disabled = !mostrar;
+        dot.setAttribute("aria-hidden", mostrar ? "false" : "true");
+        if (!mostrar) {
+          dot.setAttribute("aria-pressed", "false");
+        }
+      });
+
+      dots = dotsFiltrados;
+      dots.forEach((dot, index) => {
+        dot.dataset.index = String(index);
+      });
+
+      return potenciaRequerida;
+    };
+
+    const mostrarEstadoGenericoInversor = ({ title, message, detail }: InverterEmptyStateConfig): void => {
+      if (inverterCarouselStateEl) inverterCarouselStateEl.classList.add("hidden");
+      if (inverterEmptyStateEl) inverterEmptyStateEl.classList.remove("hidden");
+      if (inverterEmptyTitleEl) inverterEmptyTitleEl.textContent = title;
+      if (inverterEmptyMessageEl) inverterEmptyMessageEl.textContent = message;
+      if (inverterEmptyDetailEl) {
+        if (detail?.trim()) {
+          inverterEmptyDetailEl.textContent = detail;
+          inverterEmptyDetailEl.classList.remove("hidden");
+        } else {
+          inverterEmptyDetailEl.classList.add("hidden");
+        }
+      }
+      if (inverterPrevEl) inverterPrevEl.disabled = true;
+      if (inverterNextEl) inverterNextEl.disabled = true;
+    };
+
+    const mostrarVistaCarrusel = (): void => {
+      if (inverterCarouselStateEl) inverterCarouselStateEl.classList.remove("hidden");
+      if (inverterEmptyStateEl) inverterEmptyStateEl.classList.add("hidden");
+    };
+
+    const calcularInversorRecomendado = (): HTMLButtonElement | null => {
+      try {
+        const inversorReal = obtenerPotenciaInversorRequerida();
+        if (inversorReal === null) return null;
+
+        const matchExacto = dots.find((dot) => Number(dot.dataset.potencia || 0) === inversorReal);
+        if (matchExacto) return matchExacto;
+
+        const dotsOrdenados = [...dots].sort(
+          (a, b) => Number(a.dataset.potencia || 0) - Number(b.dataset.potencia || 0),
+        );
+
+        const matchSuperior = dotsOrdenados.find((dot) => Number(dot.dataset.potencia || 0) >= inversorReal);
+        return matchSuperior ?? dotsOrdenados[dotsOrdenados.length - 1] ?? null;
+      } catch (error) {
+        console.error("Error al calcular el inversor recomendado.", error);
+        return null;
+      }
+    };
+
     const inicializarPaginaInversores = (): void => {
       sincronizarElementos();
-      if (dots.length === 0) return;
+      mostrarVistaCarrusel();
+
+      if (dots.length === 0) {
+        mostrarEstadoGenericoInversor({
+          title: "No hay inversores disponibles",
+          message: "No hay inversores cargados en este momento",
+          detail: "Intenta nuevamente en unos minutos o contáctanos para ayudarte con una opción personalizada.",
+        });
+        return;
+      }
+
+      const potenciaRequerida = filtrarCarruselPorNecesidad();
 
       registrarEventos();
       registerNavigationPreloader();
-      toggleResultadoDetalle(false);
       cargarDatosLocalStorage();
 
-      const dotSeleccionado = dots.find((dot) => dot.getAttribute("aria-pressed") === "true") ?? dots[0];
+      if (dots.length === 0) {
+        if ((potenciaRequerida ?? 0) > MAX_INVERTER_POWER) {
+          mostrarEstadoGenericoInversor({
+            title: "Potencia fuera de rango",
+            message: "losiento, no tenemos un inversor para ti",
+            detail: `Tu consumo requiere una potencia superior a ${MAX_INVERTER_POWER}W. Escríbenos para ayudarte con una solución personalizada.`,
+          });
+        } else {
+          mostrarEstadoGenericoInversor({
+            title: "Sin coincidencias",
+            message: "No hay inversores disponibles para esta necesidad",
+          });
+        }
+        return;
+      }
+
+      const dotRecomendado = calcularInversorRecomendado();
+      const dotSeleccionado = dotRecomendado ?? dots.find((dot) => dot.getAttribute("aria-pressed") === "true") ?? dots[0];
       if (dotSeleccionado) {
         updateSelection(dotSeleccionado);
-      } else {
-        actualizarResultadoInversor();
       }
     };
 

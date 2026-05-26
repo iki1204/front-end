@@ -2,72 +2,327 @@
 import Layout from '../../layouts/LayoutCalculadora.astro';
 ---
 
-<Layout title="Unicom - Off Grid">
-  <main class="min-h-screen bg-[#ececec]">
-  <section class="mx-auto grid min-h-screen w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[minmax(340px,40%)_1fr]">
-    <aside class="flex items-center bg-[linear-gradient(180deg,#5a0a0a_0%,#2a0303_100%)] px-[clamp(2.5rem,3.8vw,4rem)] py-10 text-white">
-      <div class="space-y-8 sm:space-y-10">
-        <h1 class="m-0 text-[clamp(2.6rem,4.5vw,5rem)] leading-[0.95] font-black tracking-[-0.07em] text-balance">
-          Simulador de
-          <br />
-          Proyectos
-          <br />
-          Fotovoltaicos
-          <br />
-          Off-Grid.
-          <br />
-          Diseña tu
-          <br />
-          autonomía total
-        </h1>
+<style>
+  /* Toggle estilo iPhone con :has() */
+  label:has(#agregar-inversor:checked) .toggle-track {
+    background-color: #cc2f1f;
+  }
+  label:has(#agregar-inversor:checked) .toggle-thumb {
+    transform: translateX(1.25rem);
+  }
 
-        <p class="mt-4 max-w-[38ch] text-[clamp(1rem,1.2vw,1.35rem)] leading-normal font-semibold text-red-100">Calcula el sistema solar ideal para operar sin red eléctrica: paneles, inversor y baterías según tu demanda diaria.</p>
+  #help-consumo-dialog {
+    border: none;
+    padding: 0;
+    background: transparent;
+    max-width: min(96vw, 920px);
+    width: min(96vw, 920px);
+    margin: 0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  #help-consumo-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(2px);
+  }
+</style>
+
+<Layout title="Unicom - Off Grid">
+  <main class="min-h-screen min-w-screen bg-white">
+  <section class="mx-auto grid min-h-screen min-w-screen w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[minmax(340px,30%)_1fr]">
+    <aside class="relative hidden lg:flex items-baseline px-[clamp(2.5rem,3.8vw,4rem)] text-white min-h-screen" style="background: radial-gradient(ellipse at top left, #c92a2a 0%, #5a0a0a 60%, #2a0303 100%);">
+      <!-- Fondo decorativo de puntos y líneas -->
+      <div class="pointer-events-none absolute inset-0 z-0">
+        <svg width="100%" height="100%" viewBox="0 0 400 900" fill="none" xmlns="http://www.w3.org/2000/svg" class="absolute inset-0 w-full h-full opacity-40" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="bgGrad" cx="0.3" cy="0.1" r="1">
+              <stop offset="0%" stop-color="#c92a2a"/>
+              <stop offset="60%" stop-color="#5a0a0a"/>
+              <stop offset="100%" stop-color="#2a0303"/>
+            </radialGradient>
+            <linearGradient id="lineGrad" x1="0" y1="0" x2="400" y2="900" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#fff" stop-opacity="0.12"/>
+              <stop offset="1" stop-color="#fff" stop-opacity="0.02"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="400" height="900" fill="url(#bgGrad)"/>
+          <!-- Líneas curvas decorativas -->
+          <path d="M20 200 Q200 100 380 220" stroke="url(#lineGrad)" stroke-width="2" fill="none"/>
+          <path d="M0 400 Q200 300 400 500" stroke="url(#lineGrad)" stroke-width="2" fill="none"/>
+          <path d="M40 700 Q200 850 360 700" stroke="url(#lineGrad)" stroke-width="2" fill="none"/>
+          <!-- Puntos grandes difusos -->
+          <g opacity="0.13">
+            <circle cx="350" cy="100" r="80" fill="#fff"/>
+            <circle cx="100" cy="800" r="120" fill="#fff"/>
+            <circle cx="350" cy="300" r="60" fill="#fff"/>
+            <circle cx="60" cy="600" r="40" fill="#fff"/>
+          </g>
+          <!-- Matriz de puntos pequeños, más cantidad y más visibles -->
+          <g opacity="0.22">
+            <!-- Primera columna -->
+            <circle cx="40" cy="80" r="3" fill="#fff"/>
+            <circle cx="40" cy="160" r="3" fill="#fff"/>
+            <circle cx="40" cy="240" r="3" fill="#fff"/>
+            <circle cx="40" cy="320" r="3" fill="#fff"/>
+            <circle cx="40" cy="400" r="3" fill="#fff"/>
+            <circle cx="40" cy="480" r="3" fill="#fff"/>
+            <circle cx="40" cy="560" r="3" fill="#fff"/>
+            <circle cx="40" cy="640" r="3" fill="#fff"/>
+            <circle cx="40" cy="720" r="3" fill="#fff"/>
+            <circle cx="40" cy="800" r="3" fill="#fff"/>
+            <!-- Segunda columna -->
+            <circle cx="100" cy="120" r="3" fill="#fff"/>
+            <circle cx="100" cy="200" r="3" fill="#fff"/>
+            <circle cx="100" cy="280" r="3" fill="#fff"/>
+            <circle cx="100" cy="360" r="3" fill="#fff"/>
+            <circle cx="100" cy="440" r="3" fill="#fff"/>
+            <circle cx="100" cy="520" r="3" fill="#fff"/>
+            <circle cx="100" cy="600" r="3" fill="#fff"/>
+            <circle cx="100" cy="680" r="3" fill="#fff"/>
+            <circle cx="100" cy="760" r="3" fill="#fff"/>
+            <!-- Tercera columna -->
+            <circle cx="180" cy="80" r="3" fill="#fff"/>
+            <circle cx="180" cy="160" r="3" fill="#fff"/>
+            <circle cx="180" cy="240" r="3" fill="#fff"/>
+            <circle cx="180" cy="320" r="3" fill="#fff"/>
+            <circle cx="180" cy="400" r="3" fill="#fff"/>
+            <circle cx="180" cy="480" r="3" fill="#fff"/>
+            <circle cx="180" cy="560" r="3" fill="#fff"/>
+            <circle cx="180" cy="640" r="3" fill="#fff"/>
+            <circle cx="180" cy="720" r="3" fill="#fff"/>
+            <circle cx="180" cy="800" r="3" fill="#fff"/>
+            <!-- Cuarta columna -->
+            <circle cx="260" cy="120" r="3" fill="#fff"/>
+            <circle cx="260" cy="200" r="3" fill="#fff"/>
+            <circle cx="260" cy="280" r="3" fill="#fff"/>
+            <circle cx="260" cy="360" r="3" fill="#fff"/>
+            <circle cx="260" cy="440" r="3" fill="#fff"/>
+            <circle cx="260" cy="520" r="3" fill="#fff"/>
+            <circle cx="260" cy="600" r="3" fill="#fff"/>
+            <circle cx="260" cy="680" r="3" fill="#fff"/>
+            <circle cx="260" cy="760" r="3" fill="#fff"/>
+            <!-- Quinta columna -->
+            <circle cx="340" cy="80" r="3" fill="#fff"/>
+            <circle cx="340" cy="160" r="3" fill="#fff"/>
+            <circle cx="340" cy="240" r="3" fill="#fff"/>
+            <circle cx="340" cy="320" r="3" fill="#fff"/>
+            <circle cx="340" cy="400" r="3" fill="#fff"/>
+            <circle cx="340" cy="480" r="3" fill="#fff"/>
+            <circle cx="340" cy="560" r="3" fill="#fff"/>
+            <circle cx="340" cy="640" r="3" fill="#fff"/>
+            <circle cx="340" cy="720" r="3" fill="#fff"/>
+            <circle cx="340" cy="800" r="3" fill="#fff"/>
+          </g>
+        </svg>
+      </div>
+      <div class="sticky space-y-8 sm:space-y-10 top-28 lg:top-30 z-10">
+        <!-- Icono solar -->
+        <div class="mb-4 flex justify-start">
+          <svg class="h-20 w-20" fill="#ffffff" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 260 244" enable-background="new 0 0 260 244" xml:space="preserve" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M258,54v-8h-25.176c-0.596-3.416-1.941-6.576-3.86-9.307l17.806-17.806l-5.656-5.657l-17.803,17.802 c-2.731-1.926-5.892-3.275-9.311-3.876V2h-8v25.148c-3.433,0.596-6.609,1.947-9.35,3.879L178.87,13.248l-5.656,5.657l17.781,17.78 c-1.922,2.733-3.269,5.896-3.866,9.315H162v8h25.129c0.598,3.428,1.95,6.597,3.88,9.335L173.23,81.112l5.656,5.657l17.783-17.782 c2.737,1.924,5.906,3.271,9.331,3.865V98h8V72.844c3.41-0.599,6.565-1.944,9.292-3.862l17.804,17.805l5.656-5.656l-17.803-17.804 c1.927-2.735,3.276-5.902,3.874-9.326H258z M209.976,34.8c8.382,0,15.2,6.819,15.2,15.2s-6.818,15.2-15.2,15.2 c-8.381,0-15.199-6.819-15.199-15.2S201.595,34.8,209.976,34.8z M80,236v6H43v-6h15v-22h6v22H80z M63.537,82l9.723,38h24.545 l-9.773-38H63.537z M84.518,164h24.603l-9.773-38H74.795L84.518,164z M78.325,164l-9.723-38h-24.52l9.723,38H78.325z M26.632,82H2 l9.772,38h24.582L26.632,82z M67.067,120l-9.723-38H32.825l9.723,38H67.067z M95.776,208h24.661l-9.773-38H86.053L95.776,208z M55.34,170l9.723,38h24.52l-9.723-38H55.34z M37.89,126H13.315l9.772,38h24.525L37.89,126z M24.631,170l9.772,38H58.87l-9.723-38 H24.631z M178.667,190h17.055l6.686,26h-17.089L178.667,190z M163,237v-16h-5v16h-11v5h27v-5H163z M155.259,185l-7.164-28h16.968 l7.164,28H155.259z M146.815,152l-6.652-26h16.968l6.652,26H146.815z M173.506,190l6.652,26H163.19l-6.652-26H173.506z M151.377,190 l6.652,26h-16.834l-6.686-26H151.377z M141.654,152h-16.917l-6.686-26h16.951L141.654,152z M150.098,185h-16.874l-7.201-28h16.911 L150.098,185z M179.264,126l6.686,26h-17.006l-6.652-26H179.264z M170.223,157h17.013l7.201,28h-17.049L170.223,157z M240,238v4h-16 v-4h6v-9h4v9H240z M230.721,210l3.838,15h9.591l-3.838-15H230.721z M248.279,225H258l-3.858-15h-9.702L248.279,225z M217.049,210 l3.858,15h9.524l-3.838-15H217.049z M243.417,206h9.696l-4.115-16h-9.675L243.417,206z M216.358,170h-9.596l4.115,16h9.575 L216.358,170z M234.206,170l4.094,16h9.67l-4.115-16H234.206z M221.475,190h-9.57l4.115,16h9.549L221.475,190z M239.288,206 l-4.094-16h-9.591l4.094,16H239.288z M234.171,186l-4.094-16h-9.591l4.094,16H234.171z"></path> </g></svg>        </div>
+        <h1 class="m-0 text-[clamp(2.2rem,4vw,3.2rem)] leading-[1.05] font-black tracking-[-0.07em] text-balance">
+          Simulador de<br />Proyectos<br />Fotovoltaicos<br />
+          <span class="text-[#ff5c39]">Off-Grid.</span>
+        </h1>
+        <h2 class="mt-2 text-[clamp(1.1rem,1.5vw,1.5rem)] font-semibold">Diseña tu autonomía total</h2>
+        <div class="w-32 h-1 bg-[#ff5c39] rounded-full mb-10"></div>
+        <p class="max-w-[38ch] text-[clamp(1rem,1.2vw,1.35rem)] leading-normal font-medium text-white/90">Calcula el sistema solar ideal para operar sin red eléctrica: paneles, inversor y baterías según tu demanda diaria.</p>
+        <!-- Caja de mensaje -->
+        <div class="mt-8">
+          <div class="flex items-center gap-3 rounded-lg border border-white/20 bg-white/10 px-4 py-3 backdrop-blur-sm">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/20">
+              <svg class="h-6 w-6" fill="#ffffff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M11.488 21.754c.294.157.663.156.957-.001 8.012-4.304 8.581-12.713 8.574-15.104a.988.988 0 0 0-.596-.903l-8.05-3.566a1.005 1.005 0 0 0-.813.001L3.566 5.747a.99.99 0 0 0-.592.892c-.034 2.379.445 10.806 8.514 15.115zM8.674 10.293l2.293 2.293 4.293-4.293 1.414 1.414-5.707 5.707-3.707-3.707 1.414-1.414z"></path></g></svg>
+            </span>
+            <span class="text-base font-medium text-white">Energía independiente, libertad sin límites.</span>
+          </div>
+        </div>
       </div>
     </aside>
 
-    <section class="mx-auto w-full max-w-5xl rounded-md border border-slate-300 bg-slate-100 shadow-lg">
-      <header class="flex items-center justify-between rounded-t-md bg-[#cc2f1f] px-6 py-4 text-white">
-        <h1 class="font-mono text-xl tracking-wide">Uso diario de Energía</h1>
-        <span aria-hidden="true" class="text-lg">💡</span>
+    <section class="mx-auto w-full rounded-md border border-slate-300 shadow-lg bg-white">
+
+      <header class="flex items-center justify-between rounded-t-md bg-white px-6 py-5 text-slate-900">
+        <div class="flex items-center gap-4">
+          <span class="inline-flex h-18 w-18 items-center justify-center rounded-full bg-red-500">
+            <svg class="h-9 w-9" fill="#ffffff" height="200px" width="200px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 283.831 283.831" xml:space="preserve" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M171.484,134.682h-47c-5.247,0-9.5,4.253-9.5,9.5v130c0,5.247,4.253,9.5,9.5,9.5h47c5.247,0,9.5-4.253,9.5-9.5v-130 C180.984,138.935,176.73,134.682,171.484,134.682z"></path> <path d="M271.822,69.682h-47c-5.247,0-9.5,4.253-9.5,9.5v195c0,5.247,4.253,9.5,9.5,9.5h47c5.246,0,9.5-4.253,9.5-9.5v-195 C281.322,73.935,277.069,69.682,271.822,69.682z"></path> <path d="M71.145,176.831h-47c-5.247,0-9.5,4.253-9.5,9.5v88c0,5.247,4.254,9.5,9.5,9.5h47c5.247,0,9.5-4.253,9.5-9.5v-88 C80.645,181.085,76.392,176.831,71.145,176.831z"></path> <path d="M193.391,18.189L158.163,1.456c-7.486-3.558-16.431-0.369-19.984,7.113c-3.555,7.482-0.37,16.431,7.113,19.984l2.864,1.361 L12.483,78.206C4.678,80.984,0.604,89.563,3.381,97.368c2.186,6.142,7.965,9.974,14.132,9.974c1.67,0,3.367-0.28,5.03-0.872 l135.162-48.11l-1.031,2.17c-3.555,7.483-0.37,16.431,7.113,19.984c2.078,0.987,4.269,1.455,6.425,1.455 c5.611-0.001,10.993-3.163,13.56-8.568l16.732-35.228C204.059,30.691,200.874,21.743,193.391,18.189z"></path> </g> </g></svg>
+          </span>
+          <div>
+            <h1 class="m-0 text-[clamp(1.75rem,2.2vw,2.6rem)] font-black leading-tight tracking-[-0.04em] text-slate-900">Uso diario de Energía</h1>
+            <p class="m-0 mt-1 text-[clamp(0.95rem,1.05vw,1.1rem)] font-medium text-slate-500">Selecciona tus equipos y calcula tu consumo diario</p>
+          </div>
+        </div>
+        <button
+          id="help-consumo-trigger"
+          type="button"
+          aria-label="Abrir ayuda sobre consumo"
+          class="cursor-pointer inline-flex h-14 w-14 items-center justify-center rounded-full border border-slate-200 text-2xl text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700"
+        >
+          ?
+        </button>
       </header>
 
+      <dialog id="help-consumo-dialog">
+        <article class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xl">
+          <button
+            id="help-consumo-close"
+            type="button"
+            aria-label="Cerrar ayuda"
+            class="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-2xl text-slate-500 transition hover:bg-slate-50 hover:text-slate-700"
+          >
+            ×
+          </button>
+
+          <div class="pr-14">
+            <div class="flex items-start gap-4 sm:gap-5">
+              <span class="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
+                <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M4 5.5C4 4.67 4.67 4 5.5 4H9.3C9.88 4 10.43 4.24 10.82 4.66L12 5.93L13.18 4.66C13.57 4.24 14.12 4 14.7 4H18.5C19.33 4 20 4.67 20 5.5V17.5C20 18.33 19.33 19 18.5 19H14.7C14.12 19 13.57 19.24 13.18 19.66L12 20.93L10.82 19.66C10.43 19.24 9.88 19 9.3 19H5.5C4.67 19 4 18.33 4 17.5V5.5Z" stroke="#dc2626" stroke-width="1.8"/>
+                  <path d="M8 9H9.5M8 12H10.5M14.5 9H16M14.5 12H16" stroke="#dc2626" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <div>
+                <h2 class="m-0 text-[clamp(1.7rem,2.9vw,2.7rem)] font-black leading-tight tracking-[-0.03em] text-slate-900">¿Cómo ingresar tu consumo?</h2>
+                <p class="m-0 mt-1 text-[clamp(0.96rem,1.2vw,1.2rem)] font-medium text-slate-500">Sigue estos pasos para registrar correctamente tus equipos y calcular tu demanda diaria.</p>
+              </div>
+            </div>
+
+            <div class="mt-6 space-y-3">
+              <div class="flex items-center gap-4 rounded-2xl border border-slate-200 px-4 py-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                  <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 5H5L6.2 12H17.7L19 7H7" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="18" r="1.6" fill="#dc2626"/><circle cx="17" cy="18" r="1.6" fill="#dc2626"/></svg>
+                </span>
+                <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white">1</span>
+                <div class="min-w-0 flex-1">
+                  <p class="m-0 text-xl font-bold text-slate-900">Selecciona el equipo</p>
+                  <p class="m-0 mt-1 text-base text-slate-500">Elige un equipo del listado, por ejemplo refrigerador, foco o televisor.</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4 rounded-2xl border border-slate-200 px-4 py-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                  <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="16" height="16" rx="3" stroke="#dc2626" stroke-width="2"/><path d="M12 8V16M8 12H16" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg>
+                </span>
+                <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white">2</span>
+                <div class="min-w-0 flex-1">
+                  <p class="m-0 text-xl font-bold text-slate-900">Ingresa la cantidad</p>
+                  <p class="m-0 mt-1 text-base text-slate-500">Especifica cuántas unidades de ese equipo utilizarás.</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4 rounded-2xl border border-slate-200 px-4 py-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                  <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.2 2.8L6.8 13.2H11.4L10.8 21.2L17.2 10.8H12.6L13.2 2.8Z" stroke="#dc2626" stroke-width="2" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white">3</span>
+                <div class="min-w-0 flex-1">
+                  <p class="m-0 text-xl font-bold text-slate-900">Define potencia y horas</p>
+                  <p class="m-0 mt-1 text-base text-slate-500">Verifica la potencia en watts y cuántas horas al día estará encendido.</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4 rounded-2xl border border-slate-200 px-4 py-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                  <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="3" width="16" height="18" rx="2" stroke="#dc2626" stroke-width="2"/><path d="M8 8H16M8 12H10M12 12H14M16 12H16.01M8 16H10M12 16H14M16 16H16.01" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg>
+                </span>
+                <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white">4</span>
+                <div class="min-w-0 flex-1">
+                  <p class="m-0 text-xl font-bold text-slate-900">Haz clic en calcular</p>
+                  <p class="m-0 mt-1 text-base text-slate-500">El sistema añadirá el consumo del equipo a tu tabla automáticamente.</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4 rounded-2xl border border-slate-200 px-4 py-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                  <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7.5C5.6 5.4 8.1 4 11 4C14.7 4 17.9 6.3 19.1 9.6" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/><path d="M20 5V10H15" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 16.5C18.4 18.6 15.9 20 13 20C9.3 20 6.1 17.7 4.9 14.4" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/><path d="M4 19V14H9" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white">5</span>
+                <div class="min-w-0 flex-1">
+                  <p class="m-0 text-xl font-bold text-slate-900">Repite con todos tus equipos</p>
+                  <p class="m-0 mt-1 text-base text-slate-500">Agrega cada aparato por separado para obtener un cálculo más preciso.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 rounded-2xl border border-orange-200 bg-orange-50/40 p-4">
+              <p class="m-0 text-[1.7rem] font-black text-orange-500">Tip: <span class="text-lg font-medium text-slate-700">Si no conoces la potencia exacta, puedes usar un valor aproximado y luego ajustarlo.</span></p>
+
+              <div class="mt-3 rounded-xl border border-slate-200 bg-white p-3">
+                <div class="grid grid-cols-1 gap-2 text-sm text-slate-600 sm:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1.1fr_auto] sm:items-center">
+                  <div class="rounded-lg border border-slate-200 px-3 py-2 text-center">
+                    <p class="m-0 text-xs font-semibold uppercase tracking-wide text-slate-500">Cantidad</p>
+                    <p class="m-0 mt-1 text-2xl font-bold text-slate-800">2</p>
+                  </div>
+                  <span class="hidden text-xl text-slate-400 sm:inline">→</span>
+                  <div class="rounded-lg border border-slate-200 px-3 py-2 text-center">
+                    <p class="m-0 text-xs font-semibold uppercase tracking-wide text-slate-500">Potencia (W)</p>
+                    <p class="m-0 mt-1 text-2xl font-bold text-slate-800">120</p>
+                  </div>
+                  <span class="hidden text-xl text-slate-400 sm:inline">→</span>
+                  <div class="rounded-lg border border-slate-200 px-3 py-2 text-center">
+                    <p class="m-0 text-xs font-semibold uppercase tracking-wide text-slate-500">Horas al día</p>
+                    <p class="m-0 mt-1 text-2xl font-bold text-slate-800">5</p>
+                  </div>
+                  <span class="hidden text-xl text-slate-400 sm:inline">=</span>
+                  <div class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-center">
+                    <p class="m-0 text-xs font-semibold uppercase tracking-wide text-red-500">Consumo diario</p>
+                    <p class="m-0 mt-1 text-2xl font-black text-red-600">1.20 kWh</p>
+                  </div>
+                  <button type="button" class="inline-flex h-11 items-center justify-center rounded-lg bg-red-600 px-4 text-base font-semibold text-white transition hover:bg-red-700">Calcular</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </dialog>
+
       <div class="space-y-7 px-6 py-7">
-        <div>
-          <label for="equipo" class="mb-2 block text-sm text-slate-700">Seleccione el equipo</label>
-          <select id="equipo" class="h-11 w-full rounded border-2 border-[#2f74df] bg-slate-600 px-3 text-xl text-white outline-none">
-            <option value="" disabled selected>Cargando...</option>
-          </select>
+        <div class="rounded-xl border border-slate-200 bg-white/70 p-4 sm:p-5">
+          <div class="grid grid-cols-1 lg:grid-cols-2 items-center gap-6">
+            <div>
+              <label for="equipo" class="mb-2 block text-sm text-slate-700">Seleccione el equipo</label>
+              <select id="equipo" class="h-11 w-full rounded-xl border-2 border-gray-300 bg-white px-3 text-xl text-slate-700 outline-none">
+                <option value="" disabled selected>Cargando...</option>
+              </select>
+            </div>
+            <div>
+              <p class="mb-2 text-sm text-slate-700">Agregar consumo del inversor</p>
+              <label for="agregar-inversor" class="inline-flex cursor-pointer items-center gap-4 px-4 py-2">
+                <input id="agregar-inversor" type="checkbox" class="peer sr-only" />
+                <span class="toggle-track relative inline-block h-7 w-12 shrink-0 rounded-full bg-slate-300 transition-colors duration-300 ease-in-out peer-checked:bg-[#cc2f1f]">
+                  <span class="toggle-thumb absolute top-1 left-1 h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out"></span>
+                </span>
+                <span class="text-sm font-semibold text-slate-600">Incluye el consumo propio del inversor en el cálculo</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="mt-5 grid gap-4 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
+            <label class="block">
+              <span class="mb-2 block text-sm text-slate-700">Cantidad</span>
+              <input id="cantidad" type="number" min="1" value="1" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none" />
+            </label>
+
+            <label class="block">
+              <span class="mb-2 block text-sm text-slate-700">Potencia (W)</span>
+              <input id="potencia" type="number" min="0" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none" />
+            </label>
+
+            <label class="block">
+              <span class="mb-2 block text-sm text-slate-700">Horas al día</span>
+              <input id="horas" type="number" min="0" step="0.1" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none" />
+            </label>
+
+            <button id="btn-calcular" type="button" class="h-11 cursor-pointer flex gap-1 items-center justify-center rounded bg-[#cc3b26] px-8 text-lg font-semibold text-white transition hover:bg-[#b9301d]">
+              <svg class="h-6 w-6 inline-flex" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M5 9H19M15 18V15M9 18H9.01M12 18H12.01M12 15H12.01M9 15H9.01M15 12H15.01M12 12H12.01M9 12H9.01M8.2 21H15.8C16.9201 21 17.4802 21 17.908 20.782C18.2843 20.5903 18.5903 20.2843 18.782 19.908C19 19.4802 19 18.9201 19 17.8V6.2C19 5.0799 19 4.51984 18.782 4.09202C18.5903 3.71569 18.2843 3.40973 17.908 3.21799C17.4802 3 16.9201 3 15.8 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.07989 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.07989 21 8.2 21Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+              Calcular
+            </button>
+          </div>
         </div>
 
-        <label
-          for="agregar-inversor"
-          class="inline-flex w-fit cursor-pointer items-center gap-3 rounded-full border border-[#f3b2aa] bg-[#fff4f2] px-4 py-2 text-sm font-semibold text-[#9f2f20] transition hover:border-[#e28579]"
-        >
-          <input id="agregar-inversor" type="checkbox" class="size-4 accent-[#cc2f1f]" />
-          <span>Agregar consumo del inversor</span>
-        </label>
-
-        <div class="grid gap-4 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
-          <label class="block">
-            <span class="mb-2 block text-sm text-slate-700">Cantidad</span>
-            <input id="cantidad" type="number" min="1" value="1" class="h-11 w-full rounded border border-slate-400 bg-slate-100 px-3 text-lg text-slate-700 outline-none" />
-          </label>
-
-          <label class="block">
-            <span class="mb-2 block text-sm text-slate-700">Potencia (W)</span>
-            <input id="potencia" type="number" min="0" class="h-11 w-full rounded border border-slate-400 bg-slate-100 px-3 text-lg text-slate-700 outline-none" />
-          </label>
-
-          <label class="block">
-            <span class="mb-2 block text-sm text-slate-700">Horas al día</span>
-            <input id="horas" type="number" min="0" step="0.1" class="h-11 w-full rounded border border-slate-400 bg-slate-100 px-3 text-lg text-slate-700 outline-none" />
-          </label>
-
-          <button id="btn-calcular" type="button" class="h-11 cursor-pointer rounded bg-[#cc3b26] px-8 text-lg font-semibold text-white transition hover:bg-[#b9301d]">Calcular</button>
-        </div>
-
-        <div class="rounded border border-slate-300 bg-slate-100">
-          <div class="grid grid-cols-6 border-b border-slate-300 px-2 py-3 text-lg text-slate-800">
+        <div class="rounded-xl border border-slate-200 bg-white">
+          <div class="grid grid-cols-6 border-b border-slate-200 px-2 py-3 text-lg text-slate-800">
             <span class="px-2">Objeto</span>
             <span class="px-2">Cantidad</span>
             <span class="px-2">Potencia</span>
@@ -76,22 +331,51 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
             <span class="px-2">Acciones</span>
           </div>
 
-          <div id="tabla-consumos" class="divide-y divide-slate-300"></div>
+          <div id="tabla-consumos" class="divide-y divide-slate-200 "></div>
         </div>
 
-        <div class="space-y-5 pt-2 pb-4">
-          <h2 class="font-mono text-3xl text-slate-800">Consumo diario de energía</h2>
+        <div class="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+          <div class="flex items-center gap-3 border-b border-slate-200 pb-4">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-red-50">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M5 18V10" stroke="#d12a2a" stroke-width="2.2" stroke-linecap="round"/>
+                <path d="M10 18V6" stroke="#d12a2a" stroke-width="2.2" stroke-linecap="round"/>
+                <path d="M15 18V12" stroke="#d12a2a" stroke-width="2.2" stroke-linecap="round"/>
+                <path d="M20 18V4" stroke="#d12a2a" stroke-width="2.2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <h2 class="text-[clamp(1.5rem,2.2vw,2rem)] font-semibold text-slate-800">Consumo diario de energía</h2>
+          </div>
 
-          <div class="grid gap-6 sm:grid-cols-2">
-            <div>
-              <p class="text-3xl text-slate-700">Potencia total requerida</p>
-              <p id="total-potencia" class="text-5xl text-slate-900">0 W</p>
-            </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <article class="rounded-2xl border border-slate-200 bg-[#fcfcfd] p-4 sm:p-5">
+              <div class="flex items-center gap-4">
+                <span class="inline-flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-red-50">
+                  <svg class="h-10 w-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M13 2L5 14H11L10 22L19 9H13L13 2Z" fill="#d12a2a"/>
+                  </svg>
+                </span>
+                <div class="min-w-0">
+                  <p class="text-[clamp(1.25rem,1.6vw,1.8rem)] text-slate-600">Potencia total requerida</p>
+                  <p id="total-potencia" class="text-[clamp(2.3rem,4vw,3.6rem)] font-bold leading-none text-[#d12a2a]">0 W</p>
+                </div>
+              </div>
+            </article>
 
-            <div>
-              <p class="text-3xl text-slate-700">Energía total por día</p>
-              <p id="total-wh" class="text-5xl text-slate-900">0 Wh</p>
-            </div>
+            <article class="rounded-2xl border border-slate-200 bg-[#fcfcfd] p-4 sm:p-5">
+              <div class="flex items-center gap-4">
+                <span class="inline-flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#fff5e8]">
+                  <svg class="h-10 w-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <rect x="6" y="3" width="12" height="18" rx="2" stroke="#ef8a10" stroke-width="2"/>
+                    <path d="M12.5 7L9.5 12H12L11.5 16L14.5 11H12L12.5 7Z" fill="#ef8a10"/>
+                  </svg>
+                </span>
+                <div class="min-w-0">
+                  <p class="text-[clamp(1.25rem,1.6vw,1.8rem)] text-slate-600">Energía total por día</p>
+                  <p id="total-wh" class="text-[clamp(2.3rem,4vw,3.6rem)] font-bold leading-none text-[#ef8a10]">0 Wh</p>
+                </div>
+              </div>
+            </article>
           </div>
         </div>
           <div class="flex justify-start pb-2">
@@ -112,6 +396,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 
   <script>
     import { registerNavigationPreloader } from "../../lib/navigationPreloader";
+    import { PrettyModal } from "../../lib/prettyModal";
 
     type Electrodomestico = {
       id?: string;
@@ -149,6 +434,11 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     let totalEnergiaEl: HTMLElement | null = null;
     let totalEnergiaConsumoEl: HTMLElement | null = null;
     let agregarInversorEl: HTMLInputElement | null = null;
+    let helpTriggerEl: HTMLButtonElement | null = null;
+    let helpCloseEl: HTMLButtonElement | null = null;
+    let helpUnderstoodEl: HTMLButtonElement | null = null;
+    let helpDialogEl: HTMLDialogElement | null = null;
+    const prettyModal = new PrettyModal();
 
     const sincronizarElementosDom = (): void => {
       equipoEl = document.querySelector<HTMLSelectElement>("#equipo");
@@ -160,6 +450,10 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       totalEnergiaEl = document.querySelector<HTMLElement>("#total-potencia");
       totalEnergiaConsumoEl = document.querySelector<HTMLElement>("#total-wh");
       agregarInversorEl = document.querySelector<HTMLInputElement>("#agregar-inversor");
+      helpTriggerEl = document.querySelector<HTMLButtonElement>("#help-consumo-trigger");
+      helpCloseEl = document.querySelector<HTMLButtonElement>("#help-consumo-close");
+      helpUnderstoodEl = document.querySelector<HTMLButtonElement>("#help-consumo-understood");
+      helpDialogEl = document.querySelector<HTMLDialogElement>("#help-consumo-dialog");
     };
 
     const esPaginaConsumoActiva = (): boolean => {
@@ -300,7 +594,9 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         if (agregarInversorEl instanceof HTMLInputElement) {
           agregarInversorEl.checked = false;
         }
-        renderTabla();
+        
+        
+        ;
         actualizarTotales();
         return;
       }
@@ -317,7 +613,9 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         agregarInversorEl.checked = false;
       }
       
-      renderTabla();
+      
+      
+      ;
       actualizarTotales();
     };
 
@@ -413,12 +711,12 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
             <span class="flex gap-2 px-2">
               <button
                 type="button"
-                class="rounded cursor-pointer bg-sky-600 px-3 py-1 text-sm font-semibold text-white transition hover:bg-sky-700"
+                class="rounded cursor-pointer bg-white px-3 py-1 text-sm font-semibold text-white border border-slate-300 transition hover:bg-slate-100"
                 data-action="editar"
                 data-id="${registro.id}"
                 title="Editar registro"
               >
-                <svg class="h-6 w-6" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11 4H7.2C6.0799 4 5.51984 4 5.09202 4.21799C4.71569 4.40974 4.40973 4.7157 4.21799 5.09202C4 5.51985 4 6.0799 4 7.2V16.8C4 17.9201 4 18.4802 4.21799 18.908C4.40973 19.2843 4.71569 19.5903 5.09202 19.782C5.51984 20 6.0799 20 7.2 20H16.8C17.9201 20 18.4802 20 18.908 19.782C19.2843 19.5903 19.5903 19.2843 19.782 18.908C20 18.4802 20 17.9201 20 16.8V12.5M15.5 5.5L18.3284 8.32843M10.7627 10.2373L17.411 3.58902C18.192 2.80797 19.4584 2.80797 20.2394 3.58902C21.0205 4.37007 21.0205 5.6364 20.2394 6.41745L13.3774 13.2794C12.6158 14.0411 12.235 14.4219 11.8012 14.7247C11.4162 14.9936 11.0009 15.2162 10.564 15.3882C10.0717 15.582 9.54378 15.6885 8.48793 15.9016L8 16L8.04745 15.6678C8.21536 14.4925 8.29932 13.9048 8.49029 13.3561C8.65975 12.8692 8.89125 12.4063 9.17906 11.9786C9.50341 11.4966 9.92319 11.0768 10.7627 10.2373Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M21.2799 6.40005L11.7399 15.94C10.7899 16.89 7.96987 17.33 7.33987 16.7C6.70987 16.07 7.13987 13.25 8.08987 12.3L17.6399 2.75002C17.8754 2.49308 18.1605 2.28654 18.4781 2.14284C18.7956 1.99914 19.139 1.92124 19.4875 1.9139C19.8359 1.90657 20.1823 1.96991 20.5056 2.10012C20.8289 2.23033 21.1225 2.42473 21.3686 2.67153C21.6147 2.91833 21.8083 3.21243 21.9376 3.53609C22.0669 3.85976 22.1294 4.20626 22.1211 4.55471C22.1128 4.90316 22.0339 5.24635 21.8894 5.5635C21.7448 5.88065 21.5375 6.16524 21.2799 6.40005V6.40005Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M11 4H6C4.93913 4 3.92178 4.42142 3.17163 5.17157C2.42149 5.92172 2 6.93913 2 8V18C2 19.0609 2.42149 20.0783 3.17163 20.8284C3.92178 21.5786 4.93913 22 6 22H17C19.21 22 20 20.2 20 18V13" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
               </button>
               ${registro.esInversor ? '' : `<button
                 type="button"
@@ -502,6 +800,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         potencia: registro.potencia,
         horas: registro.horas
       };
+
       renderTabla();
     };
 
@@ -649,6 +948,42 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       if (agregarInversorEl && agregarInversorEl.dataset.listenerBound !== "1") {
         agregarInversorEl.addEventListener("change", manejarCambioCheckboxInversor);
         agregarInversorEl.dataset.listenerBound = "1";
+      }
+
+      if (helpTriggerEl && helpTriggerEl.dataset.listenerBound !== "1") {
+        helpTriggerEl.addEventListener("click", (event) => {
+          prettyModal.open("help-consumo-dialog", event);
+        });
+        helpTriggerEl.dataset.listenerBound = "1";
+      }
+
+      if (helpCloseEl && helpCloseEl.dataset.listenerBound !== "1") {
+        helpCloseEl.addEventListener("click", () => {
+          prettyModal.close("help-consumo-dialog");
+        });
+        helpCloseEl.dataset.listenerBound = "1";
+      }
+
+      if (helpUnderstoodEl && helpUnderstoodEl.dataset.listenerBound !== "1") {
+        helpUnderstoodEl.addEventListener("click", () => {
+          prettyModal.close("help-consumo-dialog");
+        });
+        helpUnderstoodEl.dataset.listenerBound = "1";
+      }
+
+      if (helpDialogEl && helpDialogEl.dataset.listenerBound !== "1") {
+        helpDialogEl.addEventListener("click", (event) => {
+          if (event.target === helpDialogEl) {
+            prettyModal.close("help-consumo-dialog");
+          }
+        });
+
+        helpDialogEl.addEventListener("cancel", (event) => {
+          event.preventDefault();
+          prettyModal.close("help-consumo-dialog");
+        });
+
+        helpDialogEl.dataset.listenerBound = "1";
       }
     };
 
