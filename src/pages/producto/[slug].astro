@@ -352,7 +352,7 @@ const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.
   metaOgType="product"
 >
 
-    <article class="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <article class="relative mx-10  px-4 py-12 sm:px-6 lg:px-8">
       <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
         <a
           href="/tienda"
@@ -390,7 +390,7 @@ const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.
           data-aos="fade-right"
           data-aos-duration="1000"
         >
-           <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-gradient-to-br from-zinc-50 via-white to-zinc-100 shadow-inner dark:border-zinc-800 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
+           <div class="overflow-hidden rounded-2xl border border-zinc-300 bg-gradient-to-br from-zinc-50 via-white to-zinc-100 shadow-inner dark:border-zinc-800 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900">
               <div class="relative flex items-center justify-center px-4 py-6 sm:px-6">
                 <div
                   class="group relative flex h-[320px] w-full max-w-[520px] items-center justify-center overflow-hidden rounded-xl sm:h-[420px] lg:h-[520px]"
@@ -426,7 +426,7 @@ const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.
               >
                 {galleryItems.map((imageUrl) => (
                   <button
-                    class="thumb relative h-24 w-full cursor-pointer overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 p-2 transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 sm:h-28"
+                    class="thumb relative h-24 w-full cursor-pointer overflow-hidden rounded-xl border border-zinc-300 bg-zinc-50 p-2 transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 sm:h-28"
                     data-src={imageUrl}
                     type="button"
                     aria-label="Cambiar imagen"
@@ -448,7 +448,7 @@ const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.
          
         </section>
 
-        <section class="relative flex flex-col gap-6 rounded-3xl border border-zinc-200 bg-white/90 p-6 shadow-xl shadow-primary/5 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/85  lg:top-6 lg:self-start lg:p-8">
+        <section class="relative flex flex-col gap-6 rounded-3xl border border-zinc-300 bg-white/90 p-6 shadow-xl shadow-primary/5 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/85  lg:top-6 lg:self-start lg:p-8">
           <div id="product-info-preloader" class="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-3xl bg-white/90 backdrop-blur dark:bg-zinc-900/90 transition-opacity duration-500">
             <svg class="h-10 w-10 animate-spin text-primary" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -655,7 +655,7 @@ const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.
       </div>
     </article>
     {recommendedProducts.length > 0 ? (
-      <section class="mx-auto mt-4 w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+      <section class="mx-auto mt-4 w-full px-4 pb-16 sm:px-8 lg:px-15">
         <div class="rounded-3xl p-6">
           <div class="flex flex-col gap-2">
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
