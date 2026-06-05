@@ -662,8 +662,6 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
     const calcularPotenciaInversorRequerida = (totalEnergiaLoss: number): number => {
         console.log("Calculando potencia requerida para el inversor con totalEnergiaLoss:", totalEnergiaLoss);
       switch (true) {
-        case totalEnergiaLoss <= 292:
-          return 350;
         case totalEnergiaLoss <= 417:
           return 500;
         case totalEnergiaLoss <= 833:

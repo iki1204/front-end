@@ -40,54 +40,84 @@ function buildQuery(params: QueryParams = "") {
 
 async function fetchAPI(endpoint: string, params: QueryParams = "") {
   const query = buildQuery(params);
+  const FETCH_TIMEOUT = 15000; // 15 segundos timeout
 
-  const res = await fetch(`${API_URL}/${endpoint}${query}`, {
-    headers: {
-      Authorization: `Bearer ${API_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
 
-  if (!res.ok) {
-    throw new Error(`Error fetching ${endpoint}: ${res.statusText}`);
+    const res = await fetch(`${API_URL}/${endpoint}${query}`, {
+      headers: {
+        Authorization: `Bearer ${API_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      throw new Error(`Error fetching ${endpoint}: ${res.statusText}`);
+    }
+
+    const data = await res.json();
+
+    return data;
+  } catch (error: any) {
+    // Manejo específico para timeout
+    if (error.name === "AbortError") {
+      throw new Error(`Request timeout fetching ${endpoint} (${FETCH_TIMEOUT}ms exceeded)`);
+    }
+    throw error;
   }
-
-  const data = await res.json();
-
-  return data;
 }
 
 
 async function postAPI(endpoint: string, body: unknown = {}, params: QueryParams = "") {
   const query = buildQuery(params);
+  const FETCH_TIMEOUT = 15000; // 15 segundos timeout
 
-  const res = await fetch(`${API_URL}/auth/${endpoint}${query}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body ?? {}),
-    cache: "no-store",
-  });
-
-  let payload: any = null;
   try {
-    payload = await res.json();
-  } catch (error) {
-    payload = null;
-  }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
 
-  if (!res.ok) {
-    const message =
-      payload?.error?.message ||
-      payload?.message ||
-      (typeof payload === "string" ? payload : null) ||
-      res.statusText;
-    throw new Error(message || `Error posting to ${endpoint}`);
-  }
+    const res = await fetch(`${API_URL}/auth/${endpoint}${query}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body ?? {}),
+      cache: "no-store",
+      signal: controller.signal,
+    });
 
-  return payload;
+    clearTimeout(timeoutId);
+
+    let payload: any = null;
+    try {
+      payload = await res.json();
+    } catch (error) {
+      payload = null;
+    }
+
+    if (!res.ok) {
+      const message =
+        payload?.error?.message ||
+        payload?.message ||
+        (typeof payload === "string" ? payload : null) ||
+        res.statusText;
+      throw new Error(message || `Error posting to ${endpoint}`);
+    }
+
+    return payload;
+  } catch (error: any) {
+    // Manejo específico para timeout
+    if (error.name === "AbortError") {
+      throw new Error(`Request timeout posting to ${endpoint} (${FETCH_TIMEOUT}ms exceeded)`);
+    }
+    throw error;
+  }
 }
 
 
