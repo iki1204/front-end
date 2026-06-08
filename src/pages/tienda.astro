@@ -30,6 +30,15 @@ const normalizedSearchParam = searchTerms.join(" ");
 const categoryParam = url.searchParams.get("category") ?? "all";
 const brandParam = url.searchParams.get("brand") ?? "all";
 const stockParam = url.searchParams.get("stock") ?? "all";
+const bodegaParams = url.searchParams
+  .getAll("bodega")
+  .map((value) => value.trim())
+  .filter(Boolean);
+const selectedBodegas = Array.from(new Set(bodegaParams.filter((value) => value !== "all")));
+const selectedBodegasNormalized = selectedBodegas.map((value) => value.toLowerCase().trim());
+const bodegaParam = selectedBodegas[0] ?? "all";
+const hasSelectedBodegas = selectedBodegas.length > 0;
+const bodegaHiddenValues = hasSelectedBodegas ? selectedBodegas : ["all"];
 const imageParam = url.searchParams.get("image") ?? "all";
 const datasheetsParam = url.searchParams.get("datasheets") ?? "all";
 const descriptionParam = url.searchParams.get("description") ?? "all";
@@ -45,6 +54,8 @@ const strapiParams = new URLSearchParams({
   "pagination[pageSize]": String(ITEMS_PER_PAGE),
   sort: "nombre:asc",
 });
+
+const isSpecificBodegaFilter = stockParam === "in" && hasSelectedBodegas;
 
 const applySearchFilters = (params: URLSearchParams, terms: string[]) => {
   terms.forEach((term, index) => {
@@ -186,6 +197,45 @@ const getAllProductsForSuggestions = async () => {
   return items;
 };
 
+const getAllProductsForFilters = async (baseParams: URLSearchParams) => {
+  const params = new URLSearchParams(baseParams);
+  params.delete("pagination[page]");
+  params.delete("pagination[pageSize]");
+
+  const items: any[] = [];
+  let page = 1;
+  let pageCount = 1;
+
+  do {
+    params.set("pagination[page]", String(page));
+    params.set("pagination[pageSize]", "100");
+
+    const response = await getProductos(params);
+    const pageItems = normalizeCollection(response?.data ?? []);
+    items.push(...pageItems);
+
+    const pagination = response?.meta?.pagination;
+    pageCount = pagination?.pageCount ?? pageCount;
+    page += 1;
+  } while (page <= pageCount);
+
+  return items;
+};
+
+const fetchBodegaStockRows = async (identifier: string | null) => {
+  if (!identifier) return [];
+
+  try {
+    const endpoint = new URL(`/api/bodega-stock/${encodeURIComponent(identifier)}`, url.origin).toString();
+    const res = await fetch(endpoint, { cache: "no-store" });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+};
+
 // Wrapper para fallar silenciosamente en fetches
 const safeAsyncFetch = async <T,>(fn: () => Promise<T>, defaultValue: T, label: string): Promise<T> => {
   try {
@@ -196,13 +246,82 @@ const safeAsyncFetch = async <T,>(fn: () => Promise<T>, defaultValue: T, label: 
   }
 };
 
-const [productosResponse, categoriasResponse, marcasResponse, global, suggestionProducts] = await Promise.all([
-  safeAsyncFetch(() => getProductos(strapiParams), { data: [], meta: { pagination: {} } }, "getProductos"),
+const [categoriasResponse, marcasResponse, global, suggestionProducts] = await Promise.all([
   safeAsyncFetch(() => getCategorias(), { data: [] }, "getCategorias"),
   safeAsyncFetch(() => getMarcas(), { data: [] }, "getMarcas"),
   safeAsyncFetch(() => getGlobalData(), {}, "getGlobalData"),
   isCrawler ? Promise.resolve([]) : safeAsyncFetch(() => getAllProductsForSuggestions(), [], "getAllProductsForSuggestions"),
 ]);
+
+const bodegaNamesSet = new Set<string>();
+let productos: any[] = [];
+let totalPages = 1;
+let currentPage = requestedPage;
+let totalItems = 0;
+
+if (isSpecificBodegaFilter) {
+  const allFilteredCandidates = await safeAsyncFetch(
+    () => getAllProductsForFilters(strapiParams),
+    [],
+    "getAllProductsForFilters",
+  );
+
+  const matchChecks = await Promise.all(
+    allFilteredCandidates.map(async (item) => {
+      const identifier = item?.identifier ? String(item.identifier) : null;
+      const bodegaRows = await fetchBodegaStockRows(identifier);
+
+      bodegaRows.forEach((row) => {
+        const nombre = String(row?.bodega_nombre ?? "").trim();
+        if (nombre) bodegaNamesSet.add(nombre);
+      });
+
+      const hasStockInSelectedBodega = bodegaRows.some((row) => {
+        const nombre = String(row?.bodega_nombre ?? "").trim().toLowerCase();
+        const cantidad = Number(row?.cantidad ?? 0);
+        return selectedBodegasNormalized.includes(nombre) && Number.isFinite(cantidad) && cantidad > 0;
+      });
+
+      return hasStockInSelectedBodega ? item : null;
+    }),
+  );
+
+  const filteredByBodega = matchChecks.filter(Boolean) as any[];
+  totalItems = filteredByBodega.length;
+  totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  currentPage = Math.min(Math.max(requestedPage, 1), totalPages);
+
+  const start = (currentPage - 1) * ITEMS_PER_PAGE;
+  const end = start + ITEMS_PER_PAGE;
+  productos = filteredByBodega.slice(start, end);
+} else {
+  const productosResponse = await safeAsyncFetch(
+    () => getProductos(strapiParams),
+    { data: [], meta: { pagination: {} } },
+    "getProductos",
+  );
+
+  productos = normalizeCollection(productosResponse?.data ?? []);
+
+  const paginationMeta = productosResponse?.meta?.pagination ?? {};
+  totalPages = Math.max(1, paginationMeta.pageCount ?? 1);
+  currentPage = Math.min(Math.max(paginationMeta.page ?? requestedPage, 1), totalPages);
+  totalItems = paginationMeta.total ?? productos.length;
+
+  const rowsByProduct = await Promise.all(
+    productos.map(async (item) => {
+      const identifier = item?.identifier ? String(item.identifier) : null;
+      return fetchBodegaStockRows(identifier);
+    }),
+  );
+
+  rowsByProduct.flat().forEach((row) => {
+    const nombre = String(row?.bodega_nombre ?? "").trim();
+    if (nombre) bodegaNamesSet.add(nombre);
+  });
+}
+
+const bodegaOptions = Array.from(bodegaNamesSet).sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
 
 
 const getStrapiFileUrl = (file: any) => {
@@ -215,14 +334,8 @@ const getStrapiFileUrl = (file: any) => {
   return `${import.meta.env.VITE_STRAPI_URL ?? ""}${url}`;
 };
 
-const productos = normalizeCollection(productosResponse?.data ?? []);
 const categorias = normalizeCollection(categoriasResponse?.data ?? []);
 const marcas = normalizeCollection(marcasResponse?.data ?? []);
-
-const paginationMeta = productosResponse?.meta?.pagination ?? {};
-const totalPages = Math.max(1, paginationMeta.pageCount ?? 1);
-const currentPage = Math.min(Math.max(paginationMeta.page ?? requestedPage, 1), totalPages);
-const totalItems = paginationMeta.total ?? productos.length;
 
 const buildQueryString = (updates: Record<string, string | number | null>) => {
   const params = new URLSearchParams(url.searchParams);
@@ -500,19 +613,27 @@ const showRightDots = endPage < totalPages;
             onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
           >
             <option
-              value={Astro.url.pathname + buildQueryString({ stock: "all", page: 1, search: null})}
+              value={Astro.url.pathname + buildQueryString({ stock: "all", bodega: "all", page: 1, search: null})}
               selected={stockParam === "all"}
             >
               TODOS
             </option>
             <option
-              value={Astro.url.pathname + buildQueryString({ stock: "in", page: 1, search: null })}
-              selected={stockParam === "in"}
+              value={Astro.url.pathname + buildQueryString({ stock: "in", bodega: "all", page: 1, search: null })}
+              selected={stockParam === "in" && !hasSelectedBodegas}
             >
-              En stock
+              En stock (todas las bodegas)
             </option>
+            {bodegaOptions.map((bodegaNombre) => (
+              <option
+                value={Astro.url.pathname + buildQueryString({ stock: "in", bodega: bodegaNombre, page: 1, search: null })}
+                selected={stockParam === "in" && selectedBodegas.includes(bodegaNombre)}
+              >
+                En stock · {bodegaNombre}
+              </option>
+            ))}
             <option
-              value={Astro.url.pathname + buildQueryString({ stock: "out", page: 1, search: null })}
+              value={Astro.url.pathname + buildQueryString({ stock: "out", bodega: "all", page: 1, search: null })}
               selected={stockParam === "out"}
             >
               Sin stock
@@ -618,6 +739,9 @@ const showRightDots = endPage < totalPages;
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="brand" value={brandParam} />
               <input type="hidden" name="stock" value={stockParam} />
+              {bodegaHiddenValues.map((bodegaValue) => (
+                <input type="hidden" name="bodega" value={bodegaValue} />
+              ))}
               <input type="hidden" name="image" value={imageParam} />
               <input type="hidden" name="datasheets" value={datasheetsParam} />
               <input type="hidden" name="description" value={descriptionParam} />
@@ -653,7 +777,6 @@ const showRightDots = endPage < totalPages;
         <aside
           class="hidden md:block md:w-64 shrink-0 sticky top-24 z-50 max-h-[calc(100vh-9rem)] overflow-y-auto rounded-3xl border border-zinc-300  p-6 shadow-sm no-scrollbar dark:border-red-900 dark:bg-zinc-900"
           data-aos="fade-right"
-          data-aos-duration="1000"
         >
 
         <!-- Ofertas -->
@@ -895,30 +1018,152 @@ const showRightDots = endPage < totalPages;
               <svg class="h-6 w-6 pt-1 pr-2" viewBox="0 0 24.00 24.00" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#db0000" stroke-width="0.648"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M8.42229 20.6181C10.1779 21.5395 11.0557 22.0001 12 22.0001V12.0001L2.63802 7.07275C2.62423 7.09491 2.6107 7.11727 2.5974 7.13986C2 8.15436 2 9.41678 2 11.9416V12.0586C2 14.5834 2 15.8459 2.5974 16.8604C3.19479 17.8749 4.27063 18.4395 6.42229 19.5686L8.42229 20.6181Z" fill="#ffffff"></path> <path opacity="0.7" d="M17.5774 4.43152L15.5774 3.38197C13.8218 2.46066 12.944 2 11.9997 2C11.0554 2 10.1776 2.46066 8.42197 3.38197L6.42197 4.43152C4.31821 5.53552 3.24291 6.09982 2.6377 7.07264L11.9997 12L21.3617 7.07264C20.7564 6.09982 19.6811 5.53552 17.5774 4.43152Z" fill="#ffffff"></path> <path opacity="0.5" d="M21.4026 7.13986C21.3893 7.11727 21.3758 7.09491 21.362 7.07275L12 12.0001V22.0001C12.9443 22.0001 13.8221 21.5395 15.5777 20.6181L17.5777 19.5686C19.7294 18.4395 20.8052 17.8749 21.4026 16.8604C22 15.8459 22 14.5834 22 12.0586V11.9416C22 9.41678 22 8.15436 21.4026 7.13986Z" fill="#ffffff"></path> <path d="M6.32334 4.48382C6.35617 4.46658 6.38926 4.44922 6.42261 4.43172L7.91614 3.64795L17.0169 8.65338L21.0406 6.64152C21.1783 6.79745 21.298 6.96175 21.4029 7.13994C21.5525 7.39396 21.6646 7.66352 21.7487 7.96455L17.7503 9.96373V13.0002C17.7503 13.4144 17.4145 13.7502 17.0003 13.7502C16.5861 13.7502 16.2503 13.4144 16.2503 13.0002V10.7137L12.7503 12.4637V21.9042C12.4934 21.9682 12.2492 22.0002 12.0003 22.0002C11.7515 22.0002 11.5072 21.9682 11.2503 21.9042V12.4637L2.25195 7.96455C2.33601 7.66352 2.44813 7.39396 2.59771 7.13994C2.70264 6.96175 2.82232 6.79745 2.96001 6.64152L12.0003 11.1617L15.3865 9.46857L6.32334 4.48382Z" fill="#ffffff"></path> </g></svg>
               Stock
             </h2>
-            <ul class="flex flex-col gap-2 text-sm">
-              {[
-                { label: "Todos", value: "all" },
-                { label: "En stock", value: "in" },
-                { label: "Sin stock", value: "out" },
-              ].map((option) => {
-                const isActive = stockParam === option.value;
-                return (
-                  <li>
-                    <a
-                      href={Astro.url.pathname + buildQueryString({ stock: option.value, page: 1, search: null })}
-                      class={`flex items-center justify-between rounded-2xl border px-4 py-2 font-medium transition ${
-                        isActive
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-zinc-300 bg-white text-zinc-700 hover:border-primary hover:text-primary dark:border-red-900 dark:bg-zinc-900 dark:text-zinc-200"
-                      }`}
-                      aria-current={isActive ? "true" : undefined}
-                    >
-                      <span>{option.label}</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
+            <details
+              class={`group rounded-2xl border px-2 py-1 transition ${
+                stockParam !== "all"
+                  ? "border-primary bg-primary/5 shadow-sm dark:border-red-700 dark:bg-red-950/40"
+                  : "border-zinc-300 bg-white hover:border-primary/60 dark:border-red-900 dark:bg-zinc-900"
+              }`}
+              open={stockParam !== "all"}
+            >
+              <summary
+                class={`flex w-full cursor-pointer select-none items-center justify-between rounded-xl px-3 py-2 text-sm font-medium list-none ${
+                  stockParam !== "all"
+                    ? "text-primary"
+                    : "text-zinc-700 hover:text-primary dark:text-zinc-200"
+                }`}
+                aria-expanded={stockParam !== "all" ? "true" : "false"}
+              >
+                <span class="flex-1 text-left">Selecciona uno</span>
+                <svg
+                  class="h-4 w-4 text-current transition-transform duration-200 group-open:rotate-180"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M5 7.5L10 12.5L15 7.5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </summary>
+
+              <div class="max-h-0 no-scrollbar overflow-y-auto overflow-hidden transition-[max-height] duration-1500 ease-out group-open:max-h-[500px]">
+                <div class="opacity-0 transition-opacity duration-1000 ease-out group-open:opacity-100">
+                  <ul class="mt-3 flex flex-col gap-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-sm shadow-inner dark:border-zinc-800 dark:bg-zinc-900/60">
+                    {[
+                      {
+                        label: "Todos",
+                        href: Astro.url.pathname + buildQueryString({ stock: "all", bodega: "all", page: 1, search: null }),
+                        active: stockParam === "all",
+                      },
+                      {
+                        label: "En stock",
+                        href: Astro.url.pathname + buildQueryString({ stock: "in", bodega: "all", page: 1, search: null }),
+                        active: stockParam === "in" && !hasSelectedBodegas,
+                      },
+                      {
+                        label: "Sin stock",
+                        href: Astro.url.pathname + buildQueryString({ stock: "out", bodega: "all", page: 1, search: null }),
+                        active: stockParam === "out",
+                      },
+                    ].map((option) => (
+                      <li>
+                        <a
+                          href={option.href}
+                          class={`flex items-center gap-3 rounded-2xl border px-3 py-2 font-medium transition ${
+                            option.active
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-transparent text-zinc-700 hover:border-primary/40 hover:text-primary dark:text-zinc-200"
+                          }`}
+                          aria-current={option.active ? "true" : undefined}
+                        >
+                          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-xs font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                            ST
+                          </span>
+                          <span class="flex-1 wrap-break-word text-left leading-snug">{option.label}</span>
+                        </a>
+                      </li>
+                    ))}
+
+                    <li>
+                      <details
+                        class={`group rounded-xl border transition ${
+                          stockParam === "in" && hasSelectedBodegas
+                            ? "border-primary/40 bg-primary/5"
+                            : "border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900"
+                        }`}
+                        open={stockParam === "in" && hasSelectedBodegas}
+                      >
+                        <summary class="flex cursor-pointer list-none items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wide text-zinc-600 dark:text-zinc-300">
+                          <span>Bodegas</span>
+                          <svg
+                            class="h-4 w-4 text-current transition-transform duration-200 group-open:rotate-180"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M5 7.5L10 12.5L15 7.5"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </summary>
+                        <form method="get" class="space-y-3 px-3 pb-3">
+                          <input type="hidden" name="category" value={categoryParam} />
+                          <input type="hidden" name="brand" value={brandParam} />
+                          <input type="hidden" name="stock" value="in" />
+                          <input type="hidden" name="image" value={imageParam} />
+                          <input type="hidden" name="datasheets" value={datasheetsParam} />
+                          <input type="hidden" name="description" value={descriptionParam} />
+                          <input type="hidden" name="price" value={priceFilterValue} />
+                          <input type="hidden" name="page" value="1" />
+                          <input type="hidden" name="bodega" value="all" />
+
+                          {bodegaOptions.length > 0 ? (
+                            <div class="max-h-44 space-y-2 overflow-y-auto pr-1">
+                              {bodegaOptions.map((bodegaNombre) => {
+                                const checkboxId = `stock-bodega-${bodegaNombre.replace(/\s+/g, "-").toLowerCase()}`;
+                                return (
+                                  <label for={checkboxId} class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800">
+                                    <input
+                                      id={checkboxId}
+                                      type="checkbox"
+                                      name="bodega"
+                                      value={bodegaNombre}
+                                      checked={selectedBodegas.includes(bodegaNombre)}
+                                      class="h-4 w-4 rounded border-zinc-300 text-primary focus:ring-primary"
+                                    />
+                                    <span class="flex-1 truncate">{bodegaNombre}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p class="text-xs text-zinc-500 dark:text-zinc-400">No hay bodegas disponibles.</p>
+                          )}
+
+                          <button
+                            type="submit"
+                            class="w-full rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white transition hover:brightness-110"
+                          >
+                            Aplicar bodegas
+                          </button>
+                        </form>
+                      </details>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </details>
           </div>
 
            <!-- Datasheets -->
@@ -1030,6 +1275,9 @@ const showRightDots = endPage < totalPages;
               <input type="hidden" name="category" value={categoryParam} />
               <input type="hidden" name="brand" value={brandParam} />
               <input type="hidden" name="stock" value={stockParam} />
+              {bodegaHiddenValues.map((bodegaValue) => (
+                <input type="hidden" name="bodega" value={bodegaValue} />
+              ))}
               <input type="hidden" name="image" value={imageParam} />
               <input type="hidden" name="datasheets" value={datasheetsParam} />
               <input type="hidden" name="description" value={descriptionParam} />
@@ -1092,6 +1340,7 @@ const showRightDots = endPage < totalPages;
                 <input type="hidden" name="category" value="all" />
                 <input type="hidden" name="brand" value="all" />
                 <input type="hidden" name="stock" value="all" />
+                <input type="hidden" name="bodega" value="all" />
                 <input type="hidden" name="image" value="all" />
                 <input type="hidden" name="datasheets" value="all" />
                 <input type="hidden" name="description" value="all" />
