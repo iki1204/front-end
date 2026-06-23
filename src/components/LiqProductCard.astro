@@ -51,68 +51,23 @@ const srcset = medias[0]?.formats
   : undefined;
 const sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw";
 
-const priceFormatter = new Intl.NumberFormat("es-PE", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-});
-
 const slug = resolveProductSlug(producto);
+const priceSlug = String(producto?.ID_Nombre ?? producto?.slug ?? slug ?? "").trim();
 
 const stockCount = Number(producto?.cantidad_stock ?? 0);
 const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.cantidad_stock;
 
-const rawPrices = {
-  default: typeof producto?.precio === "number" ? producto.precio : null,
-  pvp1: typeof producto?.precio === "number" ? producto.precio : null,
-  pvp2: typeof producto?.Precio2 === "number" ? producto.Precio2 : null,
-  pvp3: typeof producto?.Precio3 === "number" ? producto.Precio3 : null,
-  pvp4: typeof producto?.Precio4 === "number" ? producto.Precio4 : null,
-};
-
-const formatPrice = (value: number | null) => (typeof value === "number" ? priceFormatter.format(value) : "Consultar");
-const formattedPrices = {
-  default: formatPrice(rawPrices.default),
-  pvp1: formatPrice(rawPrices.pvp1),
-  pvp2: formatPrice(rawPrices.pvp2),
-  pvp3: formatPrice(rawPrices.pvp3),
-  pvp4: formatPrice(rawPrices.pvp4),
-};
-
 const isOfertaActiva = producto?.oferta?.Activo;
 const porcentajeDescuento = Number(producto?.oferta?.Porcentaje_de_descuento ?? 0);
 
-const applyDiscount = (price: number | null) => {
-  if (typeof price !== "number") return null;
-  if (!porcentajeDescuento || porcentajeDescuento <= 0) return null;
-  return price * (1 - porcentajeDescuento / 100);
-};
-
-const offerPrices = {
-  default: applyDiscount(rawPrices.default),
-  pvp1: applyDiscount(rawPrices.pvp1),
-  pvp2: applyDiscount(rawPrices.pvp2),
-  pvp3: applyDiscount(rawPrices.pvp3),
-  pvp4: applyDiscount(rawPrices.pvp4),
-};
-
-const formattedOfferPrices = {
-  default: formatPrice(offerPrices.default),
-  pvp1: formatPrice(offerPrices.pvp1),
-  pvp2: formatPrice(offerPrices.pvp2),
-  pvp3: formatPrice(offerPrices.pvp3),
-  pvp4: formatPrice(offerPrices.pvp4),
-};
-
-const activePrices = isOfertaActiva
-  ? offerPrices
-  : rawPrices;
 
 ---
 
 <article
   class="group relative flex h-full flex-col overflow-hidden rounded-4xl py-2 px-2 transition hover:-translate-y-1 bg-gray-100 dark:bg-zinc-900"
   data-product-card
+  data-secure-price-card
+  data-price-slug={priceSlug}
   data-anime="border-trace"
 >
   <a href={`/producto/${slug}`} class="flex flex-1 flex-col">
@@ -168,25 +123,15 @@ const activePrices = isOfertaActiva
           class="text-lg font-bold text-gray-500 line-through"
           data-auth-visible="authenticated"
           data-user-price
-          data-price-default={formattedPrices.default}
-          data-price-pvp1={formattedPrices.pvp1}
-          data-price-pvp2={formattedPrices.pvp2}
-          data-price-pvp3={formattedPrices.pvp3}
-          data-price-pvp4={formattedPrices.pvp4}
         >
-          {formattedPrices.default}
+          Consultar
         </p>
         <p
           class="absolute mt-10 mb-2 text-2xl font-bold text-red-500"
           data-auth-visible="authenticated"
           data-user-offer-price
-          data-price-default={formattedOfferPrices.default}
-          data-price-pvp1={formattedOfferPrices.pvp1}
-          data-price-pvp2={formattedOfferPrices.pvp2}
-          data-price-pvp3={formattedOfferPrices.pvp3}
-          data-price-pvp4={formattedOfferPrices.pvp4}
         >
-          {formattedOfferPrices.default}
+          Consultar
         </p>
       </div>
     </div>
@@ -223,15 +168,10 @@ const activePrices = isOfertaActiva
       data-action="add-to-cart"
       data-product-id={producto?.id ?? producto?.ID_Producto ?? producto?.codigo ?? slug}
       data-product-name={producto?.nombre ?? "Producto"}
-      data-product-price={activePrices.default ?? ""}
       data-product-image={imgUrl}
       data-product-url={`/producto/${slug}`}
+      data-price-slug={priceSlug}
       data-user-price-target="productPrice"
-      data-price-default={activePrices.default ?? ""}
-      data-price-pvp1={activePrices.pvp1 ?? ""}
-      data-price-pvp2={activePrices.pvp2 ?? ""}
-      data-price-pvp3={activePrices.pvp3 ?? ""}
-      data-price-pvp4={activePrices.pvp4 ?? ""}
       disabled={isOutOfStock || undefined}
       aria-disabled={isOutOfStock ? "true" : undefined}
       class={`flex min-h-10 items-center justify-center rounded-full px-3 py-2 text-xs font-semibold text-white transition focus:outline-none focus:ring-2 focus:ring-primary/60 ${

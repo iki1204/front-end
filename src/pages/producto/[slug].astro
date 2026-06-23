@@ -1,13 +1,10 @@
 ---
 import BaseLayout from "../../layouts/Layout.astro";
-import Container from "../../components/Container.astro";
 import { BlocksRenderer} from "@strapi/blocks-react-renderer";
 import { getProductoBySlug, getGlobalData, getCategorias, getProductos, getMarcas } from "../../lib/api";
 import ProductCard from "../../components/ProductCard.astro";
 
 const API_URL = import.meta.env.VITE_STRAPI_URL;
-const CONTIFICO_URL = "https://api.contifico.com/sistema/api/v1";
-
 
 const normalizeCollection = (collection: any[] = []) =>
   collection.map((item) => (item?.attributes ? { id: item.id, ...item.attributes } : item));
@@ -271,49 +268,8 @@ const datasheetLinks = datasheetEntries
   .filter(Boolean);
 
 
-const priceFormatter = new Intl.NumberFormat("es-PE", {
-  style: "currency",
-  currency: "USD",
-  minimumFractionDigits: 2,
-});
-
-const rawPrices = {
-  default: typeof producto?.precio === "number" ? producto.precio : null,
-  pvp1: typeof producto?.precio === "number" ? producto.precio : null,
-  pvp2: typeof producto?.Precio2 === "number" ? producto.Precio2 : null,
-  pvp3: typeof producto?.Precio3 === "number" ? producto.Precio3 : null,
-  pvp4: typeof producto?.Precio4 === "number" ? producto.Precio4 : null,
-};
-
-const formatPrice = (value: number | null) => (typeof value === "number" ? priceFormatter.format(value) : "Consultar");
-
-const formattedPrices = {
-  default: formatPrice(rawPrices.default),
-  pvp1: formatPrice(rawPrices.pvp1),
-  pvp2: formatPrice(rawPrices.pvp2),
-  pvp3: formatPrice(rawPrices.pvp3),
-  pvp4: formatPrice(rawPrices.pvp4),
-};
-
-const precio = formattedPrices.default;
-
 const isOfertaActiva = producto?.oferta?.Activo;
 
-const applyDiscount = (price: number | null) => {
-  if (typeof price !== "number") return null;
-  if (!porcentajeDescuento || porcentajeDescuento <= 0) return null;
-  if (isOfertaActiva !== true) return null;
-  return price * (1 - porcentajeDescuento / 100);
-};
-
-const offerPrices = {
-
-  default: applyDiscount(rawPrices.default),
-  pvp1: applyDiscount(rawPrices.pvp1),
-  pvp2: applyDiscount(rawPrices.pvp2),
-  pvp3: applyDiscount(rawPrices.pvp3),
-  pvp4: applyDiscount(rawPrices.pvp4),
-};
 
 
 var descripcion = producto?.descripcion;
@@ -611,13 +567,13 @@ const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.
                       </svg>
                     </span>
                     <a
-                      href={file.url}
+                      href={file?.url}
                       target="_blank"
                       rel="noreferrer"
                       class="flex-1 min-w-0 truncate font-semibold text-primary hover:underline"
-                      title={file.label}
+                      title={file?.label}
                     >
-                      <span class="block truncate">{file.displayLabel}</span>
+                      <span class="block truncate">{file?.displayLabel}</span>
                     </a>
                     <span class="text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">PDF</span>
                   </li>
@@ -695,24 +651,26 @@ const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.
   window.addEventListener("DOMContentLoaded", () => {
     const shareButton = document.getElementById("share-product");
 
-    shareButton.addEventListener("click", async () => {
-      const title = document.title;
-      const url = window.location.href;
+    if (shareButton) {
+      shareButton.addEventListener("click", async () => {
+        const title = document.title;
+        const url = window.location.href;
 
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: title,
-            text: title,
-            url: url
-          });
-        } catch (error) {
-          console.error("Error compartiendo:", error);
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: title,
+              text: title,
+              url: url
+            });
+          } catch (error) {
+            console.error("Error compartiendo:", error);
+          }
+        } else {
+          alert("Tu navegador no soporta compartir");
         }
-      } else {
-        alert("Tu navegador no soporta compartir");
-      }
-    });
+      });
+    }
 
     const storeStateKey = "tiendaState";
     const backToStoreLink = document.querySelector("[data-back-to-store]");
@@ -771,10 +729,11 @@ const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.
     if (!mainImg) return;
 
     if (zoomContainer) {
-      const handlePointerMove = (event: MouseEvent) => {
+      const handlePointerMove = (event: Event) => {
+        const mouseEvent = event as MouseEvent;
         const rect = zoomContainer.getBoundingClientRect();
-        const offsetX = event.clientX - rect.left;
-        const offsetY = event.clientY - rect.top;
+        const offsetX = mouseEvent.clientX - rect.left;
+        const offsetY = mouseEvent.clientY - rect.top;
         const percentX = Math.max(0, Math.min(100, (offsetX / rect.width) * 100));
         const percentY = Math.max(0, Math.min(100, (offsetY / rect.height) * 100));
         mainImg.style.setProperty("--zoom-x", `${percentX}%`);
@@ -822,6 +781,7 @@ const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.
 
     function renderThumbs() {
       // Limpia y vuelve a dibujar
+      if (!thumbsRoot) return;
       thumbsRoot.innerHTML = thumbs
         .map(
           (src) => `

@@ -6,7 +6,42 @@
 @custom-variant group-hover (.group:hover &);
 @custom-variant peer-hover (.peer:hover ~ &);
 
-html,
+@font-face {
+  font-family: 'Urbanist';
+  src: url('../../public/fonts/Urbanist/Urbanist-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Urbanist';
+  src: url('../../public/fonts/Urbanist/Urbanist-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Urbanist';
+  src: url('../../public/fonts/Urbanist/Urbanist-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Urbanist';
+  src: url('../../public/fonts/Urbanist/Urbanist-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+html {
+  font-family: 'Urbanist' ;
+}
+
 body {
   width: 100%;
   overflow-x: clip;

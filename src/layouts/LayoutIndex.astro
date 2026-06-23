@@ -1,5 +1,4 @@
 ---
-import { AstroFont } from 'astro-font';
 import AppFooter from "../components/AppFooter.astro";
 import AppHeader from "../components/AppHeader.astro";
 import Cart from "../components/Cart.astro";
@@ -58,27 +57,13 @@ const showNotFound = !response;
         <title>{siteName}</title>
 
 
-        <AstroFont
-            config={[
-                {
-                    src: [],
-                    name: "Urbanist",
-                    preload: true,
-                    display: "swap",
-                    selector: "html",
-                    fallback: "sans-serif",
-                    googleFontsURL: 'https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&display=swap',
-                },
-            ]}
-        />
-
-
     </head>
     
     <body class="relative min-h-screen dark:bg-gray-900">
 
             <!-- animate on scroll script -->
         <script>
+            // @ts-ignore
             import { aosInit } from "aos";
 
             // runs on initial page load
