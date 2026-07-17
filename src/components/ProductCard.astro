@@ -2,6 +2,8 @@
 const { producto } = Astro.props;
 const API_URL = import.meta.env.VITE_STRAPI_URL;
 
+
+
 const asesorContactLinks: Record<string, string> = {
   "Edison": "https://wa.me/593967302450?text=Hola, necesito mas informacion sobre su producto " + producto?.nombre + " con codigo: " + (producto?.codigo ?? ""),
   "Moises": "https://wa.me/593989372276?text=Hola, necesito mas informacion sobre su producto " + producto?.nombre + " con codigo: " + (producto?.codigo ?? ""),
