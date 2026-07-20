@@ -38,7 +38,6 @@ const bodegaParams = url.searchParams
   .filter(Boolean);
 const selectedBodegas = Array.from(new Set(bodegaParams.filter((value) => value !== "all")));
 const selectedBodegasNormalized = selectedBodegas.map((value) => value.toLowerCase().trim());
-const bodegaParam = selectedBodegas[0] ?? "all";
 const hasSelectedBodegas = selectedBodegas.length > 0;
 const bodegaHiddenValues = hasSelectedBodegas ? selectedBodegas : ["all"];
 const imageParam = url.searchParams.get("image") ?? "all";
@@ -66,138 +65,53 @@ const applySearchFilters = (params: URLSearchParams, terms: string[]) => {
   });
 };
 
-const hasSearch = searchTerms.length > 0;
+const applyCatalogFilters = (params: URLSearchParams) => {
+  const directFilters: Array<[boolean, string, string]> = [
+    [categoryParam !== "all", "filters[ID_Categoria][$eq]", categoryParam],
+    [brandParam !== "all", "filters[ID_Marca][$eq]", brandParam],
+    [stockParam === "in", "filters[cantidad_stock][$gt]", "0"],
+    [stockParam === "out", "filters[cantidad_stock][$lte]", "0"],
+    [priceFilterValue < MAX_PRICE, "filters[precio][$lte]", String(priceFilterValue)],
+  ];
 
-if (hasSearch) {
-  applySearchFilters(strapiParams, searchTerms);
-} else {
+  directFilters.forEach(([enabled, key, value]) => {
+    if (enabled) params.set(key, value);
+  });
+
   let andFilterIndex = 0;
-
-  if (categoryParam !== "all") {
-    strapiParams.set("filters[ID_Categoria][$eq]", categoryParam);
-  }
-
-  if (brandParam !== "all") {
-    strapiParams.set("filters[ID_Marca][$eq]", brandParam);
-  }
-
-  if (stockParam === "in") {
-    strapiParams.set("filters[cantidad_stock][$gt]", "0");
-  }
-
-  if (stockParam === "out") {
-    strapiParams.set("filters[cantidad_stock][$lte]", "0");
-  }
-
-  if (imageParam === "with") {
-    strapiParams.set(`filters[$and][${andFilterIndex}][imagen][id][$notNull]`, "true");
+  const addAndFilter = (path: string, value = "true") => {
+    params.set(`filters[$and][${andFilterIndex}]${path}`, value);
     andFilterIndex += 1;
-  }
+  };
 
-  if (imageParam === "without") {
-    strapiParams.set(`filters[$and][${andFilterIndex}][imagen][id][$null]`, "true");
-    andFilterIndex += 1;
-  }
+  const applyRelationPresenceFilter = (
+    value: string,
+    field: "imagen" | "datasheets",
+  ) => {
+    if (value === "with") addAndFilter(`[${field}][id][$notNull]`);
+    if (value === "without") addAndFilter(`[${field}][id][$null]`);
+  };
 
-  if (datasheetsParam === "with") {
-    strapiParams.set(`filters[$and][${andFilterIndex}][datasheets][id][$notNull]`, "true");
-    andFilterIndex += 1;
-  }
-
-  if (datasheetsParam === "without") {
-    strapiParams.set(`filters[$and][${andFilterIndex}][datasheets][id][$null]`, "true");
-    andFilterIndex += 1;
-  }
+  applyRelationPresenceFilter(imageParam, "imagen");
+  applyRelationPresenceFilter(datasheetsParam, "datasheets");
 
   if (descriptionParam === "with") {
-    strapiParams.set(`filters[$and][${andFilterIndex}][descripcion][$notNull]`, "true");
-    andFilterIndex += 1;
-    strapiParams.set(`filters[$and][${andFilterIndex}][descripcion][$ne]`, "");
-    andFilterIndex += 1;
+    addAndFilter("[descripcion][$notNull]");
+    addAndFilter("[descripcion][$ne]", "");
   }
 
   if (descriptionParam === "without") {
-    strapiParams.set(`filters[$and][${andFilterIndex}][$or][0][descripcion][$null]`, "true");
-    strapiParams.set(`filters[$and][${andFilterIndex}][$or][1][descripcion][$eq]`, "");
+    params.set(`filters[$and][${andFilterIndex}][$or][0][descripcion][$null]`, "true");
+    params.set(`filters[$and][${andFilterIndex}][$or][1][descripcion][$eq]`, "");
     andFilterIndex += 1;
   }
-
-  if (priceFilterValue < MAX_PRICE) {
-    strapiParams.set("filters[precio][$lte]", String(priceFilterValue));
-  }
-}
-
-const getAllProductsForSuggestions = async () => {
-  const suggestionParams = new URLSearchParams({
-    "pagination[page]": "1",
-    "pagination[pageSize]": "100",
-    sort: "nombre:asc",
-  });
-
-  const items: any[] = [];
-  let page = 1;
-  let pageCount = 1;
-  const MAX_RETRIES = 2;
-  const FETCH_TIMEOUT = 10000; // 10 segundos timeout
-
-  try {
-    do {
-      suggestionParams.set("pagination[page]", String(page));
-      
-      let lastError: Error | null = null;
-      for (let retry = 0; retry < MAX_RETRIES; retry++) {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
-          
-          const response = await fetch(
-            `${import.meta.env.VITE_STRAPI_URL ?? "https://api.unicomec.com"}/api/productos${suggestionParams ? `?${suggestionParams}` : ""}`,
-            {
-              headers: {
-                Authorization: `Bearer ${import.meta.env.VITE_STRAPI_API_TOKEN}`,
-                "Content-Type": "application/json",
-              },
-              signal: controller.signal,
-              cache: "no-store",
-            }
-          );
-          
-          clearTimeout(timeoutId);
-          
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-          
-          const data = await response.json();
-          items.push(...normalizeCollection(data?.data ?? []));
-          pageCount = data?.meta?.pagination?.pageCount ?? 1;
-          page += 1;
-          lastError = null;
-          break; // Exit retry loop on success
-          
-        } catch (error) {
-          lastError = error as Error;
-          if (retry < MAX_RETRIES - 1) {
-            // Esperar antes de reintentar
-            await new Promise(resolve => setTimeout(resolve, 1000 * (retry + 1)));
-          }
-        }
-      }
-      
-      // Si todos los reintentos fallaron, loguear y salir del loop
-      if (lastError) {
-        console.warn(`Error fetching suggestion products page ${page}: ${lastError.message}. Using available data.`);
-        break;
-      }
-      
-    } while (page <= pageCount);
-  } catch (error) {
-    // Fallback silencioso - retornar lo que se pudo obtener
-    console.error("Critical error in getAllProductsForSuggestions:", error);
-  }
-
-  return items;
 };
+
+if (searchTerms.length > 0) {
+  applySearchFilters(strapiParams, searchTerms);
+} else {
+  applyCatalogFilters(strapiParams);
+}
 
 const getAllProductsForFilters = async (baseParams: URLSearchParams) => {
   const params = new URLSearchParams(baseParams);
@@ -224,18 +138,56 @@ const getAllProductsForFilters = async (baseParams: URLSearchParams) => {
   return items;
 };
 
-const fetchBodegaStockRows = async (identifier: string | null) => {
-  if (!identifier) return [];
+const bodegaStockCache = new Map<string, Promise<any[]>>();
 
-  try {
-    const endpoint = new URL(`/api/bodega-stock/${encodeURIComponent(identifier)}`, url.origin).toString();
-    const res = await fetch(endpoint, { cache: "no-store" });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
+const fetchBodegaStockRows = (identifier: string | null): Promise<any[]> => {
+  if (!identifier) return Promise.resolve([]);
+
+  const cacheKey = String(identifier);
+  const cached = bodegaStockCache.get(cacheKey);
+  if (cached) return cached;
+
+  const request = (async () => {
+    try {
+      const endpoint = new URL(
+        `/api/bodega-stock/${encodeURIComponent(cacheKey)}`,
+        url.origin,
+      ).toString();
+      const response = await fetch(endpoint, { cache: "no-store" });
+      if (!response.ok) return [];
+
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch {
+      return [];
+    }
+  })();
+
+  bodegaStockCache.set(cacheKey, request);
+  return request;
+};
+
+const mapWithConcurrency = async <T, R>(
+  items: T[],
+  concurrency: number,
+  mapper: (item: T, index: number) => Promise<R>,
+): Promise<R[]> => {
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+
+  const workers = Array.from(
+    { length: Math.min(Math.max(concurrency, 1), items.length) },
+    async () => {
+      while (nextIndex < items.length) {
+        const currentIndex = nextIndex;
+        nextIndex += 1;
+        results[currentIndex] = await mapper(items[currentIndex], currentIndex);
+      }
+    },
+  );
+
+  await Promise.all(workers);
+  return results;
 };
 
 // Wrapper para fallar silenciosamente en fetches
@@ -248,11 +200,10 @@ const safeAsyncFetch = async <T,>(fn: () => Promise<T>, defaultValue: T, label: 
   }
 };
 
-const [categoriasResponse, marcasResponse, global, suggestionProducts] = await Promise.all([
+const [categoriasResponse, marcasResponse, global] = await Promise.all([
   safeAsyncFetch(() => getCategorias(), { data: [] }, "getCategorias"),
   safeAsyncFetch(() => getMarcas(), { data: [] }, "getMarcas"),
   safeAsyncFetch(() => getGlobalData(), {}, "getGlobalData"),
-  isCrawler ? Promise.resolve([]) : safeAsyncFetch(() => getAllProductsForSuggestions(), [], "getAllProductsForSuggestions"),
 ]);
 
 const bodegaNamesSet = new Set<string>();
@@ -268,8 +219,10 @@ if (isSpecificBodegaFilter) {
     "getAllProductsForFilters",
   );
 
-  const matchChecks = await Promise.all(
-    allFilteredCandidates.map(async (item) => {
+  const matchChecks = await mapWithConcurrency(
+    allFilteredCandidates,
+    12,
+    async (item) => {
       const identifier = item?.identifier ? String(item.identifier) : null;
       const bodegaRows = await fetchBodegaStockRows(identifier);
 
@@ -285,7 +238,7 @@ if (isSpecificBodegaFilter) {
       });
 
       return hasStockInSelectedBodega ? item : null;
-    }),
+    },
   );
 
   const filteredByBodega = matchChecks.filter(Boolean) as any[];
@@ -345,22 +298,72 @@ const buildQueryString = (updates: Record<string, string | number | null>) => {
   Object.entries(updates).forEach(([key, value]) => {
     if (value === null || value === "") {
       params.delete(key);
-      return;
-    }
-    params.set(key, String(value));
-  });
-
-  if ("page" in updates) {
-    if (updates.page === null) {
-      params.delete("page");
     } else {
-      params.set("page", String(updates.page));
+      params.set(key, String(value));
     }
-  }
+  });
 
   const query = params.toString();
   return query ? `?${query}` : "";
 };
+
+type HiddenField = { name: string; value: string | number };
+
+const buildHiddenFields = (
+  overrides: Record<string, string | number | string[]> = {},
+): HiddenField[] => {
+  const state: Record<string, string | number | string[]> = {
+    category: categoryParam,
+    brand: brandParam,
+    stock: stockParam,
+    bodega: bodegaHiddenValues,
+    image: imageParam,
+    datasheets: datasheetsParam,
+    description: descriptionParam,
+    price: priceFilterValue,
+    page: 1,
+    ...overrides,
+  };
+
+  return Object.entries(state).flatMap(([name, value]) =>
+    (Array.isArray(value) ? value : [value]).map((item) => ({
+      name,
+      value: item,
+    })),
+  );
+};
+
+const priceFilterHiddenFields = buildHiddenFields({ price: [] });
+const bodegaFilterHiddenFields = buildHiddenFields({
+  stock: "in",
+  bodega: ["all"],
+});
+const searchResetHiddenFields = buildHiddenFields({
+  category: "all",
+  brand: "all",
+  stock: "all",
+  bodega: ["all"],
+  image: "all",
+  datasheets: "all",
+  description: "all",
+  price: "all",
+});
+
+const datasheetOptions = [
+  { label: "Todos", value: "all" },
+  { label: "Con datasheets", value: "with" },
+  { label: "Sin datasheets", value: "without" },
+];
+const imageOptions = [
+  { label: "Todos", value: "all" },
+  { label: "Con imagen", value: "with" },
+  { label: "Sin imagen", value: "without" },
+];
+const descriptionOptions = [
+  { label: "Todas", value: "all" },
+  { label: "Con descripción", value: "with" },
+  { label: "Sin descripción", value: "without" },
+];
 
 const getRelationArray = (relation: any) => {
   const dataArray = Array.isArray(relation?.data) ? relation.data : relation?.data ? [relation.data] : relation;
@@ -394,56 +397,108 @@ const brandItems = marcas
   }))
   .filter((marca) => Boolean(marca.value));
 
-const searchSuggestions = Array.from(
-  new Map(
-    suggestionProducts
-      .map((producto) => {
-        const nombre = producto?.nombre?.trim() ?? "";
-        const codigo = producto?.codigo?.trim() ?? "";
-
-        if (!nombre && !codigo) {
-          return null;
-        }
-
-        const label =
-          nombre && codigo ? `${nombre} · ${codigo}` : nombre || codigo;
-        const value = nombre || codigo;
-        const searchValue = [nombre, codigo].filter(Boolean).join(" ").toLowerCase();
-        const key = (codigo || nombre).toLowerCase();
-        const slugRaw = producto?.ID_Nombre ?? producto?.slug ?? producto?.id;
-        const slug = slugRaw ? encodeURIComponent(String(slugRaw)) : "";
-
-        if (!slug) {
-          return null;
-        }
-
-        return [
-          key,
-          {
-            label,
-            value,
-            searchValue,
-            code: codigo,
-            slug,
-          },
-        ] as const;
-      })
-      .filter((suggestion): suggestion is readonly [string, {
-        label: string;
-        value: string;
-        searchValue: string;
-        code: string;
-        slug: string;
-      }] => suggestion !== null)
-  ).values(),
-);
-
 const priceFormatter = new Intl.NumberFormat("es-PE", {
   style: "currency",
   currency: "USD",
   maximumFractionDigits: 0,
   minimumFractionDigits: 0,
 });
+
+type ActiveFilter = {
+  key: string;
+  label: string;
+  removeHref: string;
+};
+
+const selectedCategory = parentCategoryItems
+  .flatMap((parent) => parent.children)
+  .find((category) => String(category.value) === categoryParam);
+
+const selectedBrand = brandItems.find(
+  (brand) => String(brand.value) === brandParam,
+);
+
+const activeFilters: ActiveFilter[] = [];
+
+if (categoryParam !== "all") {
+  activeFilters.push({
+    key: "category",
+    label: `Categoría: ${selectedCategory?.label ?? categoryParam}`,
+    removeHref:
+      Astro.url.pathname +
+      buildQueryString({ category: "all", page: 1 }),
+  });
+}
+
+if (brandParam !== "all") {
+  activeFilters.push({
+    key: "brand",
+    label: `Marca: ${selectedBrand?.label ?? brandParam}`,
+    removeHref:
+      Astro.url.pathname + buildQueryString({ brand: "all", page: 1 }),
+  });
+}
+
+if (stockParam !== "all") {
+  const stockLabel =
+    stockParam === "out"
+      ? "Stock: Sin stock"
+      : hasSelectedBodegas
+        ? `Stock: En stock · ${selectedBodegas.join(", ")}`
+        : "Stock: En stock";
+
+  activeFilters.push({
+    key: "stock",
+    label: stockLabel,
+    removeHref:
+      Astro.url.pathname +
+      buildQueryString({ stock: "all", bodega: null, page: 1 }),
+  });
+}
+
+const simpleActiveFilterConfigs = [
+  {
+    key: "image",
+    value: imageParam,
+    labels: { with: "Imagen: Con imagen", without: "Imagen: Sin imagen" },
+  },
+  {
+    key: "datasheets",
+    value: datasheetsParam,
+    labels: {
+      with: "Datasheet: Con datasheet",
+      without: "Datasheet: Sin datasheet",
+    },
+  },
+  {
+    key: "description",
+    value: descriptionParam,
+    labels: {
+      with: "Descripción: Con descripción",
+      without: "Descripción: Sin descripción",
+    },
+  },
+] as const;
+
+simpleActiveFilterConfigs.forEach(({ key, value, labels }) => {
+  if (value === "all") return;
+
+  activeFilters.push({
+    key,
+    label: value === "with" ? labels.with : labels.without,
+    removeHref:
+      Astro.url.pathname + buildQueryString({ [key]: "all", page: 1 }),
+  });
+});
+
+if (priceFilterValue < MAX_PRICE) {
+  activeFilters.push({
+    key: "price",
+    label: `Precio máximo: ${priceFormatter.format(priceFilterValue)}`,
+    removeHref:
+      Astro.url.pathname + buildQueryString({ price: null, page: 1 }),
+  });
+}
 
 //Paginacion
 const maxVisible = 10;
@@ -540,7 +595,7 @@ const showRightDots = endPage < totalPages;
           <select
             id="mobileCategory"
             class="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-            onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
+            data-filter-select
           >
             <option
               value={Astro.url.pathname + buildQueryString({ category: "all", page: 1, search: null })}
@@ -578,7 +633,7 @@ const showRightDots = endPage < totalPages;
           <select
             id="mobileBrand"
             class="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-            onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
+            data-filter-select
           >
             <option
               value={Astro.url.pathname + buildQueryString({ brand: "all", page: 1, search: null })}
@@ -612,7 +667,7 @@ const showRightDots = endPage < totalPages;
           <select
             id="mobileStock"
             class="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-            onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
+            data-filter-select
           >
             <option
               value={Astro.url.pathname + buildQueryString({ stock: "all", bodega: "all", page: 1, search: null})}
@@ -650,7 +705,7 @@ const showRightDots = endPage < totalPages;
           <select
             id="mobileImage"
             class="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-            onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
+            data-filter-select
           >
             <option
               value={Astro.url.pathname + buildQueryString({ image: "all", page: 1, search: null })}
@@ -680,7 +735,7 @@ const showRightDots = endPage < totalPages;
           <select
             id="mobileDatasheets"
             class="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-            onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
+            data-filter-select
           >
             <option
               value={Astro.url.pathname + buildQueryString({ datasheets: "all", page: 1, search: null })}
@@ -710,7 +765,7 @@ const showRightDots = endPage < totalPages;
           <select
             id="mobileDescription"
             class="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-            onchange="var selectedUrl = this.value; if (selectedUrl) window.location.href = selectedUrl;"
+            data-filter-select
           >
             <option
               value={Astro.url.pathname + buildQueryString({ description: "all", page: 1, search: null })}
@@ -738,16 +793,9 @@ const showRightDots = endPage < totalPages;
         >
             <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-4">Precio máximo</h3>
             <form method="get" class="flex flex-col gap-4">
-              <input type="hidden" name="category" value={categoryParam} />
-              <input type="hidden" name="brand" value={brandParam} />
-              <input type="hidden" name="stock" value={stockParam} />
-              {bodegaHiddenValues.map((bodegaValue) => (
-                <input type="hidden" name="bodega" value={bodegaValue} />
+              {priceFilterHiddenFields.map((field) => (
+                <input type="hidden" name={field.name} value={field.value} />
               ))}
-              <input type="hidden" name="image" value={imageParam} />
-              <input type="hidden" name="datasheets" value={datasheetsParam} />
-              <input type="hidden" name="description" value={descriptionParam} />
-              <input type="hidden" name="page" value="1" />
               <label for="priceRangeMobile" class="text-sm text-zinc-600 dark:text-zinc-300">Ajusta el rango de precio:</label>
               <div class="flex flex-col gap-3" data-price-range>
                 <input
@@ -759,8 +807,7 @@ const showRightDots = endPage < totalPages;
                   name="price"
                   value={priceFilterValue}
                   class="w-full cursor-pointer accent-primary"
-                  oninput="const scope = this.closest('[data-price-range]'); const output = scope?.querySelector('[data-price-range-output]'); if (output) { output.textContent = new Intl.NumberFormat('es-PE',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(this.value); }"
-                  onchange="this.form.requestSubmit()"
+                  data-price-input
                 />
                 <div class="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300">
                   <span>{priceFormatter.format(MIN_PRICE)}</span>
@@ -1120,15 +1167,9 @@ const showRightDots = endPage < totalPages;
                           </svg>
                         </summary>
                         <form method="get" class="space-y-3 px-3 pb-3">
-                          <input type="hidden" name="category" value={categoryParam} />
-                          <input type="hidden" name="brand" value={brandParam} />
-                          <input type="hidden" name="stock" value="in" />
-                          <input type="hidden" name="image" value={imageParam} />
-                          <input type="hidden" name="datasheets" value={datasheetsParam} />
-                          <input type="hidden" name="description" value={descriptionParam} />
-                          <input type="hidden" name="price" value={priceFilterValue} />
-                          <input type="hidden" name="page" value="1" />
-                          <input type="hidden" name="bodega" value="all" />
+                          {bodegaFilterHiddenFields.map((field) => (
+                            <input type="hidden" name={field.name} value={field.value} />
+                          ))}
 
                           {bodegaOptions.length > 0 ? (
                             <div class="max-h-44 space-y-2 overflow-y-auto pr-1">
@@ -1176,11 +1217,7 @@ const showRightDots = endPage < totalPages;
               Datasheets
             </h2>
             <ul class="flex flex-col gap-2 text-sm">
-              {[
-                { label: "Todos", value: "all" },
-                { label: "Con datasheets", value: "with" },
-                { label: "Sin datasheets", value: "without" },
-              ].map((option) => {
+              {datasheetOptions.map((option) => {
                 const isActive = datasheetsParam === option.value;
                 return (
                   <li>
@@ -1209,11 +1246,7 @@ const showRightDots = endPage < totalPages;
               Imagen
             </h2>
             <ul class="flex flex-col gap-2 text-sm">
-              {[
-                { label: "Todos", value: "all" },
-                { label: "Con imagen", value: "with" },
-                { label: "Sin imagen", value: "without" },
-              ].map((option) => {
+              {imageOptions.map((option) => {
                 const isActive = imageParam === option.value;
                 return (
                   <li>
@@ -1242,11 +1275,7 @@ const showRightDots = endPage < totalPages;
               Descripción
             </h2>
             <ul class="flex flex-col gap-2 text-sm">
-              {[
-                { label: "Todas", value: "all" },
-                { label: "Con descripción", value: "with" },
-                { label: "Sin descripción", value: "without" },
-              ].map((option) => {
+              {descriptionOptions.map((option) => {
                 const isActive = descriptionParam === option.value;
                 return (
                   <li>
@@ -1274,16 +1303,9 @@ const showRightDots = endPage < totalPages;
               Precio
             </h2>
             <form method="get" class="flex flex-col gap-4">
-              <input type="hidden" name="category" value={categoryParam} />
-              <input type="hidden" name="brand" value={brandParam} />
-              <input type="hidden" name="stock" value={stockParam} />
-              {bodegaHiddenValues.map((bodegaValue) => (
-                <input type="hidden" name="bodega" value={bodegaValue} />
+              {priceFilterHiddenFields.map((field) => (
+                <input type="hidden" name={field.name} value={field.value} />
               ))}
-              <input type="hidden" name="image" value={imageParam} />
-              <input type="hidden" name="datasheets" value={datasheetsParam} />
-              <input type="hidden" name="description" value={descriptionParam} />
-              <input type="hidden" name="page" value="1" />
               <label for="priceRangeDesktop" class="text-sm text-zinc-600 dark:text-zinc-300">Ajusta el rango de precio:</label>
               <div class="flex flex-col gap-3" data-price-range>
                 <input
@@ -1295,8 +1317,7 @@ const showRightDots = endPage < totalPages;
                   name="price"
                   value={priceFilterValue}
                   class="w-full cursor-pointer accent-primary"
-                  oninput="const scopeDesktop = this.closest('[data-price-range]'); const outputDesktop = scopeDesktop?.querySelector('[data-price-range-output]'); if (outputDesktop) { outputDesktop.textContent = new Intl.NumberFormat('es-PE',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(this.value); }"
-                  onchange="this.form.requestSubmit()"
+                  data-price-input
                 />
                 <div class="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300">
                   <span>{priceFormatter.format(MIN_PRICE)}</span>
@@ -1309,7 +1330,7 @@ const showRightDots = endPage < totalPages;
         </aside>
 
         <!-- Grid de productos -->
-        <section class="flex-1 flex flex-col gap-8 z-40" data-products-section aria-busy="true">
+        <section class="flex-1 flex flex-col gap-8 z-40" data-products-section aria-busy="false">
           <header class="flex flex-col gap-6 rounded-3xl border  border-zinc-300 p-6 shadow-sm dark:border-red-900 dark:bg-zinc-900">
             <div class="flex items-center justify-between">
               <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Tienda 
@@ -1329,7 +1350,14 @@ const showRightDots = endPage < totalPages;
               </h1>
 
             </div>
-            <form method="get" class="flex flex-col gap-4 md:flex-row md:items-start">
+            <div
+              id="store-admin-price-selector"
+              class="hidden flex w-fit self-start items-center gap-2 rounded-2xl border border-primary/20 bg-primary/5 px-3 py-2 shadow-sm dark:border-primary/30 dark:bg-white/5"
+              data-admin-visible
+              aria-label="Cambiar lista de precios para todos los productos"
+            ></div>
+
+            <form method="get" class="flex flex-col gap-4 md:flex-row md:items-start" data-catalog-search-form>
               <div class="relative flex-1" data-search-suggestions>
                 <input
                   type="search"
@@ -1339,50 +1367,25 @@ const showRightDots = endPage < totalPages;
                   autocomplete="off"
                   class="w-full rounded-2xl border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 shadow-inner focus:border-primary focus:outline-none dark:border-red-900 dark:bg-zinc-800 dark:text-white"
                 />
-                <input type="hidden" name="category" value="all" />
-                <input type="hidden" name="brand" value="all" />
-                <input type="hidden" name="stock" value="all" />
-                <input type="hidden" name="bodega" value="all" />
-                <input type="hidden" name="image" value="all" />
-                <input type="hidden" name="datasheets" value="all" />
-                <input type="hidden" name="description" value="all" />
-                <input type="hidden" name="price" value="all" />
-                <input type="hidden" name="page" value="1" />
-                {searchSuggestions.length > 0 && (
-                  <div
-                    class="absolute left-0 right-0 top-full z-20 mt-2 hidden overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-lg ring-1 ring-black/5 dark:border-red-900 dark:bg-zinc-900 dark:ring-white/10"
-                    data-suggestions-panel
-                  >
-                    <div class="flex items-center justify-between px-4 pt-3">
-                      <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                        Sugerencias
-                      </p>
-                      <span class="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary dark:bg-red-900/40 dark:text-red-200">
-                        Productos
-                      </span>
-                    </div>
-                    <ul class="flex max-h-64 flex-col gap-1 overflow-y-auto px-2 pb-3 pt-2" data-suggestions-list>
-                      {searchSuggestions.map((suggestion) => (
-                        <li data-suggestion-item data-suggestion-value={suggestion.searchValue}>
-                          <a
-                            href={`/producto/${suggestion.slug}`}
-                            class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-zinc-700 transition hover:-translate-y-px hover:bg-primary/10 hover:text-primary hover:shadow-sm dark:text-zinc-200 dark:hover:bg-red-900/40 dark:hover:text-red-200"
-                          >
-                            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-[11px] font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-                              <span class="max-w-14 truncate">
-                                {(suggestion.code || suggestion.label.slice(0, 2)).toUpperCase()}
-                              </span>
-                            </span>
-                            <span class="font-medium">{suggestion.label}</span>
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
+                {searchResetHiddenFields.map((field) => (
+                  <input type="hidden" name={field.name} value={field.value} />
+                ))}
+                <div
+                  class="absolute left-0 right-0 top-full z-20 mt-2 hidden overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-lg ring-1 ring-black/5 dark:border-red-900 dark:bg-zinc-900 dark:ring-white/10"
+                  data-suggestions-panel
+                >
+                  <div class="flex items-center justify-between px-4 pt-3">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                      Sugerencias
+                    </p>
+                    <span class="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary dark:bg-red-900/40 dark:text-red-200">
+                      Productos
+                    </span>
                   </div>
-                )}
+                  <ul class="flex max-h-64 flex-col gap-1 overflow-y-auto px-2 pb-3 pt-2" data-suggestions-list></ul>
+                </div>
               </div>
               
-              <input type="hidden" name="page" value="1" />
               <button
                 type="submit"
                 class="rounded-2xl cursor-pointer inline-flex bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110"
@@ -1391,66 +1394,47 @@ const showRightDots = endPage < totalPages;
                 Buscar
               </button>
             </form>
-            <p class="text-sm text-zinc-700 dark:text-zinc-200">
-              Mostrando <strong>{productos.length}</strong> de <strong>{totalItems}</strong> productos disponibles.
+            <p class="text-sm text-zinc-700 dark:text-zinc-200" data-catalog-count>
+              Mostrando <strong data-visible-count>{productos.length}</strong> de <strong data-total-count>{totalItems}</strong> productos disponibles.
             </p>
           </header>
 
-          <script is:inline>
-            const suggestionScope = document.querySelector("[data-search-suggestions]");
-            if (suggestionScope) {
-              const input = suggestionScope.querySelector("input[type='search']");
-              const panel = suggestionScope.querySelector("[data-suggestions-panel]");
-              const items = Array.from(suggestionScope.querySelectorAll("[data-suggestion-item]"));
-              const maxVisible = 6;
-              const form = suggestionScope.closest("form");
-              let lastNonEmptyQuery = input?.value.trim().toLowerCase() ?? "";
-
-              const updateSuggestions = () => {
-                if (!panel || !input) return;
-                const query = input.value.trim().toLowerCase();
-                const terms = query.split(/\s+/).filter(Boolean);
-                let visibleCount = 0;
-
-                items.forEach((item) => {
-                  const value = item.getAttribute("data-suggestion-value") || "";
-                  const matches =
-                    terms.length > 0 && terms.every((term) => value.includes(term));
-                  const show = matches && visibleCount < maxVisible;
-                  item.classList.toggle("hidden", !show);
-                  if (show) {
-                    visibleCount += 1;
-                  }
-                });
-
-                panel.classList.toggle("hidden", query.length === 0 || visibleCount === 0);
-
-                if (query.length > 0) {
-                  lastNonEmptyQuery = query;
-                }
-              };
-
-              input?.addEventListener("input", updateSuggestions);
-              input?.addEventListener("search", () => {
-                const query = input.value.trim().toLowerCase();
-                if (query.length === 0 && lastNonEmptyQuery.length > 0) {
-                  form?.requestSubmit();
-                }
-              });
-              input?.addEventListener("focus", updateSuggestions);
-              input?.addEventListener("blur", () => {
-                if (panel) {
-                  setTimeout(() => panel.classList.add("hidden"), 150);
-                }
-              });
-            }
-          </script>
+          {activeFilters.length > 0 && (
+              <div class="flex flex-wrap gap-2">
+                {activeFilters.map((filter) => (
+                  <span
+                    class="inline-flex max-w-full items-center gap-2 rounded-full border border-primary/30 bg-primary/10 py-1.5 pl-3 pr-1.5 text-sm font-medium text-primary dark:border-red-700 dark:bg-red-950/50 dark:text-red-200"
+                    data-active-filter={filter.key}
+                  >
+                    <span class="max-w-[18rem] truncate">{filter.label}</span>
+                    <a
+                      href={filter.removeHref}
+                      class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
+                      aria-label={`Quitar filtro ${filter.label}`}
+                      title={`Quitar filtro ${filter.label}`}
+                    >
+                      <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M6 6L14 14M14 6L6 14"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                        />
+                      </svg>
+                    </a>
+                  </span>
+                ))}
+              </div>
+          )}
 
           {productos.length > 0 ? (
-            <div class="grid grid-cols-1 sm:grid-cols-2  lg:grid-cols-4 
-            
-            
-             gap-4 md:gap-6 w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 w-full" data-catalog-grid>
               {productos.map((producto, index) => (
                 <ProductCard
                   producto={producto}
@@ -1459,7 +1443,7 @@ const showRightDots = endPage < totalPages;
               ))}
             </div>
           ) : (
-            <div class="rounded-3xl border border-dashed border-zinc-300 bg-white p-12 text-center dark:border-red-900 dark:bg-zinc-900">
+            <div class="rounded-3xl border border-dashed border-zinc-300 bg-white p-12 text-center dark:border-red-900 dark:bg-zinc-900" data-catalog-empty>
               <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">No encontramos resultados</h2>
               <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
                 Ajusta los filtros o la búsqueda para ver otros productos.
@@ -1469,7 +1453,7 @@ const showRightDots = endPage < totalPages;
 
             
           <!-- Paginación -->
-         <div class="flex flex-wrap items-center justify-center gap-2 max-w-full px-2 sm:px-0">
+         <div class="flex flex-wrap items-center justify-center gap-2 max-w-full px-2 sm:px-0" data-catalog-pagination>
             {showLeftDots && (
               <>
                 <a
@@ -1522,6 +1506,237 @@ const showRightDots = endPage < totalPages;
       </div>
     </article>
   </Container>
+
+  <script is:inline>
+    (() => {
+      const CATALOG_ENDPOINT = "/api/catalogo/catalogo-productos";
+      const STORAGE_KEY = "unicomec:catalogo-compacto:v3";
+      const MAX_AGE = 10 * 60 * 1000;
+      const MAX_SUGGESTIONS = 6;
+      const SUGGESTION_DELAY = 70;
+
+      const searchScope = document.querySelector("[data-search-suggestions]");
+      const searchInput = searchScope?.querySelector("input[type='search']");
+      const suggestionsPanel = searchScope?.querySelector("[data-suggestions-panel]");
+      const suggestionsList = searchScope?.querySelector("[data-suggestions-list]");
+
+      let catalogProducts = [];
+      let catalogReady = false;
+      let catalogPromise = null;
+      let suggestionTimer = 0;
+      let renderVersion = 0;
+
+      const normalizeText = (value) =>
+        String(value ?? "")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .trim();
+
+      const escapeHTML = (value) =>
+        String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+
+      const prepareCatalog = (products) =>
+        products.map((product) => ({
+          ...product,
+          _name: product?.nombre || product?.codigo || "Producto",
+          _code: product?.codigo || "",
+          _slug: String(product?.slug ?? product?.id ?? ""),
+          _searchIndex: normalizeText(
+            product?.searchIndex ||
+              [product?.nombre, product?.codigo, product?.identifier]
+                .filter(Boolean)
+                .join(" "),
+          ),
+        }));
+
+      const readStoredCatalog = () => {
+        try {
+          const raw = sessionStorage.getItem(STORAGE_KEY);
+          if (!raw) return null;
+
+          const stored = JSON.parse(raw);
+          const isFresh =
+            stored &&
+            Array.isArray(stored.products) &&
+            Date.now() - Number(stored.savedAt ?? 0) <= MAX_AGE;
+
+          if (!isFresh) {
+            sessionStorage.removeItem(STORAGE_KEY);
+            return null;
+          }
+
+          return stored.products;
+        } catch {
+          return null;
+        }
+      };
+
+      const saveCatalog = (products) => {
+        try {
+          sessionStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({ savedAt: Date.now(), products }),
+          );
+        } catch {
+          // La tienda sigue funcionando sin sessionStorage.
+        }
+      };
+
+      const loadCatalog = async () => {
+        if (catalogReady) return catalogProducts;
+        if (catalogPromise) return catalogPromise;
+
+        const stored = readStoredCatalog();
+        if (stored) {
+          catalogProducts = prepareCatalog(stored);
+          catalogReady = true;
+          return catalogProducts;
+        }
+
+        catalogPromise = fetch(CATALOG_ENDPOINT, {
+          headers: { Accept: "application/json" },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`No se pudo cargar el catálogo (${response.status})`);
+            }
+            return response.json();
+          })
+          .then((payload) => {
+            const products = Array.isArray(payload?.products)
+              ? payload.products
+              : [];
+            saveCatalog(products);
+            catalogProducts = prepareCatalog(products);
+            catalogReady = true;
+            return catalogProducts;
+          })
+          .finally(() => {
+            catalogPromise = null;
+          });
+
+        return catalogPromise;
+      };
+
+      const hideSuggestions = () => {
+        renderVersion += 1;
+        suggestionsPanel?.classList.add("hidden");
+        suggestionsList?.replaceChildren();
+      };
+
+      const findMatches = (products, terms) => {
+        const matches = [];
+
+        for (const product of products) {
+          if (!product._slug) continue;
+          if (!terms.every((term) => product._searchIndex.includes(term))) continue;
+
+          matches.push(product);
+          if (matches.length === MAX_SUGGESTIONS) break;
+        }
+
+        return matches;
+      };
+
+      const renderSuggestions = async () => {
+        if (
+          !(searchInput instanceof HTMLInputElement) ||
+          !(suggestionsPanel instanceof HTMLElement) ||
+          !(suggestionsList instanceof HTMLElement)
+        ) {
+          return;
+        }
+
+        const terms = normalizeText(searchInput.value).split(/\s+/).filter(Boolean);
+        if (terms.length === 0) {
+          hideSuggestions();
+          return;
+        }
+
+        const currentVersion = ++renderVersion;
+
+        try {
+          const products = await loadCatalog();
+          if (currentVersion !== renderVersion) return;
+
+          const currentTerms = normalizeText(searchInput.value)
+            .split(/\s+/)
+            .filter(Boolean);
+          if (currentTerms.join("|") !== terms.join("|")) return;
+
+          const matches = findMatches(products, terms);
+          suggestionsList.innerHTML = matches
+            .map((product) => {
+              const name = escapeHTML(product._name);
+              const code = escapeHTML(product._code);
+              const slug = encodeURIComponent(product._slug);
+              const image = product?.imagenUrl
+                ? `<img src="${escapeHTML(product.imagenUrl)}" alt="" width="40" height="40" loading="lazy" class="h-10 w-10 rounded-lg bg-white object-contain" />`
+                : `<span class="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 text-[11px] font-semibold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">${escapeHTML((code || name.slice(0, 2)).toUpperCase())}</span>`;
+
+              return `<li><a href="/producto/${slug}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-zinc-700 transition hover:bg-primary/10 hover:text-primary dark:text-zinc-200">${image}<span class="min-w-0"><span class="block truncate font-medium">${name}</span>${code ? `<span class="block truncate text-xs text-zinc-500">${code}</span>` : ""}</span></a></li>`;
+            })
+            .join("");
+
+          suggestionsPanel.classList.toggle("hidden", matches.length === 0);
+        } catch (error) {
+          console.warn("No se pudieron cargar las sugerencias:", error);
+          hideSuggestions();
+        }
+      };
+
+      if (searchInput instanceof HTMLInputElement) {
+        searchInput.addEventListener("input", () => {
+          window.clearTimeout(suggestionTimer);
+          suggestionTimer = window.setTimeout(renderSuggestions, SUGGESTION_DELAY);
+        });
+        searchInput.addEventListener("focus", renderSuggestions);
+        searchInput.addEventListener("blur", () => {
+          window.setTimeout(hideSuggestions, 160);
+        });
+      }
+
+      document.querySelectorAll("[data-filter-select]").forEach((element) => {
+        if (!(element instanceof HTMLSelectElement)) return;
+        element.addEventListener("change", () => {
+          if (element.value) window.location.assign(element.value);
+        });
+      });
+
+      const currencyFormatter = new Intl.NumberFormat("es-PE", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      });
+
+      document.querySelectorAll("[data-price-input]").forEach((element) => {
+        if (!(element instanceof HTMLInputElement)) return;
+
+        element.addEventListener("input", () => {
+          const output = element
+            .closest("[data-price-range]")
+            ?.querySelector("[data-price-range-output]");
+          if (output) output.textContent = currencyFormatter.format(Number(element.value));
+        });
+
+        element.addEventListener("change", () => element.form?.requestSubmit());
+      });
+
+      const warmCatalog = () => loadCatalog().catch(() => {});
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(warmCatalog, { timeout: 1500 });
+      } else {
+        window.setTimeout(warmCatalog, 300);
+      }
+    })();
+  </script>
+
    <script is:inline>
     const preloader = document.querySelector("[data-preloader]");
     if (preloader) {
