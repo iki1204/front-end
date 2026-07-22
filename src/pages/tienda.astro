@@ -2,7 +2,8 @@
 import BaseLayout from "../layouts/Layout.astro";
 import ProductCard from "../components/ProductCard.astro";
 import Container from "../components/Container.astro";
-import { getCategorias, getGlobalData, getMarcas, getProductos } from "../lib/api";
+import { getCategorias, getGlobalData, getMarcas } from "../lib/api";
+import { getCachedCatalogProducts, normalizeCatalogText } from "../lib/catalogCache";
 
 
 
@@ -50,92 +51,40 @@ const priceFilterValue = Number.isFinite(priceParamRaw)
   ? Math.min(Math.max(priceParamRaw, MIN_PRICE), MAX_PRICE)
   : MAX_PRICE;
 
-const strapiParams = new URLSearchParams({
-  "pagination[page]": String(requestedPage),
-  "pagination[pageSize]": String(ITEMS_PER_PAGE),
-  sort: "nombre:asc",
-});
+const productMatchesFilters = (product: any) => {
+  if (categoryParam !== "all" && String(product?.categoriaId ?? product?.ID_Categoria ?? "") !== categoryParam) return false;
+  if (brandParam !== "all" && String(product?.marcaId ?? product?.ID_Marca ?? "") !== brandParam) return false;
 
-const isSpecificBodegaFilter = stockParam === "in" && hasSelectedBodegas;
+const stock = Number(product?.stock ?? product?.cantidad_stock ?? 0);
+  if (stockParam === "in" && !(Number.isFinite(stock) && stock > 0)) return false;
+  if (stockParam === "out" && Number.isFinite(stock) && stock > 0) return false;
 
-const applySearchFilters = (params: URLSearchParams, terms: string[]) => {
-  terms.forEach((term, index) => {
-    params.set(`filters[$and][${index}][$or][0][nombre][$containsi]`, term);
-    params.set(`filters[$and][${index}][$or][1][codigo][$containsi]`, term);
-  });
+const price = Number(product?.precio ?? 0);
+  if (priceFilterValue < MAX_PRICE && Number.isFinite(price) && price > priceFilterValue) return false;
+  if (imageParam === "with" && !product?.tieneImagen) return false;
+  if (imageParam === "without" && product?.tieneImagen) return false;
+  if (datasheetsParam === "with" && !product?.tieneDatasheet) return false;
+  if (datasheetsParam === "without" && product?.tieneDatasheet) return false;
+  if (descriptionParam === "with" && !product?.tieneDescripcion) return false;
+  if (descriptionParam === "without" && product?.tieneDescripcion) return false;
+  if (searchTerms.length > 0) {
+    const searchIndex = String(product?.searchIndex ?? normalizeCatalogText([product?.nombre, product?.codigo, product?.identifier].filter(Boolean).join(" ")));
+    if (!searchTerms.every((term) => searchIndex.includes(normalizeCatalogText(term)))) return false;
+  }
+  return true;
 };
 
-const applyCatalogFilters = (params: URLSearchParams) => {
-  const directFilters: Array<[boolean, string, string]> = [
-    [categoryParam !== "all", "filters[ID_Categoria][$eq]", categoryParam],
-    [brandParam !== "all", "filters[ID_Marca][$eq]", brandParam],
-    [stockParam === "in", "filters[cantidad_stock][$gt]", "0"],
-    [stockParam === "out", "filters[cantidad_stock][$lte]", "0"],
-    [priceFilterValue < MAX_PRICE, "filters[precio][$lte]", String(priceFilterValue)],
-  ];
+const paginateProducts = (items: any[]) => {
+  const pages = Math.max(1, Math.ceil(items.length / ITEMS_PER_PAGE));
+  const page = Math.min(Math.max(requestedPage, 1), pages);
+  const start = (page - 1) * ITEMS_PER_PAGE;
 
-  directFilters.forEach(([enabled, key, value]) => {
-    if (enabled) params.set(key, value);
-  });
-
-  let andFilterIndex = 0;
-  const addAndFilter = (path: string, value = "true") => {
-    params.set(`filters[$and][${andFilterIndex}]${path}`, value);
-    andFilterIndex += 1;
-  };
-
-  const applyRelationPresenceFilter = (
-    value: string,
-    field: "imagen" | "datasheets",
-  ) => {
-    if (value === "with") addAndFilter(`[${field}][id][$notNull]`);
-    if (value === "without") addAndFilter(`[${field}][id][$null]`);
-  };
-
-  applyRelationPresenceFilter(imageParam, "imagen");
-  applyRelationPresenceFilter(datasheetsParam, "datasheets");
-
-  if (descriptionParam === "with") {
-    addAndFilter("[descripcion][$notNull]");
-    addAndFilter("[descripcion][$ne]", "");
-  }
-
-  if (descriptionParam === "without") {
-    params.set(`filters[$and][${andFilterIndex}][$or][0][descripcion][$null]`, "true");
-    params.set(`filters[$and][${andFilterIndex}][$or][1][descripcion][$eq]`, "");
-    andFilterIndex += 1;
-  }
-};
-
-if (searchTerms.length > 0) {
-  applySearchFilters(strapiParams, searchTerms);
-} else {
-  applyCatalogFilters(strapiParams);
-}
-
-const getAllProductsForFilters = async (baseParams: URLSearchParams) => {
-  const params = new URLSearchParams(baseParams);
-  params.delete("pagination[page]");
-  params.delete("pagination[pageSize]");
-
-  const items: any[] = [];
-  let page = 1;
-  let pageCount = 1;
-
-  do {
-    params.set("pagination[page]", String(page));
-    params.set("pagination[pageSize]", "100");
-
-    const response = await getProductos(params);
-    const pageItems = normalizeCollection(response?.data ?? []);
-    items.push(...pageItems);
-
-    const pagination = response?.meta?.pagination;
-    pageCount = pagination?.pageCount ?? pageCount;
-    page += 1;
-  } while (page <= pageCount);
-
-  return items;
+  return {
+      page,
+      pages,
+      total: items.length,
+      items: items.slice(start, start + ITEMS_PER_PAGE),
+    };
 };
 
 const bodegaStockCache = new Map<string, Promise<any[]>>();
@@ -200,10 +149,15 @@ const safeAsyncFetch = async <T,>(fn: () => Promise<T>, defaultValue: T, label: 
   }
 };
 
-const [categoriasResponse, marcasResponse, global] = await Promise.all([
+const [categoriasResponse, marcasResponse, global, catalogResponse] = await Promise.all([
   safeAsyncFetch(() => getCategorias(), { data: [] }, "getCategorias"),
   safeAsyncFetch(() => getMarcas(), { data: [] }, "getMarcas"),
   safeAsyncFetch(() => getGlobalData(), {}, "getGlobalData"),
+  safeAsyncFetch(() => getCachedCatalogProducts(), {
+    products: [],
+    version: "",
+    total: 0
+  }, "getCachedCatalogProducts"),
 ]);
 
 const bodegaNamesSet = new Set<string>();
@@ -212,15 +166,12 @@ let totalPages = 1;
 let currentPage = requestedPage;
 let totalItems = 0;
 
-if (isSpecificBodegaFilter) {
-  const allFilteredCandidates = await safeAsyncFetch(
-    () => getAllProductsForFilters(strapiParams),
-    [],
-    "getAllProductsForFilters",
-  );
+const cachedProducts = Array.isArray(catalogResponse?.products) ? catalogResponse.products : [];
+const filteredCandidates = cachedProducts.filter(productMatchesFilters);
 
+if (stockParam === "in" && hasSelectedBodegas) {
   const matchChecks = await mapWithConcurrency(
-    allFilteredCandidates,
+    filteredCandidates,
     12,
     async (item) => {
       const identifier = item?.identifier ? String(item.identifier) : null;
@@ -241,27 +192,17 @@ if (isSpecificBodegaFilter) {
     },
   );
 
-  const filteredByBodega = matchChecks.filter(Boolean) as any[];
-  totalItems = filteredByBodega.length;
-  totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
-  currentPage = Math.min(Math.max(requestedPage, 1), totalPages);
-
-  const start = (currentPage - 1) * ITEMS_PER_PAGE;
-  const end = start + ITEMS_PER_PAGE;
-  productos = filteredByBodega.slice(start, end);
+  const paginated = paginateProducts(matchChecks.filter(Boolean) as any[]);
+  productos = paginated.items;
+  totalItems = paginated.total;
+  totalPages = paginated.pages;
+  currentPage = paginated.page;
 } else {
-  const productosResponse = await safeAsyncFetch(
-    () => getProductos(strapiParams),
-    { data: [], meta: { pagination: {} } },
-    "getProductos",
-  );
-
-  productos = normalizeCollection(productosResponse?.data ?? []);
-
-  const paginationMeta = productosResponse?.meta?.pagination ?? {};
-  totalPages = Math.max(1, paginationMeta.pageCount ?? 1);
-  currentPage = Math.min(Math.max(paginationMeta.page ?? requestedPage, 1), totalPages);
-  totalItems = paginationMeta.total ?? productos.length;
+  const paginated = paginateProducts(filteredCandidates);
+  productos = paginated.items;
+  totalItems = paginated.total;
+  totalPages = paginated.pages;
+  currentPage = paginated.page;
 
   const rowsByProduct = await Promise.all(
     productos.map(async (item) => {
@@ -1349,13 +1290,15 @@ const showRightDots = endPage < totalPages;
 
               </h1>
 
+              <div
+                id="store-admin-price-selector"
+                class="hidden flex w-fit self-start items-center gap-2 rounded-2xl border border-primary/20 bg-primary/5 px-3 py-2 shadow-sm dark:border-primary/30 dark:bg-white/5"
+                data-admin-visible
+                aria-label="Cambiar lista de precios para todos los productos"
+              ></div>
+
             </div>
-            <div
-              id="store-admin-price-selector"
-              class="hidden flex w-fit self-start items-center gap-2 rounded-2xl border border-primary/20 bg-primary/5 px-3 py-2 shadow-sm dark:border-primary/30 dark:bg-white/5"
-              data-admin-visible
-              aria-label="Cambiar lista de precios para todos los productos"
-            ></div>
+            
 
             <form method="get" class="flex flex-col gap-4 md:flex-row md:items-start" data-catalog-search-form>
               <div class="relative flex-1" data-search-suggestions>
@@ -1740,7 +1683,10 @@ const showRightDots = endPage < totalPages;
    <script is:inline>
     const preloader = document.querySelector("[data-preloader]");
     if (preloader) {
+      let preloaderHidden = false;
       const hidePreloader = () => {
+        if (preloaderHidden) return;
+        preloaderHidden = true;
         preloader.classList.add("opacity-0");
         preloader.setAttribute("aria-busy", "false");
         setTimeout(() => {
@@ -1749,11 +1695,46 @@ const showRightDots = endPage < totalPages;
       };
 
       const showPreloader = () => {
+        preloaderHidden = false;
         preloader.classList.remove("hidden", "opacity-0");
         preloader.setAttribute("aria-busy", "true");
       };
 
-      window.addEventListener("load", hidePreloader);
+      const waitForCurrentAssets = async () => {
+        const images = Array.from(document.images).filter(
+          (image) => image instanceof HTMLImageElement && image.loading !== "lazy" && !image.complete,
+        );
+
+        await Promise.allSettled(
+          images.map(
+            (image) =>
+              new Promise((resolve) => {
+                image.addEventListener("load", resolve, { once: true });
+                image.addEventListener("error", resolve, { once: true });
+              }),
+          ),
+        );
+
+        if (document.fonts?.ready) {
+          await document.fonts.ready.catch(() => undefined);
+        }
+      };
+
+      const hideAfterFullPageLoad = () => {
+        waitForCurrentAssets().finally(hidePreloader);
+      };
+
+      if (document.readyState === "complete") {
+        hideAfterFullPageLoad();
+      } else {
+        window.addEventListener("load", hideAfterFullPageLoad, { once: true });
+      }
+
+      window.addEventListener("pageshow", (event) => {
+        if (event.persisted || document.readyState === "complete") {
+          hideAfterFullPageLoad();
+        }
+      });
 
       document.addEventListener("submit", (event) => {
         const form = event.target;
