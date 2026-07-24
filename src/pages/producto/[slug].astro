@@ -308,7 +308,7 @@ const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.
   metaOgType="product"
 >
 
-    <article class="relative mx-10  px-4 py-12 sm:px-6 lg:px-8">
+    <article class="relative mx-4 sm:mx-10 px-1 py-8 sm:px-6 lg:px-8">
       <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
         <a
           href="/tienda"
@@ -412,7 +412,7 @@ const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.
             </svg>
             <p class="mt-3 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 animate-pulse">Cargando&hellip;</p>
           </div>
-          <div class="flex space-y-3 justify-between content-between">
+          <div class="block sm:flex space-y-3 sm:justify-between">
             <div class="mt-2">
               <p class="text-xs inline-flex font-semibold uppercase tracking-[0.18em] text-primary">Producto
                 {isOfertaActiva && porcentajeDescuento > 0 && (
@@ -429,50 +429,48 @@ const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.
             </div>            
           </div>
           <h1 class="w-full break-words text-3xl font-black leading-tight text-zinc-900 dark:text-white sm:text-4xl">{producto?.nombre}</h1>
+          
           <div class="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4 shadow-inner dark:border-primary/30 dark:bg-white/10">
-            {isOfertaActiva && porcentajeDescuento > 0 ? (
-              <>
+            <div class="block justify-between sm:flex">
+              {isOfertaActiva && porcentajeDescuento > 0 ? (
+                <>
+                  <p
+                    class="text-2xl font-bold text-gray-500 line-through animate-pulse"
+                    data-auth-visible="authenticated"
+                    data-product-original-price-display
+                  >
+                    ···
+                  </p>
+
+                  <p
+                    class="text-4xl sm:text-5xl font-bold animate-pulse text-red-500"
+                    data-auth-visible="authenticated"
+                    data-product-offer-price-display
+                  >
+                    ···
+                  </p>
+                </>
+              ) : (
                 <p
-                  class="text-2xl font-bold text-gray-500 line-through animate-pulse"
+                  class="text-4xl sm:text-5xl font-bold animate-pulse text-red-500"
                   data-auth-visible="authenticated"
-                  data-product-original-price-display
+                  data-product-price-display
                 >
                   ···
                 </p>
-
-                <p
-                  class="text-5xl font-bold animate-pulse text-red-500"
-                  data-auth-visible="authenticated"
-                  data-product-offer-price-display
-                >
-                  ···
-                </p>
-              </>
-            ) : (
-              <p
-                class="text-5xl font-bold animate-pulse text-red-500"
-                data-auth-visible="authenticated"
-                data-product-price-display
-              >
-                ···
-              </p>
-            )}
-
-              <div class="relative w-fit">
-                <!-- Badge oferta -->
+              )}
+              <div class="relative w-fit pt-2 sm:pt-0">
                 <div
-                  class="absolute left-110 bottom-1 z-10 overflow-hidden rounded-xl
+                  class="overflow-hidden rounded-xl
                         bg-gradient-to-br from-red-500 to-red-600
                         px-3 py-2 text-white shadow-sm shadow-red-500/25
                         ring-1 ring-white/30 transition duration-300
                         hover:scale-105 hover:shadow-xl hover:shadow-red-500/35"
                 >
-                  <!-- brillo sutil -->
                   <span
                     class="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
                           -translate-x-full skew-x-12 transition duration-700 group-hover:translate-x-full"
                   ></span>
-
                   <div class="relative leading-none">
                     <p class="text-[11px] font-extrabold uppercase tracking-[0.18em]">
                       Oferta
@@ -483,7 +481,7 @@ const isOutOfStock = Number.isFinite(stockCount) ? stockCount <= 0 : !producto?.
                   </div>
                 </div>
               </div>
-
+            </div>
             <div
               class="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-dashed border-primary/25 bg-white/80 px-4 py-3 shadow-sm dark:border-primary/40 dark:bg-zinc-900/70"
               id="stock-panel"

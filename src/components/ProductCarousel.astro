@@ -2,8 +2,8 @@
 import Container from "./Container.astro";
 import { getProductos } from "../lib/api";
 
-const ITEM_COUNT = 6;
-const FETCH_COUNT = 24;
+const ITEM_COUNT = 12;
+const FETCH_COUNT = 32;
 
 const normalizeWithAttributes = (item: any) =>
   item?.attributes ? { id: item.id, ...item.attributes } : item;
@@ -26,15 +26,11 @@ const params = new URLSearchParams({
 const productosResponse = await getProductos(params);
 const productos = (productosResponse?.data ?? []).map(normalizeWithAttributes);
 const fewStockThreshold = 10;
-const productosUltimasUnidades = productos.filter((producto) => {
+const productosUltimasUnidades = productos.filter((producto: { cantidad_stock: any; }) => {
   const stockCount = Number(producto?.cantidad_stock ?? 0);
   return Number.isFinite(stockCount) && stockCount > 0 && stockCount <= fewStockThreshold;
 });
 const productosAleatorios = shuffle(productosUltimasUnidades).slice(0, ITEM_COUNT);
-const loopItems =
-  productosAleatorios.length > 1
-    ? [...productosAleatorios, ...productosAleatorios]
-    : productosAleatorios;
 
 const getProductImage = (producto: any) => {
   const API_URL = import.meta.env.VITE_STRAPI_URL;
@@ -75,7 +71,7 @@ const getProductImage = (producto: any) => {
         type="button"
         aria-label="Anterior"
         data-carousel-prev
-        class="absolute left-0 top-1/2 z-10 hidden h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-lg transition hover:scale-105 hover:text-primary sm:flex"
+        class="absolute cursor-pointer left-0 top-1/2 z-10 hidden h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-lg transition hover:scale-105 hover:text-primary sm:flex"
       >
         <svg
           viewBox="0 0 24 24"
@@ -97,7 +93,7 @@ const getProductImage = (producto: any) => {
       >
         {productosAleatorios.length ? (
           <>
-            {loopItems.map((producto) => {
+            {productosAleatorios.map((producto) => {
             const slug = producto?.ID_Nombre ?? producto?.slug ?? producto?.id;
             const image = getProductImage(producto);
 
@@ -106,7 +102,7 @@ const getProductImage = (producto: any) => {
                 class="flex w-[260px] shrink-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
                 data-carousel-card
               >
-                <div class="relative h-44 overflow-hidden">
+                <div class="relative h-50 overflow-hidden">
                   <img
                     src={image}
                     alt={producto?.nombre ?? "Producto"}
@@ -161,7 +157,7 @@ const getProductImage = (producto: any) => {
         type="button"
         aria-label="Siguiente"
         data-carousel-next
-        class="absolute right-0 top-1/2 z-10 hidden h-11 w-11 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-lg transition hover:scale-105 hover:text-primary sm:flex"
+        class="absolute cursor-pointer right-0 top-1/2 z-10 hidden h-11 w-11 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-lg transition hover:scale-105 hover:text-primary sm:flex"
       >
         <svg
           viewBox="0 0 24 24"
@@ -200,7 +196,7 @@ const getProductImage = (producto: any) => {
 
   
 
-    const scrollByStep = (direction) => {
+    const scrollByStep = (direction: number) => {
       if (!track) return;
       const step = getScrollStep();
       track.scrollBy({ left: step * direction, behavior: "smooth" });

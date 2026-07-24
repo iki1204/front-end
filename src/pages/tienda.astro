@@ -336,7 +336,12 @@ const brandItems = marcas
     value: marca?.ID_Marca ?? marca?.id,
     image: getStrapiFileUrl(marca?.logo ?? marca?.imagen),
   }))
-  .filter((marca) => Boolean(marca.value));
+  .filter((marca) => Boolean(marca.value))
+  .sort((a, b) =>
+    a.label.localeCompare(b.label, "es", {
+      sensitivity: "base",
+    })
+  );
 
 const priceFormatter = new Intl.NumberFormat("es-PE", {
   style: "currency",
@@ -1273,7 +1278,7 @@ const showRightDots = endPage < totalPages;
         <!-- Grid de productos -->
         <section class="flex-1 flex flex-col gap-8 z-40" data-products-section aria-busy="false">
           <header class="flex flex-col gap-6 rounded-3xl border  border-zinc-300 p-6 shadow-sm dark:border-red-900 dark:bg-zinc-900">
-            <div class="flex items-center justify-between">
+            <div class="block sm:flex items-center justify-between">
               <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">Tienda 
                 <svg
                   class="mx-2 inline-flex h-8 w-8 text-zinc-800 dark:text-white"
@@ -1290,13 +1295,14 @@ const showRightDots = endPage < totalPages;
 
               </h1>
 
-              <div
-                id="store-admin-price-selector"
-                class="hidden flex w-fit self-start items-center gap-2 rounded-2xl border border-primary/20 bg-primary/5 px-3 py-2 shadow-sm dark:border-primary/30 dark:bg-white/5"
-                data-admin-visible
-                aria-label="Cambiar lista de precios para todos los productos"
-              ></div>
-
+              <div class="pt-4 sm:pt-0">
+                <div
+                  id="store-admin-price-selector"
+                  class="hidden flex w-fit self-start items-center gap-2 rounded-2xl border border-primary/20 bg-primary/5 px-3 py-2 shadow-sm dark:border-primary/30 dark:bg-white/5"
+                  data-admin-visible
+                  aria-label="Cambiar lista de precios para todos los productos"
+                ></div>
+              </div>
             </div>
             
 
