@@ -1,4 +1,5 @@
 import { postUsuarioLogin, postUsuarioRegister } from "./api";
+import * as validator from 'ecuador-validator';
 import {
   SESSION_EVENT,
   SESSION_STORAGE_KEY,
@@ -191,13 +192,23 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
   const fecha = String(formData.get("fechaNacimiento") ?? "").trim();
   const telefono = String(formData.get("telefono") ?? "").trim();
   const password = String(formData.get("password") ?? "").trim();
-  const asesores = ["Lizeth", "Moises", "Katya", "Samantha", "Edison"]
+  const asesores = ["Lizeth", "Moises", "Katya", "Samantha", "Edison", "Anibal"]
   const asesor = asesores[Math.floor(Math.random() * asesores.length)];
 
 
 
   if (!username || !password || !email || !nombre || !apellido || !direccion || !fecha || !telefono || !dni) {
     setFeedbackMessage(feedback, "Completa los campos para registrarte.", "error");
+    return;
+  }
+
+  if(validator.ci(dni)===false && validator.ruc(dni)===false){
+    setFeedbackMessage(feedback, "Ingresa una Cedula o RUC valido para crear tu cuenta", "error")
+    return;
+  }
+
+  if (validator.telephone(telefono)===false){
+    setFeedbackMessage(feedback, "Ingresa un numero válido para crear tu cuenta.", "error");
     return;
   }
 
