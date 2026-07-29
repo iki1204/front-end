@@ -207,7 +207,7 @@ const handleRegisterSubmit = async (event: SubmitEvent) => {
     return;
   }
 
-  if (validator.telephone(telefono)===false){
+  if (contieneLetras(telefono)){
     setFeedbackMessage(feedback, "Ingresa un numero válido para crear tu cuenta.", "error");
     return;
   }
@@ -292,4 +292,13 @@ if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initRegister, { once: true });
 } else {
   initRegister();
+}
+
+function contieneLetras(str: string) {
+  if (typeof str !== "string") {
+      console.error("Input must be a string.");
+      return false;
+  }
+  const pattern = /^(?=.*[A-Za-z]).+$/;
+  return pattern.test(str);
 }
