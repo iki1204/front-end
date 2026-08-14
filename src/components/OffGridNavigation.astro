@@ -1,0 +1,56 @@
+---
+const steps = [
+  { label: "Consumo", href: "/calculadora-off-grid/consumo" },
+  { label: "Localidad", href: "/calculadora-off-grid/localidad" },
+  { label: "Paneles", href: "/calculadora-off-grid/paneles" },
+  { label: "Baterías", href: "/calculadora-off-grid/baterias" },
+  { label: "Inversores", href: "/calculadora-off-grid/inversores" },
+];
+
+const currentPath = Astro.url.pathname.replace(/\/$/, "");
+---
+
+<nav
+  class="border-b border-slate-200 bg-white shadow-sm w-full"
+  aria-label="Etapas de la calculadora off-grid"
+>
+  <div class="mx-auto w-full max-w-[1520px] px-4 py-3 sm:px-6 lg:px-10">
+    <ol class="flex snap-x snap-mandatory items-center overflow-x-auto pb-1" role="list">
+      {steps.map((step, index) => {
+        const isActive = currentPath === step.href;
+
+        return (
+          <li class="flex shrink-0 snap-start items-center">
+            <a
+              href={step.href}
+              data-nav-loading
+              aria-current={isActive ? "step" : undefined}
+              class:list={[
+                "group inline-flex min-h-10 items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#cc2f1f] sm:px-4",
+                isActive
+                  ? "border-[#cc2f1f] bg-[#cc2f1f] text-white shadow-sm"
+                  : "border-slate-300 bg-white text-slate-600 hover:border-[#cc2f1f] hover:text-[#cc2f1f]",
+              ]}
+            >
+              <span
+                class:list={[
+                  "inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-black",
+                  isActive
+                    ? "bg-white text-[#cc2f1f]"
+                    : "bg-slate-100 text-slate-500 group-hover:bg-red-50 group-hover:text-[#cc2f1f]",
+                ]}
+                aria-hidden="true"
+              >
+                {index + 1}
+              </span>
+              {step.label}
+            </a>
+            {index < steps.length - 1 && (
+              <span class="mx-2 h-px w-5 bg-slate-300 sm:mx-3 sm:w-8" aria-hidden="true"></span>
+            )}
+          </li>
+        );
+      })}
+    </ol>
+  </div>
+</nav>

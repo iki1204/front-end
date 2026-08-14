@@ -3,27 +3,39 @@ import Container from "../components/Container.astro";
 
 ---
 
-    <Container>
-      <div class="text-center">
-        <h1 class="text-3xl font-semibold uppercase tracking-widest text-[#f05a28]">
-          ¿Quiénes Somos?
-        </h1>
+<Container>
+  <div class="text-center">
+    <h1 class="text-3xl font-semibold uppercase tracking-widest text-[#f05a28]">
+      ¿Quiénes Somos?
+    </h1>
+  </div>
+
+  <section class="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]" 
+    data-aos="fade-up" 
+    data-aos-duration="1000" 
+    data-aos-anchor-placement="top-center"
+  >
+    <div class="relative">
+      <div class="aspect-[4/3] sm:aspect-[12/13] w-full overflow-hidden rounded-2xl bg-gray-200 shadow-sm">
+        <div class="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-500">
+          <img src="../images/background/about.jpg" alt="About Us Image" class="h-full w-full object-cover object-center" />
+        </div>
       </div>
-
-      <section class="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]" 
-        data-aos="fade-up" 
-        data-aos-duration="1000" 
-        data-aos-anchor-placement="top-center"
+      <div
+        class="mt-6 w-full lg:absolute lg:bottom-6 lg:left-1/2 lg:mt-0 lg:w-[85%] lg:-translate-x-1/2"
       >
-        <div class="relative">
-          <div class="aspect-[4/3] sm:aspect-[12/13] w-full overflow-hidden rounded-2xl bg-gray-200 shadow-sm">
-            <div class="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-500">
-              <img src="../images/background/about.jpg" alt="About Us Image" class="h-full w-full object-cover object-center" />
+        <button
+          type="button"
+          class="call-card w-full cursor-pointer rounded-2xl bg-white/80 px-6 py-6 text-left shadow-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f05a28] lg:px-8"
+          data-call-card
+          aria-label="Mostrar el contacto alternativo"
+          aria-live="polite"
+        >
+          <div data-contact-list>
+            <div class="inline-flex items-center justify-center w-full gap-2">
+              <h2 class="text-center text-2xl font-semibold text-gray-900">Llámanos</h2>
+              <h2 class="text-center text-2xl font-semibold text-red-700">en Quito</h2>
             </div>
-          </div>
-
-           <div class="mt-6 w-full rounded-2xl bg-white/80 px-6 py-6 shadow-xl lg:absolute lg:bottom-6 lg:left-1/2 lg:mt-0 lg:w-[85%] lg:-translate-x-1/2 lg:px-8">
-            <h2 class="text-center text-2xl font-semibold text-gray-900">Llámanos</h2>
             <div class="mt-6 space-y-6 text-sm font-semibold text-gray-900">
               <div class="flex items-center justify-center gap-4">
                 <div class="h-14 w-14 rounded-md border border-gray-300 bg-gray-100">
@@ -67,67 +79,168 @@ import Container from "../components/Container.astro";
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="space-y-6 text-gray-700">
-          <p class="text-sm italic text-gray-600 dark:text-gray-100">
-            Unicom Ec destaca como el puente hacia un futuro más conectado y eficiente.
-          </p>
-
-          <div class="space-y-5 text-sm">
-            <div class="flex gap-3">
-              <span class="mt-1 text-lg text-[#f05a28]">✓</span>
-              <div>
-                <p class="font-semibold text-gray-900 dark:text-gray-100">Innovación que Conecta el Mundo</p>
-                <p class="dark:text-gray-100">
-                  Forjamos conexiones de alta velocidad que transforman la manera en que el mundo
-                  se comunica.
-                </p>
-              </div>
+          <div data-alternate-contact hidden>
+            <div class="inline-flex items-center justify-center w-full gap-2">
+              <h2 class="text-center text-2xl font-semibold text-gray-900">Llámanos</h2>
+              <h2 class="text-center text-2xl font-semibold text-red-700">en Guayaquil</h2>
             </div>
-            <div class="flex gap-3">
-              <span class="mt-1 text-lg text-[#f05a28]">✓</span>
-              <div>
-                <p class="font-semibold text-gray-900 dark:text-gray-100">Comprometidos con la Excelencia</p>
-                <p class="dark:text-gray-100">
-                  Nos comprometemos a ofrecer productos de la más alta calidad, seleccionados con
-                  precisión para cumplir con los estándares más exigentes.
-                </p>
-              </div>
-            </div>
-            <div class="flex gap-3">
-              <span class="mt-1 text-lg text-[#f05a28]">✓</span>
-              <div>
-                <p class="font-semibold text-gray-900 dark:text-gray-100">Tu Socio en la Revolución Digital</p>
-                <p class="dark:text-gray-100">
-                  Al elegir Unicom Ec, te asocias con un líder en la industria de la fibra óptica.
-                </p>
+            <div class="mt-6 space-y-6 text-sm font-semibold text-gray-900">
+              <div class="flex items-center justify-center gap-4">
+                <div class="h-14 w-14 rounded-md border border-gray-300 bg-gray-100">
+                  <img
+                    src="../images/QR/edisonguerra.png"
+                    alt="Código QR de contacto de Aníbal Lecter"
+                    class="h-full w-full object-cover object-center"
+                    loading="lazy"
+                  />
+                </div>
+                <p><span class="text-primary">0997334366</span> Aníbal Ramírez</p>
               </div>
             </div>
           </div>
-
-          <p class="text-sm dark:text-gray-100">
-            Bienvenido a Unicom Ec - Conéctate con nosotros y déjanos ser tu guía en el viaje hacia
-            la próxima era de la conectividad.
+          <p class="mt-5 text-center text-xs font-medium text-gray-500">
+            Presiona para ver {" "}
+            <span data-call-card-action>en Guayaquil --> </span>
           </p>
-          
-            <div class="position-relative mt-4 dark:bg-gray-800 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-md">
-               <blockquote
-                    class="tiktok-embed"
-                    cite="https://www.tiktok.com/@unicomec"
-                    data-unique-id="unicomec"
-                    data-embed-type="creator"
-                    style="width: 100%; max-width: 100%; min-width: 0;"
-                >
-                    <section>
-                    <a target="_blank" href="https://www.tiktok.com/@unicomec">
-                        @unicomec
-                    </a>
-                    </section>
-                </blockquote>
-            </div>
+        </button>
+      </div>
+    </div>
 
+    <div class="space-y-6 text-gray-700">
+      <p class="text-sm italic text-gray-600 dark:text-gray-100">
+        Unicom Ec destaca como el puente hacia un futuro más conectado y eficiente.
+      </p>
+
+      <div class="space-y-5 text-sm">
+        <div class="flex gap-3">
+          <span class="mt-1 text-lg text-[#f05a28]">✓</span>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-gray-100">Innovación que Conecta el Mundo</p>
+            <p class="dark:text-gray-100">
+              Forjamos conexiones de alta velocidad que transforman la manera en que el mundo
+              se comunica.
+            </p>
+          </div>
         </div>
-      </section>
-    </Container>
-    <script async src="https://www.tiktok.com/embed.js"></script>
+        <div class="flex gap-3">
+          <span class="mt-1 text-lg text-[#f05a28]">✓</span>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-gray-100">Comprometidos con la Excelencia</p>
+            <p class="dark:text-gray-100">
+              Nos comprometemos a ofrecer productos de la más alta calidad, seleccionados con
+              precisión para cumplir con los estándares más exigentes.
+            </p>
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <span class="mt-1 text-lg text-[#f05a28]">✓</span>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-gray-100">Tu Socio en la Revolución Digital</p>
+            <p class="dark:text-gray-100">
+              Al elegir Unicom Ec, te asocias con un líder en la industria de la fibra óptica.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <p class="text-sm dark:text-gray-100">
+        Bienvenido a Unicom Ec - Conéctate con nosotros y déjanos ser tu guía en el viaje hacia
+        la próxima era de la conectividad.
+      </p>
+      
+        <div class="position-relative mt-4 dark:bg-gray-800 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-md">
+            <blockquote
+                class="tiktok-embed"
+                cite="https://www.tiktok.com/@unicomec"
+                data-unique-id="unicomec"
+                data-embed-type="creator"
+                style="width: 100%; max-width: 100%; min-width: 0;"
+            >
+                <section>
+                <a target="_blank" href="https://www.tiktok.com/@unicomec">
+                    @unicomec
+                </a>
+                </section>
+            </blockquote>
+        </div>
+
+    </div>
+  </section>
+</Container>
+<script async src="https://www.tiktok.com/embed.js"></script>
+<script>
+  const initializeCallCards = () => {
+    document.querySelectorAll<HTMLElement>("[data-call-card]").forEach((card) => {
+      if (card.dataset.initialized === "true") return;
+
+      card.dataset.initialized = "true";
+      card.addEventListener("click", () => {
+        if (card.classList.contains("call-card--bouncing")) return;
+
+        const contactList = card.querySelector<HTMLElement>("[data-contact-list]");
+        const alternateContact = card.querySelector<HTMLElement>("[data-alternate-contact]");
+        const action = card.querySelector<HTMLElement>("[data-call-card-action]");
+
+        if (!contactList || !alternateContact || !action) return;
+
+        card.classList.add("call-card--bouncing");
+
+        window.setTimeout(() => {
+          const showingAlternate = !alternateContact.hidden;
+          contactList.hidden = !showingAlternate;
+          alternateContact.hidden = showingAlternate;
+          action.textContent = showingAlternate ? "en Guayaquil -->" : "en Quito -->";
+          card.setAttribute(
+            "aria-label",
+            showingAlternate ? "en Guayaquil -->" : "en Quito -->",
+          );
+        }, 180);
+
+        card.addEventListener(
+          "animationend",
+          () => {
+            card.classList.remove("call-card--bouncing");
+          },
+          { once: true },
+        );
+      });
+    });
+  };
+
+  initializeCallCards();
+  document.addEventListener("astro:page-load", initializeCallCards);
+</script>
+
+<style>
+  .call-card {
+    transform-origin: center;
+  }
+
+  .call-card--bouncing {
+    animation: contact-card-bounce 650ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @keyframes contact-card-bounce {
+    0% {
+      transform: translateY(0) scale(1);
+    }
+    28% {
+      transform: translateY(8px) scale(0.96);
+    }
+    55% {
+      transform: translateY(-18px) scale(1.03);
+    }
+    75% {
+      transform: translateY(5px) scale(0.99);
+    }
+    100% {
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .call-card--bouncing {
+      animation-duration: 1ms;
+    }
+  }
+</style>
