@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/LayoutCalculadora.astro';
 import { getInvertersData } from "../../lib/api";
+import OffGridNavigation from '../../components/OffGridNavigation.astro';
 
 type InverterOption = {
   nombre: string;
@@ -95,8 +96,8 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
 
 <Layout title="Unicom - Off Grid">
   <main class="min-h-screen bg-[#ececec]">
+    <OffGridNavigation></OffGridNavigation>
     <section class="mx-auto grid min-h-screen w-full max-w-[1520px] ">
-      
        <aside class="m-4 lg:m-6 lg:p-8">
         <h1 class="text-2xl sm:text-5xl text-red-800 text-center font-extrabold"> RESULTADO DE TU CALCULO SOLAR </h1>
         <div class="flex items-center justify-center gap-3 sm:gap-6">
@@ -250,25 +251,26 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
           </div>
         </section>
 
-        <!-- Floating Scroll Button -->
+        <!-- Botón para calcular y mostrar los resultados -->
         <div class="flex justify-center py-8">
           <button
             id="scroll-to-resumen-button"
             type="button"
-            class="group relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#ff6a00] to-[#cc2f1f] shadow-lg shadow-orange-300/50 transition hover:shadow-orange-400/70 hover:from-[#ff7a20] hover:to-[#dd3f2f] active:scale-95"
-            aria-label="Desplazarse a resumen de selección"
-            title="Desplazarse a resumen"
+            class="group relative cursor-pointer flex h-14 w-40 items-center justify-center rounded-full bg-gradient-to-br from-[#ff6a00] to-[#cc2f1f] shadow-lg shadow-orange-300/50 transition hover:shadow-orange-400/70 hover:from-[#ff7a20] hover:to-[#dd3f2f] active:scale-95"
+            aria-controls="resumen-resultados"
+            aria-expanded="false"
+            aria-label="Calcular y mostrar el resumen de la selección"
+            title="Calcular y mostrar resultados"
           >
-            <svg class="h-6 w-6 animate-bounce text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <polyline points="19 12 12 19 5 12"></polyline>
-            </svg>
+            <h3 class="text-center text-white font-extrabold">Seleccionar este inversor</h3>
           </button>
         </div>
 
-        <h2 class="m-0 mt-16 text-2xl font-bold text-slate-800">Resumen de selección</h2>
-
-        <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div
+          id="resumen-resultados"
+          class="mt-6 hidden grid grid-cols-1 gap-6 md:grid-cols-3"
+          aria-live="polite"
+        >
           <div class="flex flex-col items-start gap-4 rounded-2xl border border-[#ffc2a3] bg-white p-5 shadow-lg shadow-orange-100 sm:flex-row sm:items-center sm:gap-6 sm:p-7">
             <div class="grid h-20 w-20 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#c80000] to-[#ff3c00] text-4xl text-white sm:h-30 sm:w-30">
                     <svg class="h-10 w-10 sm:h-16 sm:w-16" viewBox="-0.97 0 20.342 20.342" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="house-storm" transform="translate(-2.605 -1.658)"> <rect id="secondary" fill="#de2000" width="4" height="6" transform="translate(10 15)"></rect> <path id="primary" d="M18,11l2-4H16l2-4" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path> <rect id="primary-2" data-name="primary" width="4" height="6" transform="translate(10 15)" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></rect> <line id="primary-3" data-name="primary" x1="8" y2="5.71" transform="translate(4 5)" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line> <path id="primary-4" data-name="primary" d="M6,21V9.29M18,16v5M4,21H20" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path> </g> </g></svg>
@@ -321,6 +323,11 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
                 <strong class="text-[#d71900]" id="resumen-baterias-capacidad">-- Ah</strong>
             </div>
             </div>
+
+            <p
+              id="resumen-inversor-compatibilidad"
+              class="rounded-xl border border-orange-200 bg-orange-50 px-5 py-4 text-sm font-semibold text-[#7a1f10] md:col-span-3"
+            ></p>
         </div>
 
           <div class="mt-8 flex flex-wrap gap-3">
@@ -339,9 +346,44 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
 </Layout>
 
 <script>
-  import { registerNavigationPreloader } from "../../lib/navigationPreloader";
+  import { array } from "astro:schema";
+import { registerNavigationPreloader } from "../../lib/navigationPreloader";
+
+    type BateriaStorage = {
+      voltaje?: number;
+      voltajeNominal?: number;
+      capacidad?: number;
+      capacidadAh?: number;
+      amperaje?: number;
+    };
+
+    type CalculoBateriasStorage = {
+      voltajeSistema?: number;
+      totalBaterias?: number;
+      capacidadBancoAh?: number;
+      bateriasSerie?: number;
+      bateriasEnSerie?: number;
+      voltajeBateria?: number;
+      capacidadBateriaAh?: number;
+    };
 
     type ConsumoStorage = {
+      totalPotenciaLoss?: number;
+      totalEnergiaLoss?: number;
+      panelesSolares?: number;
+      panelMaxVoltaje?: number;
+      voltajeCircuitoAbierto? :number;
+      corrienteCortoCircuito? :number;
+      panelVatios?: number;
+      bateriaVoltaje?: number;
+      bateriaCapacidadAh?: number;
+      bateriaConfiguracion?: {
+        calculoBaterias?: CalculoBateriasStorage;
+        bateriaSeleccionada?: BateriaStorage;
+        bateria?: BateriaStorage;
+        voltajeBateria?: number;
+        capacidadBateriaAh?: number;
+      };
       inversorPotencia?: number;
       inversorModelo?: string;
       inversorEficiencia?: string;
@@ -361,7 +403,8 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
     const MAX_INVERTER_POWER = 12000;
 
     let dots: HTMLButtonElement[] = [];
-    let scrollToResumenButtonEl: HTMLButtonElement | null = null;
+    let mostrarResumenButtonEl: HTMLButtonElement | null = null;
+    let resumenResultadosEl: HTMLElement | null = null;
     let inverterPrevEl: HTMLButtonElement | null = null;
     let inverterNextEl: HTMLButtonElement | null = null;
     let inverterEmptyStateEl: HTMLElement | null = null;
@@ -387,6 +430,7 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
     let resumenPanelesPotenciaEl: HTMLElement | null = null;
     let resumenBateriasCantidadEl: HTMLElement | null = null;
     let resumenBateriasCapacidadEl: HTMLElement | null = null;
+    let resumenInversorCompatibilidadEl: HTMLElement | null = null;
 
     let inversorPotencia = 0;
     let inversorModelo = "";
@@ -396,6 +440,7 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
     let indiceInverterActivo = 0;
     let imageLoadRequestId = 0;
     let direccionCarrusel: 1 | -1 = 1;
+    let ignorarPotenciaParaSeleccionInicial = false;
 
     const guardarDatos = (
       potencia: number,
@@ -427,63 +472,232 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
       }
     };
 
-    const cargarDatosLocalStorage = (): void => {
+    const obtenerPrimerNumeroPositivo = (...valores: unknown[]): number | null => {
+      for (const valor of valores) {
+        const numero = Number(valor);
+        if (Number.isFinite(numero) && numero > 0) return numero;
+      }
+
+      return null;
+    };
+
+    const cargarDatosLocalStorage = (): ConsumoStorage | null => {
       try {
         const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
         if (!consumoGuardado) {
           console.warn("No hay datos guardados en localStorage");
-          return;
+          return null;
         }
 
-        const datos = JSON.parse(consumoGuardado) as any;
-        const totalEnergiaConsumoLoss = Number(datos.totalEnergiaConsumoLoss) || 0;
-        const panelesSolares = Number(datos.panelesSolares) || 0;
-        const panelVatios = Number(datos.panelVatios) || 0;
-        const totalBaterias = Number(datos.bateriaConfiguracion?.calculoBaterias?.totalBaterias) || 0;
-        const capacidadBancoAh = Number(datos.bateriaConfiguracion?.calculoBaterias?.capacidadBancoAh) || 0;
+        const datos = JSON.parse(consumoGuardado) as ConsumoStorage;
+        const totalEnergiaLoss = Number(datos.totalEnergiaLoss) || 0;
 
         // Actualizar consumo (convertir Wh a kWh para mes/día)
-        const consumoMesKwh = (totalEnergiaConsumoLoss * 30) / 1000; // Wh * 30 días / 1000
+        const consumoMesKwh = (totalEnergiaLoss * 30) / 1000; // Wh * 30 días / 1000
         if (resumenConsumoKwhEl) {
-          resumenConsumoKwhEl.textContent = `${Number.isInteger(totalEnergiaConsumoLoss) ? totalEnergiaConsumoLoss : totalEnergiaConsumoLoss.toFixed(2)} Wh`;
+          resumenConsumoKwhEl.textContent = `${Number.isInteger(totalEnergiaLoss) ? totalEnergiaLoss : totalEnergiaLoss.toFixed(2)} Wh`;
         }
         if (resumenConsumoMesEl) {
           resumenConsumoMesEl.textContent = `${Number.isInteger(consumoMesKwh) ? consumoMesKwh : consumoMesKwh.toFixed(2)} kWh/mes`;
         }
 
-        // Actualizar paneles
-        const potenciaTotal = (panelesSolares * panelVatios) / 1000; // W a kW
-        if (resumenPanelesTipoEl) {
-          resumenPanelesTipoEl.textContent = panelVatios > 0
-            ? `Paneles solares de ${panelVatios} W`
-            : "Paneles solares de -- W";
-        }
-        if (resumenPanelesCantidadEl) {
-          resumenPanelesCantidadEl.textContent = panelesSolares > 0 ? String(panelesSolares) : "--";
-        }
-        if (resumenPanelesPotenciaEl) {
-          resumenPanelesPotenciaEl.textContent = panelesSolares > 0 
-            ? `${Number.isInteger(potenciaTotal) ? potenciaTotal : potenciaTotal.toFixed(2)} kWp`
-            : "-- kWp";
-        }
-
-        // Actualizar baterías
-        if (resumenBateriasCantidadEl) {
-          resumenBateriasCantidadEl.textContent = totalBaterias > 0 ? String(totalBaterias) : "--";
-        }
-        if (resumenBateriasCapacidadEl) {
-          resumenBateriasCapacidadEl.textContent = capacidadBancoAh > 0
-            ? `${Number.isInteger(capacidadBancoAh) ? capacidadBancoAh : capacidadBancoAh.toFixed(2)} Ah`
-            : "-- Ah";
-        }
+        return datos;
       } catch (error) {
         console.error("Error al cargar datos del resumen desde localStorage:", error);
+        return null;
+      }
+    };
+
+    const calcularCantidadMaxima = (
+      cantidadSolicitada: number,
+      valorUnitario: number,
+      limiteMaximo: number
+    ): number => {
+      if (valorUnitario <= 0 || limiteMaximo <= 0) {
+        return cantidadSolicitada;
+      }
+
+      return Math.min(
+        cantidadSolicitada,
+        Math.floor(limiteMaximo / valorUnitario)
+      );
+    };
+
+    const calcularInversor = (): void => {
+      const datos = cargarDatosLocalStorage();
+      const dotSeleccionado = dots.find((dot) => dot.getAttribute("aria-pressed") === "true")
+        ?? dots[indiceInverterActivo]
+        ?? null;
+
+      if (!datos || !dotSeleccionado) {
+        if (resumenInversorCompatibilidadEl) {
+          resumenInversorCompatibilidadEl.textContent = "No se encontraron datos suficientes para calcular la compatibilidad del inversor.";
+        }
+        return;
+      }
+
+      const panelesCalculados = Math.max(0, Math.floor(Number(datos.panelesSolares) || 0));
+      const panelesVoltajeMax = Number(datos.panelMaxVoltaje) || 0;
+      const panelesVOC = Number(datos.voltajeCircuitoAbierto) || 0;
+      const panelesISC = Number(datos.corrienteCortoCircuito) || 0;
+      const panelVatios = obtenerPrimerNumeroPositivo(datos.panelVatios) ?? 0;
+      const potenciaPvMaxima = obtenerPrimerNumeroPositivo(dotSeleccionado.dataset.pvMaxPower) ?? 0;
+      const voltajePvMaxima = obtenerPrimerNumeroPositivo(dotSeleccionado.dataset.mpptMax) ?? 0;
+      const voltajePvMinima = obtenerPrimerNumeroPositivo(dotSeleccionado.dataset.mpptMin) ?? 0;
+      let panelesSoportados = 0;
+      const maximoPanelesPorPotencia = calcularCantidadMaxima(
+        panelesCalculados,
+        panelVatios,
+        potenciaPvMaxima
+      );
+
+      let maximoPanelesEnSerie = calcularCantidadMaxima(
+        panelesCalculados,
+        panelesVOC,
+        voltajePvMaxima
+      );
+      const corrientePvMaxima = potenciaPvMaxima / (panelesVoltajeMax * maximoPanelesEnSerie);
+
+      
+      const maximoPanelesEnParalelo = calcularCantidadMaxima(
+        panelesCalculados,
+        panelesISC,
+        corrientePvMaxima
+      );
+
+      console.log(maximoPanelesPorPotencia, maximoPanelesEnSerie, maximoPanelesEnParalelo)
+
+      const arrayPaneles = maximoPanelesEnParalelo*maximoPanelesEnSerie;
+
+      if (arrayPaneles<=maximoPanelesPorPotencia){
+        panelesSoportados = arrayPaneles;
+      }
+      else{
+        panelesSoportados = maximoPanelesEnSerie
+      }
+
+
+
+      const potenciaPanelesKw =
+        (panelesSoportados * panelVatios) / 1000;
+
+
+      if (resumenPanelesTipoEl) {
+        resumenPanelesTipoEl.textContent = panelVatios > 0
+          ? `Paneles solares de ${panelVatios} W`
+          : "Paneles solares de -- W";
+      }
+      if (resumenPanelesCantidadEl) {
+        resumenPanelesCantidadEl.textContent = panelesCalculados > 0 ? String(panelesSoportados) : "--";
+      }
+      if (resumenPanelesPotenciaEl) {
+        resumenPanelesPotenciaEl.textContent = panelesCalculados > 0
+          ? `${Number.isInteger(potenciaPanelesKw) ? potenciaPanelesKw : potenciaPanelesKw.toFixed(2)} kWp`
+          : "-- kWp";
+      }
+
+      const calculoBaterias = datos.bateriaConfiguracion?.calculoBaterias;
+      const bateriaSeleccionada = datos.bateriaConfiguracion?.bateriaSeleccionada
+        ?? datos.bateriaConfiguracion?.bateria;
+      const totalBaterias = Math.max(0, Math.floor(Number(calculoBaterias?.totalBaterias) || 0));
+      const capacidadBancoAh = obtenerPrimerNumeroPositivo(calculoBaterias?.capacidadBancoAh) ?? 0;
+      const voltajeBanco = obtenerPrimerNumeroPositivo(calculoBaterias?.voltajeSistema);
+      const voltajeInversor = obtenerPrimerNumeroPositivo(dotSeleccionado.dataset.voltaje);
+      const voltajeBateria = obtenerPrimerNumeroPositivo(
+        calculoBaterias?.voltajeBateria,
+        datos.bateriaConfiguracion?.voltajeBateria,
+        bateriaSeleccionada?.voltaje,
+        bateriaSeleccionada?.voltajeNominal,
+        datos.bateriaVoltaje,
+      );
+      const capacidadBateriaAh = obtenerPrimerNumeroPositivo(
+        calculoBaterias?.capacidadBateriaAh,
+        datos.bateriaConfiguracion?.capacidadBateriaAh,
+        bateriaSeleccionada?.capacidadAh,
+        bateriaSeleccionada?.capacidad,
+        bateriaSeleccionada?.amperaje,
+        datos.bateriaCapacidadAh,
+      );
+
+      let bateriasSoportadas = totalBaterias;
+      let bateriasPorSerie: number | null = null;
+      const voltajesCompatibles = voltajeBanco !== null
+        && voltajeInversor !== null
+        && Math.abs(voltajeBanco - voltajeInversor) < 0.01;
+
+      if (!voltajesCompatibles && voltajeInversor !== null) {
+        if (voltajeBateria !== null) {
+          const relacionSerie = voltajeInversor / voltajeBateria;
+          const serieEntera = Math.round(relacionSerie);
+
+          if (serieEntera > 0 && Math.abs(relacionSerie - serieEntera) < 0.01) {
+            bateriasPorSerie = serieEntera;
+            bateriasSoportadas = Math.floor(totalBaterias / serieEntera) * serieEntera;
+          } else {
+            bateriasSoportadas = 0;
+          }
+        } else if (voltajeBanco !== null) {
+          bateriasSoportadas = 0;
+        }
+      } else if (voltajeInversor !== null && voltajeBateria !== null) {
+        bateriasPorSerie = Math.round(voltajeInversor / voltajeBateria);
+      }
+
+      let capacidadSoportadaAh = bateriasSoportadas === totalBaterias ? capacidadBancoAh : 0;
+      if (bateriasPorSerie && bateriasSoportadas > 0) {
+        const cadenasParalelo = Math.floor(bateriasSoportadas / bateriasPorSerie);
+        if (capacidadBateriaAh !== null) {
+          capacidadSoportadaAh = cadenasParalelo * capacidadBateriaAh;
+        } else if (voltajeBanco !== null && voltajeBateria !== null && capacidadBancoAh > 0) {
+          const serieOriginal = Math.round(voltajeBanco / voltajeBateria);
+          const cadenasOriginales = serieOriginal > 0 ? Math.floor(totalBaterias / serieOriginal) : 0;
+          if (cadenasOriginales > 0) {
+            capacidadSoportadaAh = capacidadBancoAh * (cadenasParalelo / cadenasOriginales);
+          }
+        }
+      }
+
+      if (resumenBateriasCantidadEl) {
+        resumenBateriasCantidadEl.textContent = totalBaterias > 0 ? String(bateriasSoportadas) : "--";
+      }
+      if (resumenBateriasCapacidadEl) {
+        resumenBateriasCapacidadEl.textContent = totalBaterias > 0 && capacidadSoportadaAh > 0
+          ? `${Number.isInteger(capacidadSoportadaAh) ? capacidadSoportadaAh : capacidadSoportadaAh.toFixed(2)} Ah`
+          : "-- Ah";
+      }
+
+      const restricciones: string[] = [];
+      if (panelesSoportados < panelesCalculados) {
+        restricciones.push(
+          `admite ${panelesSoportados} de ${panelesCalculados} paneles por su límite de rango en el controlador de carga`,
+        );
+      }
+      if (bateriasSoportadas < totalBaterias) {
+        restricciones.push(
+          bateriasSoportadas > 0
+            ? `puede usar ${bateriasSoportadas} de ${totalBaterias} baterías en cadenas compatibles con ${voltajeInversor ?? "--"} V`
+            : `el banco de ${voltajeBanco ?? "--"} V no es compatible con la entrada de ${voltajeInversor ?? "--"} V`,
+        );
+      }
+
+      if (resumenInversorCompatibilidadEl) {
+        const modelo = dotSeleccionado.dataset.modelo || dotSeleccionado.dataset.nombre || "El inversor seleccionado";
+        const hayConfiguracionCalculada = panelesCalculados > 0 || totalBaterias > 0;
+
+        if (!hayConfiguracionCalculada) {
+          resumenInversorCompatibilidadEl.textContent = "No hay valores calculados de paneles o baterías para comprobar.";
+        } else {
+          resumenInversorCompatibilidadEl.textContent = restricciones.length > 0
+            ? `${modelo}: ${restricciones.join("; ")}.`
+            : `${modelo} admite la configuración completa de paneles y baterías calculada.`;
+        }
       }
     };
 
     const sincronizarElementos = (): void => {
       dots = Array.from(document.querySelectorAll<HTMLButtonElement>(".inverter-dot"));
-      scrollToResumenButtonEl = document.querySelector<HTMLButtonElement>("#scroll-to-resumen-button");
+      mostrarResumenButtonEl = document.querySelector<HTMLButtonElement>("#scroll-to-resumen-button");
+      resumenResultadosEl = document.getElementById("resumen-resultados");
       inverterPrevEl = document.querySelector<HTMLButtonElement>("#inverter-prev");
       inverterNextEl = document.querySelector<HTMLButtonElement>("#inverter-next");
       inverterEmptyStateEl = document.getElementById("inverter-empty-state");
@@ -509,6 +723,7 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
       resumenPanelesPotenciaEl = document.getElementById("resumen-paneles-potencia");
       resumenBateriasCantidadEl = document.getElementById("resumen-baterias-cantidad");
       resumenBateriasCapacidadEl = document.getElementById("resumen-baterias-capacidad");
+      resumenInversorCompatibilidadEl = document.getElementById("resumen-inversor-compatibilidad");
     };
 
     const actualizarCarrusel = (): void => {
@@ -621,6 +836,10 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
       actualizarImagenCarrusel(imagenInversor);
       actualizarCarrusel();
       guardarDatos(inversorPotencia, inversorModelo, inversorEficiencia, inversorMarca, inversorTipo, eficienciaPorcentaje);
+
+      if (resumenResultadosEl && !resumenResultadosEl.classList.contains("hidden")) {
+        calcularInversor();
+      }
     };
 
     const registrarEventos = (): void => {
@@ -648,35 +867,33 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
         inverterNextEl.dataset.listenerBound = "1";
       }
 
-      if (scrollToResumenButtonEl && scrollToResumenButtonEl.dataset.listenerBound !== "1") {
-        scrollToResumenButtonEl.addEventListener("click", () => {
-          const resumenHeading = document.querySelector<HTMLHeadingElement>("h2.text-2xl.font-bold.text-slate-800");
-          if (resumenHeading) {
-            resumenHeading.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
+      if (mostrarResumenButtonEl && mostrarResumenButtonEl.dataset.listenerBound !== "1") {
+        mostrarResumenButtonEl.addEventListener("click", () => {
+          calcularInversor();
+          resumenResultadosEl?.classList.remove("hidden");
+          mostrarResumenButtonEl?.setAttribute("aria-expanded", "true");
         });
-        scrollToResumenButtonEl.dataset.listenerBound = "1";
+        mostrarResumenButtonEl.dataset.listenerBound = "1";
       }
     };
 
-    const calcularPotenciaInversorRequerida = (totalEnergiaLoss: number): number => {
-        console.log("Calculando potencia requerida para el inversor con totalEnergiaLoss:", totalEnergiaLoss);
+    const calcularPotenciaInversorRequerida = (totalPotenciaLoss: number): number => {
       switch (true) {
-        case totalEnergiaLoss <= 417:
+        case totalPotenciaLoss <= 417:
           return 500;
-        case totalEnergiaLoss <= 833:
+        case totalPotenciaLoss <= 833:
           return 1000;
-        case totalEnergiaLoss <= 1667:
+        case totalPotenciaLoss <= 1667:
           return 2000;
-        case totalEnergiaLoss <= 2500:
+        case totalPotenciaLoss <= 2500:
           return 3000;
-        case totalEnergiaLoss <= 4166:
+        case totalPotenciaLoss <= 4166:
           return 5000;
-        case totalEnergiaLoss <= 5000:
+        case totalPotenciaLoss <= 5000:
           return 6000;
-        case totalEnergiaLoss <= 8333:
+        case totalPotenciaLoss <= 8333:
           return 10000;
-        case totalEnergiaLoss <= 9600:
+        case totalPotenciaLoss <= 9600:
           return 12000;
         default:
           return 12001;
@@ -688,11 +905,28 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
         const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
         if (!consumoGuardado) return null;
 
-        const datos = JSON.parse(consumoGuardado) as { totalEnergiaLoss?: number };
-        const totalEnergiaLoss = Number(datos.totalEnergiaLoss) || 0;
-        return calcularPotenciaInversorRequerida(totalEnergiaLoss);
+        const datos = JSON.parse(consumoGuardado) as { totalPotenciaLoss?: number };
+        const totalPotenciaLoss = Number(datos.totalPotenciaLoss) || 0;
+        return calcularPotenciaInversorRequerida(totalPotenciaLoss);
       } catch (error) {
         console.error("Error al obtener la potencia requerida del inversor.", error);
+        return null;
+      }
+    };
+
+    const obtenerVoltajeSistema = (): number | null => {
+      try {
+        const consumoGuardado = window.localStorage.getItem(CONSUMO_STORAGE_KEY);
+        if (!consumoGuardado) return null;
+
+        const datos = JSON.parse(consumoGuardado) as ConsumoStorage;
+        const voltajeSistema = Number(datos.bateriaConfiguracion?.calculoBaterias?.voltajeSistema);
+
+        return Number.isFinite(voltajeSistema) && voltajeSistema > 0
+          ? voltajeSistema
+          : null;
+      } catch (error) {
+        console.error("Error al obtener el voltaje del sistema.", error);
         return null;
       }
     };
@@ -702,26 +936,69 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
       if (potenciaRequerida === null) return null;
 
       const todosLosDots = Array.from(document.querySelectorAll<HTMLButtonElement>(".inverter-dot"));
-      const potenciasOrdenadas = Array.from(new Set(
-        todosLosDots
-          .map((dot) => Number(dot.dataset.potencia || 0))
-          .filter((potencia) => Number.isFinite(potencia) && potencia > 0),
-      )).sort((a, b) => a - b);
+      const voltajeSistema = obtenerVoltajeSistema();
+      ignorarPotenciaParaSeleccionInicial = false;
+      const leerPotencia = (dot: HTMLButtonElement): number => Number(dot.dataset.potencia || 0);
+      const leerVoltaje = (dot: HTMLButtonElement): number => Number(dot.dataset.voltaje || 0);
+      const esDatoValido = (valor: number): boolean => Number.isFinite(valor) && valor > 0;
 
-      const indiceBase = potenciasOrdenadas.findIndex((potencia) => potencia >= potenciaRequerida);
-      const potenciasRecomendadas = new Set<number>();
+      const seleccionarPotenciasRecomendadas = (
+        candidatos: HTMLButtonElement[],
+      ): HTMLButtonElement[] => {
+        const potenciasOrdenadas = Array.from(new Set(
+          candidatos
+            .map(leerPotencia)
+            .filter(esDatoValido),
+        )).sort((a, b) => a - b);
 
-      if (indiceBase !== -1) {
-        potenciasRecomendadas.add(potenciasOrdenadas[indiceBase]);
+        const indiceBase = potenciasOrdenadas.findIndex(
+          (potencia) => potencia >= potenciaRequerida,
+        );
+        if (indiceBase === -1) return [];
+
+        const potenciasRecomendadas = new Set<number>([
+          potenciasOrdenadas[indiceBase],
+        ]);
         const siguientePotencia = potenciasOrdenadas[indiceBase + 1];
         if (typeof siguientePotencia === "number") {
           potenciasRecomendadas.add(siguientePotencia);
         }
+
+        return candidatos.filter((dot) => potenciasRecomendadas.has(leerPotencia(dot)));
+      };
+
+      let dotsFiltrados: HTMLButtonElement[] = [];
+
+      if (voltajeSistema !== null) {
+        const candidatosVoltajeExacto = todosLosDots.filter(
+          (dot) => leerVoltaje(dot) === voltajeSistema,
+        );
+
+        dotsFiltrados = seleccionarPotenciasRecomendadas(candidatosVoltajeExacto);
+
+        // Si no existe la combinación de potencia y voltaje requerida, se usa
+        // el siguiente voltaje disponible y se muestran todos sus productos.
+        if (dotsFiltrados.length === 0) {
+          const voltajesSuperiores = Array.from(new Set(
+            todosLosDots
+              .map(leerVoltaje)
+              .filter((voltaje) => esDatoValido(voltaje) && voltaje > voltajeSistema),
+          )).sort((a, b) => a - b);
+          const siguienteVoltaje = voltajesSuperiores[0];
+
+          if (typeof siguienteVoltaje === "number") {
+            dotsFiltrados = todosLosDots.filter(
+              (dot) => leerVoltaje(dot) === siguienteVoltaje,
+            );
+            ignorarPotenciaParaSeleccionInicial = true;
+          }
+        }
+      } else {
+        // Mantiene el comportamiento anterior si todavía no hay un cálculo
+        // de baterías guardado con el voltaje del sistema.
+        dotsFiltrados = seleccionarPotenciasRecomendadas(todosLosDots);
       }
 
-      const dotsFiltrados = todosLosDots.filter(
-        (dot) => potenciasRecomendadas.has(Number(dot.dataset.potencia || 0)),
-      );
       const visibles = new Set(dotsFiltrados);
 
       todosLosDots.forEach((dot) => {
@@ -766,6 +1043,10 @@ const inverterInicial: InverterOption = opcionesInversores[0] ?? {
 
     const calcularInversorRecomendado = (): HTMLButtonElement | null => {
       try {
+        if (ignorarPotenciaParaSeleccionInicial) {
+          return dots[0] ?? null;
+        }
+
         const inversorReal = obtenerPotenciaInversorRequerida();
         if (inversorReal === null) return null;
 

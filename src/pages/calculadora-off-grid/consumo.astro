@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/LayoutCalculadora.astro';
+import OffGridNavigation from '../../components/OffGridNavigation.astro';
 ---
 
 <style>
@@ -142,7 +143,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     </aside>
 
     <section class="mx-auto w-full rounded-md border border-slate-300 shadow-lg bg-white">
-
+      <OffGridNavigation></OffGridNavigation>
       <header class="flex items-center justify-between rounded-t-md bg-white px-6 py-5 text-slate-900">
         <div class="flex items-center gap-4">
           <span class="inline-flex h-18 w-18 items-center justify-center rounded-full bg-red-500">
@@ -177,10 +178,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
           <div class="pr-14">
             <div class="flex items-start gap-4 sm:gap-5">
               <span class="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
-                <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <path d="M4 5.5C4 4.67 4.67 4 5.5 4H9.3C9.88 4 10.43 4.24 10.82 4.66L12 5.93L13.18 4.66C13.57 4.24 14.12 4 14.7 4H18.5C19.33 4 20 4.67 20 5.5V17.5C20 18.33 19.33 19 18.5 19H14.7C14.12 19 13.57 19.24 13.18 19.66L12 20.93L10.82 19.66C10.43 19.24 9.88 19 9.3 19H5.5C4.67 19 4 18.33 4 17.5V5.5Z" stroke="#dc2626" stroke-width="1.8"/>
-                  <path d="M8 9H9.5M8 12H10.5M14.5 9H16M14.5 12H16" stroke="#dc2626" stroke-width="1.8" stroke-linecap="round"/>
-                </svg>
+                <svg class="h-14 w-14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M5 9H19M15 18V15M9 18H9.01M12 18H12.01M12 15H12.01M9 15H9.01M15 12H15.01M12 12H12.01M9 12H9.01M8.2 21H15.8C16.9201 21 17.4802 21 17.908 20.782C18.2843 20.5903 18.5903 20.2843 18.782 19.908C19 19.4802 19 18.9201 19 17.8V6.2C19 5.0799 19 4.51984 18.782 4.09202C18.5903 3.71569 18.2843 3.40973 17.908 3.21799C17.4802 3 16.9201 3 15.8 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.07989 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.07989 21 8.2 21Z" stroke="#ff1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
               </span>
               <div>
                 <h2 class="m-0 text-[clamp(1.7rem,2.9vw,2.7rem)] font-black leading-tight tracking-[-0.03em] text-slate-900">¿Cómo ingresar tu consumo?</h2>
@@ -218,18 +216,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
                 <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white">3</span>
                 <div class="min-w-0 flex-1">
                   <p class="m-0 text-xl font-bold text-slate-900">Define potencia y horas</p>
-                  <p class="m-0 mt-1 text-base text-slate-500">Verifica la potencia en watts y cuántas horas al día estará encendido.</p>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-4 rounded-2xl border border-slate-200 px-4 py-3">
-                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
-                  <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="3" width="16" height="18" rx="2" stroke="#dc2626" stroke-width="2"/><path d="M8 8H16M8 12H10M12 12H14M16 12H16.01M8 16H10M12 16H14M16 16H16.01" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg>
-                </span>
-                <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white">4</span>
-                <div class="min-w-0 flex-1">
-                  <p class="m-0 text-xl font-bold text-slate-900">Haz clic en calcular</p>
-                  <p class="m-0 mt-1 text-base text-slate-500">El sistema añadirá el consumo del equipo a tu tabla automáticamente.</p>
+                  <p class="m-0 mt-1 text-base text-slate-500">Verifica la potencia en watts y cuántas horas al día estará encendido segun tus necesidades.</p>
                 </div>
               </div>
 
@@ -243,33 +230,15 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
                   <p class="m-0 mt-1 text-base text-slate-500">Agrega cada aparato por separado para obtener un cálculo más preciso.</p>
                 </div>
               </div>
-            </div>
 
-            <div class="mt-4 rounded-2xl border border-orange-200 bg-orange-50/40 p-4">
-              <p class="m-0 text-[1.7rem] font-black text-orange-500">Tip: <span class="text-lg font-medium text-slate-700">Si no conoces la potencia exacta, puedes usar un valor aproximado y luego ajustarlo.</span></p>
-
-              <div class="mt-3 rounded-xl border border-slate-200 bg-white p-3">
-                <div class="grid grid-cols-1 gap-2 text-sm text-slate-600 sm:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1.1fr_auto] sm:items-center">
-                  <div class="rounded-lg border border-slate-200 px-3 py-2 text-center">
-                    <p class="m-0 text-xs font-semibold uppercase tracking-wide text-slate-500">Cantidad</p>
-                    <p class="m-0 mt-1 text-2xl font-bold text-slate-800">2</p>
-                  </div>
-                  <span class="hidden text-xl text-slate-400 sm:inline">→</span>
-                  <div class="rounded-lg border border-slate-200 px-3 py-2 text-center">
-                    <p class="m-0 text-xs font-semibold uppercase tracking-wide text-slate-500">Potencia (W)</p>
-                    <p class="m-0 mt-1 text-2xl font-bold text-slate-800">120</p>
-                  </div>
-                  <span class="hidden text-xl text-slate-400 sm:inline">→</span>
-                  <div class="rounded-lg border border-slate-200 px-3 py-2 text-center">
-                    <p class="m-0 text-xs font-semibold uppercase tracking-wide text-slate-500">Horas al día</p>
-                    <p class="m-0 mt-1 text-2xl font-bold text-slate-800">5</p>
-                  </div>
-                  <span class="hidden text-xl text-slate-400 sm:inline">=</span>
-                  <div class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-center">
-                    <p class="m-0 text-xs font-semibold uppercase tracking-wide text-red-500">Consumo diario</p>
-                    <p class="m-0 mt-1 text-2xl font-black text-red-600">1.20 kWh</p>
-                  </div>
-                  <button type="button" class="inline-flex h-11 items-center justify-center rounded-lg bg-red-600 px-4 text-base font-semibold text-white transition hover:bg-red-700">Calcular</button>
+              <div class="flex items-center gap-4 rounded-2xl border border-slate-200 px-4 py-3">
+                <span class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                  <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="3" width="16" height="18" rx="2" stroke="#dc2626" stroke-width="2"/><path d="M8 8H16M8 12H10M12 12H14M16 12H16.01M8 16H10M12 16H14M16 16H16.01" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg>
+                </span>
+                <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white">4</span>
+                <div class="min-w-0 flex-1">
+                  <p class="m-0 text-xl font-bold text-slate-900">Vizualiza tu resultado en la parte inferior</p>
+                  <p class="m-0 mt-1 text-base text-slate-500">El sistema calculara tu consumo y te dira la potencia total y la energia total por dia.</p>
                 </div>
               </div>
             </div>
@@ -419,8 +388,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     type ConsumoStorage = {
       registrosPorId: Record<string, RegistroConsumo>;
       contadorRegistros: number;
+      totalPotencia: number;
       totalEnergia: number;
-      totalEnergiaConsumo: number;
     };
 
     const STORAGE_KEY = "unicom.offgrid.consumos";
@@ -431,8 +400,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     let horasEl: HTMLInputElement | null = null;
     let btnCalcularEl: HTMLButtonElement | null = null;
     let tablaConsumosEl: HTMLDivElement | null = null;
+    let totalPotenciaEl: HTMLElement | null = null;
     let totalEnergiaEl: HTMLElement | null = null;
-    let totalEnergiaConsumoEl: HTMLElement | null = null;
     let agregarInversorEl: HTMLInputElement | null = null;
     let helpTriggerEl: HTMLButtonElement | null = null;
     let helpCloseEl: HTMLButtonElement | null = null;
@@ -447,8 +416,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       horasEl = document.querySelector<HTMLInputElement>("#horas");
       btnCalcularEl = document.querySelector<HTMLButtonElement>("#btn-calcular");
       tablaConsumosEl = document.querySelector<HTMLDivElement>("#tabla-consumos");
-      totalEnergiaEl = document.querySelector<HTMLElement>("#total-potencia");
-      totalEnergiaConsumoEl = document.querySelector<HTMLElement>("#total-wh");
+      totalPotenciaEl = document.querySelector<HTMLElement>("#total-potencia");
+      totalEnergiaEl = document.querySelector<HTMLElement>("#total-wh");
       agregarInversorEl = document.querySelector<HTMLInputElement>("#agregar-inversor");
       helpTriggerEl = document.querySelector<HTMLButtonElement>("#help-consumo-trigger");
       helpCloseEl = document.querySelector<HTMLButtonElement>("#help-consumo-close");
@@ -471,8 +440,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     let registroEnEdicionId: number | null = null;
     let borradorEdicion: BorradorEdicion | null = null;
     let contadorRegistros = 0;
+    let totalPotenciaGuardada = 0;
     let totalEnergiaGuardada = 0;
-    let totalEnergiaConsumoGuardada = 0;
 
     const crearRegistroInversor = (): RegistroConsumo => ({
       id: -1,
@@ -540,17 +509,17 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         return acumulador;
       }, {});
 
-      const totalEnergia = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia), 0);
-      const totalEnergiaConsumo = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia * registro.horas), 0);
+      const totalPotencia = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia), 0);
+      const totalEnergia = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia * registro.horas), 0);
 
+      totalPotenciaGuardada = totalPotencia;
       totalEnergiaGuardada = totalEnergia;
-      totalEnergiaConsumoGuardada = totalEnergiaConsumo;
 
       const payload: ConsumoStorage = {
         registrosPorId,
         contadorRegistros,
-        totalEnergia,
-        totalEnergiaConsumo
+        totalPotencia,
+        totalEnergia
       };
 
       try {
@@ -574,8 +543,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
         contadorRegistros = typeof datos.contadorRegistros === "number"
           ? datos.contadorRegistros
           : registrosGuardados.reduce((maximo, registro) => Math.max(maximo, registro.id), 0);
+        totalPotenciaGuardada = typeof datos.totalPotencia === "number" ? datos.totalPotencia : 0;
         totalEnergiaGuardada = typeof datos.totalEnergia === "number" ? datos.totalEnergia : 0;
-        totalEnergiaConsumoGuardada = typeof datos.totalEnergiaConsumo === "number" ? datos.totalEnergiaConsumo : 0;
         registroEnEdicionId = null;
         borradorEdicion = null;
 
@@ -602,8 +571,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       }
 
       contadorRegistros = 0;
+      totalPotenciaGuardada = 0;
       totalEnergiaGuardada = 0;
-      totalEnergiaConsumoGuardada = 0;
       registroEnEdicionId = null;
       borradorEdicion = null;
 
@@ -620,15 +589,14 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     };
 
     const actualizarTotales = (): void => {
-      const totalEnergia = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia), 0);
-      const totalEnergiaConsumo = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia * registro.horas), 0);
+      const totalPotencia = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia), 0);
+      const totalEnergia = registros.reduce((acumulado, registro) => acumulado + (registro.cantidad * registro.potencia * registro.horas), 0);
 
+      totalPotenciaGuardada = totalPotencia;
       totalEnergiaGuardada = totalEnergia;
-      totalEnergiaConsumoGuardada = totalEnergiaConsumo;
 
-      if (totalEnergiaEl) totalEnergiaEl.textContent = `${formatearNumero(totalEnergiaGuardada)} W`;
-      if (totalEnergiaConsumoEl) totalEnergiaConsumoEl.textContent = `${formatearNumero(totalEnergiaConsumoGuardada)} Wh`;
-      console.log(totalEnergiaConsumoGuardada);
+      if (totalPotenciaEl) totalPotenciaEl.textContent = `${formatearNumero(totalPotenciaGuardada)} W`;
+      if (totalEnergiaEl) totalEnergiaEl.textContent = `${formatearNumero(totalEnergiaGuardada)} Wh`;
     };
 
     const renderTabla = (): void => {

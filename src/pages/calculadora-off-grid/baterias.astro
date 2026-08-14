@@ -1,7 +1,35 @@
 ---
 import Layout from '../../layouts/LayoutCalculadora.astro';
+import OffGridNavigation from "../../components/OffGridNavigation.astro";
 ---
 
+<style>
+  /* Toggle estilo iPhone con :has() */
+  label:has(#agregar-inversor:checked) .toggle-track {
+    background-color: #cc2f1f;
+  }
+  label:has(#agregar-inversor:checked) .toggle-thumb {
+    transform: translateX(1.25rem);
+  }
+
+  #help-voltaje-dialog {
+    border: none;
+    padding: 0;
+    background: transparent;
+    max-width: min(96vw, 920px);
+    width: min(96vw, 920px);
+    margin: 0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  #help-voltaje-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(2px);
+  }
+</style>
 <Layout title="Unicom - Off Grid">
   <main class="min-h-screen bg-[#ececec]">
     <section class="mx-auto grid min-h-screen min-w-screen w-full max-w-[1520px] grid-cols-1 lg:grid-cols-[minmax(340px,30%)_1fr]">
@@ -104,9 +132,166 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
       </aside>
 
       <section class="mx-auto w-full rounded-md border border-slate-300 bg-slate-100 shadow-lg">
+        <OffGridNavigation></OffGridNavigation>
         <header class="flex items-center justify-between rounded-t-md bg-[#cc2f1f] px-6 py-4 text-white">
           <h2 class="font-mono text-xl tracking-wide">Dimensionamiento de Baterías</h2>
+          <button
+            id="help-voltaje-trigger"
+            type="button"
+            aria-label="Abrir ayuda sobre consumo"
+            class="cursor-pointer inline-flex h-8 w-8 items-center justify-center rounded-full bg-white border border-slate-200 text-2xl text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700"
+          >
+            ?
+          </button>
         </header>
+        <dialog
+          id="help-voltaje-dialog"
+          class="w-[min(94vw,1100px)] max-h-[92vh] overflow-y-auto rounded-3xl bg-transparent p-0 backdrop:bg-slate-950/40 backdrop:backdrop-blur-sm"
+        >
+          <article
+            class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-2xl sm:p-6"
+          >
+            <!-- Botón cerrar -->
+            <button
+              id="help-voltaje-close"
+              type="button"
+              aria-label="Cerrar ayuda"
+              class="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-2xl text-slate-500 transition hover:bg-slate-50 hover:text-slate-700"
+            >
+              ×
+            </button>
+
+            <div class="pr-8">
+              <!-- Encabezado -->
+              <div class="flex items-start gap-4 sm:gap-5">
+                <div class="h-15 justify-center-safe content-center-safe">
+                  <h2
+                    class="m-0 text-2xl  font-black leading-tight tracking-[-0.03em] text-slate-900 sm:text-3xl"
+                  >
+                    <span class="inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
+                      <svg class="h-12 w-12" fill="#f21c1c" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 260 196" enable-background="new 0 0 260 196" xml:space="preserve" stroke="#f21c1c"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M98,54v-8H73.153c-0.596-3.416-1.941-6.576-3.86-9.306l17.806-17.806l-5.657-5.657L63.64,31.032 c-2.818-1.987-6.095-3.365-9.64-3.935V2h-8v25.207c-3.307,0.623-6.367,1.95-9.021,3.82l-17.78-17.779l-5.656,5.657l17.781,17.78 c-1.923,2.733-3.269,5.896-3.867,9.315H2v8h25.457c0.598,3.427,1.95,6.597,3.88,9.334L13.56,81.112l5.657,5.657l17.782-17.782 c2.649,1.862,5.702,3.184,9.001,3.806V98h8V72.903c3.537-0.569,6.806-1.941,9.62-3.921l17.804,17.805l5.657-5.656L69.279,63.326 c1.927-2.735,3.276-5.902,3.874-9.326H98z M50.305,34.8c8.381,0,15.2,6.819,15.2,15.2s-6.818,15.2-15.2,15.2s-15.2-6.819-15.2-15.2 S41.924,34.8,50.305,34.8z M242,178v-64h-20v44l-36-36H74L2,194h128l56-56l56,56h16L242,178z M71.529,153H88.51l-10,10H61.529 L71.529,153z M94.167,153h16.982l-10,10H84.166L94.167,153z M116.805,153h16.982l-10,10h-16.982L116.805,153z M137.787,149h-16.982 l11-11h16.982L137.787,149z M115.148,149H98.167l11-11h16.981L115.148,149z M92.51,149H75.529l11-11h16.981L92.51,149z M57.529,167 H74.51l-11,11H46.529L57.529,167z M80.166,167h16.982l-11,11H69.166L80.166,167z M102.804,167h16.982l-11,11H91.804L102.804,167z"></path> </g></svg>
+                    </span>
+                    ¿Cómo define la calculadora el voltaje de tu sistema?
+                  </h2>
+                </div>
+              </div>
+
+              <!-- Introducción -->
+              <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
+                <p class="m-0 text-base leading-relaxed text-slate-600 sm:text-lg">
+                    La calculadora determina el voltaje del sistema en función de la potencia requerida, ya que esta define la energía de operación, a mayor demanda energética, se emplean voltajes más altos para reducir pérdidas, optimizar el cableado y mejorar la eficiencia del sistema.
+                </p>
+              </div>
+
+              <!-- Recomendaciones -->
+              <div class="mt-5 space-y-3">
+                <!-- 12V -->
+                <div
+                  class="group rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-red-200 hover:shadow-sm"
+                >
+                  <div class="flex items-start gap-3 sm:items-center sm:gap-4">
+
+                    <span
+                      class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-600 text-base font-black text-white"
+                    >
+                      1
+                    </span>
+
+                    <div class="min-w-0">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="m-0 text-xl font-black text-slate-900">
+                          Sistema de 12V
+                        </h3>
+
+                        <span
+                          class="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-600"
+                        >
+                          Menos de 2000Wh
+                        </span>
+                      </div>
+
+                      <p class="m-0 mt-1 text-sm leading-relaxed text-slate-500 sm:text-base">
+                        Si el consumo total después de la pérdida es menor a
+                        <strong class="font-bold text-slate-700">2000Wh</strong>, la
+                        calculadora recomienda un sistema de
+                        <strong class="font-bold text-red-600">12V</strong>.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 24V -->
+                <div
+                  class="group rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-red-200 hover:shadow-sm"
+                >
+                  <div class="flex items-start gap-3 sm:items-center sm:gap-4">
+
+                    <span
+                      class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-600 text-base font-black text-white"
+                    >
+                      2
+                    </span>
+
+                    <div class="min-w-0">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="m-0 text-xl font-black text-slate-900">
+                          Sistema de 24V
+                        </h3>
+
+                        <span
+                          class="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-600"
+                        >
+                          De 2000Wh a 5000Wh
+                        </span>
+                      </div>
+
+                      <p class="m-0 mt-1 text-sm leading-relaxed text-slate-500 sm:text-base">
+                        Si el consumo total después de la pérdida está entre
+                        <strong class="font-bold text-slate-700">2000Wh y 5000Wh</strong>,
+                        la calculadora recomienda un sistema de
+                        <strong class="font-bold text-red-600">24V</strong>.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 48V -->
+                <div
+                  class="group rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-red-200 hover:shadow-sm"
+                >
+                  <div class="flex items-start gap-3 sm:items-center sm:gap-4">
+                    <span
+                      class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-600 text-base font-black text-white"
+                    >
+                      3
+                    </span>
+
+                    <div class="min-w-0">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="m-0 text-xl font-black text-slate-900">
+                          Sistema de 48V
+                        </h3>
+
+                        <span
+                          class="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-600"
+                        >
+                          Más de 5000Wh
+                        </span>
+                      </div>
+
+                      <p class="m-0 mt-1 text-sm leading-relaxed text-slate-500 sm:text-base">
+                        Si el consumo total después de la pérdida es mayor a
+                        <strong class="font-bold text-slate-700">5000Wh</strong>, la
+                        calculadora recomienda un sistema de
+                        <strong class="font-bold text-red-600">48V</strong>.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </dialog>
 
         <div class="border-b border-slate-300 bg-white/70 px-6 py-4">
           <p class="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Modo de cálculo</p>
@@ -346,22 +531,55 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 
 <script>
   import { registerNavigationPreloader } from "../../lib/navigationPreloader";
+  import { PrettyModal } from "../../lib/prettyModal";
 
   // ======================= Lógica de cálculo =======================
   type ConsumoStorage = {
-    totalEnergiaConsumoLoss?: number;
-    totalEnergiaConsumo?: number;
+    totalEnergiaLoss?: number;
     totalEnergia?: number;
+    totalPotencia?: number;
   };
+  
+  let helpTriggerEl: HTMLButtonElement | null = null;
+  let helpCloseEl: HTMLButtonElement | null = null;
+  let helpUnderstoodEl: HTMLButtonElement | null = null;
+  const prettyModal = new PrettyModal();
 
   const CONSUMO_STORAGE_KEY = "unicom.offgrid.consumos";
   let modoBateriaActivo: "calculo-baterias" | "tiempo-autonomia" = "calculo-baterias";
 
+  helpTriggerEl = document.querySelector<HTMLButtonElement>("#help-voltaje-trigger");
+  helpCloseEl = document.querySelector<HTMLButtonElement>("#help-voltaje-close");
+  helpUnderstoodEl = document.querySelector<HTMLButtonElement>("#help-voltaje-understood");
+  
+  if (helpTriggerEl && helpTriggerEl.dataset.listenerBound !== "1") {
+    helpTriggerEl.addEventListener("click", (event) => {
+      prettyModal.open("help-voltaje-dialog", event);
+    });
+    helpTriggerEl.dataset.listenerBound = "1";
+  }
+
+  if (helpCloseEl && helpCloseEl.dataset.listenerBound !== "1") {
+    helpCloseEl.addEventListener("click", () => {
+      prettyModal.close("help-voltaje-dialog");
+    });
+    helpCloseEl.dataset.listenerBound = "1";
+  }
+
+  if (helpUnderstoodEl && helpUnderstoodEl.dataset.listenerBound !== "1") {
+    helpUnderstoodEl.addEventListener("click", () => {
+      prettyModal.close("help-voltaje-dialog");
+    });
+    helpUnderstoodEl.dataset.listenerBound = "1";
+  }
+
+
+
   const leerDatosGuardados = (): ConsumoStorage => {
     const valoresIniciales: ConsumoStorage = {
-      totalEnergiaConsumoLoss: 0,
-      totalEnergiaConsumo: 0,
+      totalEnergiaLoss: 0,
       totalEnergia: 0,
+      totalPotencia: 0,
     };
 
     try {
@@ -370,9 +588,9 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 
       const consumo = JSON.parse(consumoGuardado) as ConsumoStorage;
       return {
-        totalEnergiaConsumoLoss: typeof consumo.totalEnergiaConsumoLoss === "number" ? consumo.totalEnergiaConsumoLoss : 0,
-        totalEnergiaConsumo: typeof consumo.totalEnergiaConsumo === "number" ? consumo.totalEnergiaConsumo : 0,
+        totalEnergiaLoss: typeof consumo.totalEnergiaLoss === "number" ? consumo.totalEnergiaLoss : 0,
         totalEnergia: typeof consumo.totalEnergia === "number" ? consumo.totalEnergia : 0,
+        totalPotencia: typeof consumo.totalPotencia === "number" ? consumo.totalPotencia : 0,
       };
     } catch (error) {
       console.error("No se pudieron leer los datos guardados para el cálculo de paneles.", error);
@@ -380,27 +598,27 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     }
   };
 
-  function actualizarCampoEnergiaConsumo(): number {
-    const { totalEnergiaConsumo = 0 , totalEnergiaConsumoLoss = 0 } = leerDatosGuardados();
-    const totalEnergiaConsumoEl = document.getElementById("energiaAjustada") as HTMLElement | null;
+  function actualizarCampoEnergia(): number {
+    const { totalEnergia: totalEnergia = 0 , totalEnergiaLoss: totalEnergiaLoss = 0 } = leerDatosGuardados();
+    const totalEnergiaEl = document.getElementById("energiaAjustada") as HTMLElement | null;
     const profDescarga = parseFloat((document.getElementById("profDescarga") as HTMLInputElement).value) / 100;
-    const energiaAjustada = totalEnergiaConsumo / profDescarga;
-    if (totalEnergiaConsumoEl) {
-      totalEnergiaConsumoEl.textContent = `${Number.isInteger(energiaAjustada) ? energiaAjustada : energiaAjustada.toFixed(2)} Wh`;
+    const energiaAjustada = totalEnergia / profDescarga;
+    if (totalEnergiaEl) {
+      totalEnergiaEl.textContent = `${Number.isInteger(energiaAjustada) ? energiaAjustada : energiaAjustada.toFixed(2)} Wh`;
     }
     return energiaAjustada;
   }
 
   function actualizarConsumoAutonomia(): void {
-    const { totalEnergia = 0 } = leerDatosGuardados();
+    const { totalPotencia: totalPotencia = 0 } = leerDatosGuardados();
     const consumoAutonomiaEl = document.getElementById("consumoAutonomiaValor") as HTMLElement | null;
     if (!consumoAutonomiaEl) return;
-    consumoAutonomiaEl.textContent = `${Number.isInteger(totalEnergia) ? totalEnergia : totalEnergia.toFixed(2)} Wh`;
+    consumoAutonomiaEl.textContent = `${Number.isInteger(totalPotencia) ? totalPotencia : totalPotencia.toFixed(2)} Wh`;
   }
 
-  function recomendarVoltajeSistema(totalEnergiaConsumoLoss: number): number {
-    if (totalEnergiaConsumoLoss < 2000) return 12;
-    if (totalEnergiaConsumoLoss <= 5000) return 24;
+  function recomendarVoltajeSistema(totalEnergiaLoss: number): number {
+    if (totalEnergiaLoss < 2000) return 12;
+    if (totalEnergiaLoss <= 5000) return 24;
     return 48;
   }
 
@@ -411,8 +629,8 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     const voltajeRecomendadoInfoEl = document.getElementById("voltajeRecomendadoInfo") as HTMLElement | null;
     if (!voltajeSistemaEl || !activarVoltajeManualEl) return;
 
-    const { totalEnergiaConsumoLoss = 0 } = leerDatosGuardados();
-    const voltajeRecomendado = recomendarVoltajeSistema(totalEnergiaConsumoLoss);
+    const { totalEnergiaLoss: totalEnergiaLoss = 0 } = leerDatosGuardados();
+    const voltajeRecomendado = recomendarVoltajeSistema(totalEnergiaLoss);
     const edicionManualActiva = activarVoltajeManualEl.checked;
 
     if (!edicionManualActiva) {
@@ -439,23 +657,22 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
 
     if (voltajeRecomendadoInfoEl) {
       voltajeRecomendadoInfoEl.textContent = edicionManualActiva
-        ? `Modo manual activo. Recomendado: ${voltajeRecomendado} V (para consumo ajustado: ${Number.isInteger(totalEnergiaConsumoLoss) ? totalEnergiaConsumoLoss : totalEnergiaConsumoLoss.toFixed(2)} Wh).`
-        : `Voltaje recomendado automáticamente: ${voltajeRecomendado} V (para consumo ajustado: ${Number.isInteger(totalEnergiaConsumoLoss) ? totalEnergiaConsumoLoss : totalEnergiaConsumoLoss.toFixed(2)} Wh).`;
+        ? `Modo manual activo. Recomendado: ${voltajeRecomendado} V (para consumo ajustado: ${Number.isInteger(totalEnergiaLoss) ? totalEnergiaLoss : totalEnergiaLoss.toFixed(2)} Wh).`
+        : `Voltaje recomendado automáticamente: ${voltajeRecomendado} V (para consumo ajustado: ${Number.isInteger(totalEnergiaLoss) ? totalEnergiaLoss : totalEnergiaLoss.toFixed(2)} Wh).`;
     }
   }
 
 
   function calculateBattery() {
     actualizarControlVoltajeSistema();
-    const energiaAjustada = actualizarCampoEnergiaConsumo();
+    const energiaAjustada = actualizarCampoEnergia();
     const voltajeSistema = parseInt((document.getElementById("voltajeSistema") as HTMLSelectElement).value);
-    const { totalEnergiaConsumo = 0}  = leerDatosGuardados();
-    const { totalEnergia = 0 } = leerDatosGuardados();
+    const { totalEnergia: totalEnergia = 0}  = leerDatosGuardados();
     const profDescarga = parseFloat((document.getElementById("profDescarga") as HTMLInputElement).value) / 100;
     const voltajeBateria = parseInt((document.getElementById("voltajeSelect") as HTMLSelectElement).value);
     const capacidadBatAh = parseInt((document.getElementById("capacidadSelect") as HTMLSelectElement).value);
 
-    if (!voltajeSistema || !totalEnergiaConsumo || !profDescarga || !voltajeBateria || !capacidadBatAh) return;
+    if (!voltajeSistema || !totalEnergia || !profDescarga || !voltajeBateria || !capacidadBatAh) return;
 
     const capacidadBancoBaterias = energiaAjustada / voltajeSistema;
     const bateriasParalelo = Math.max(1, Math.ceil(capacidadBancoBaterias / capacidadBatAh));
@@ -509,7 +726,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
   }
 
   function inicializarEnergia(): void {
-    actualizarCampoEnergiaConsumo();
+    actualizarCampoEnergia();
     actualizarConsumoAutonomia();
     actualizarControlVoltajeSistema();
   }
@@ -549,7 +766,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
   }
 
   function calcularTiempoAutonomiaObjetivo() {
-    const { totalEnergia = 0 } = leerDatosGuardados();
+    const { totalPotencia: totalEnergia = 0 } = leerDatosGuardados();
     actualizarConsumoAutonomia();
 
     const autonomiaDeseada = parseFloat((document.getElementById("autonomiaDeseada") as HTMLInputElement | null)?.value ?? "0");
@@ -699,6 +916,7 @@ import Layout from '../../layouts/LayoutCalculadora.astro';
     ejecutarCalculoBaterias();
     calcularTiempoAutonomiaObjetivo();
   }
+
 
   // ======================= GoJS - Diagrama de Baterías =======================
   function actualizarDiagramaDesdeValores(series: number, parallel: number, voltajeBateria: number, capacidadBatAh: number, diagramDivId = "myDiagramDiv") {
