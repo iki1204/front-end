@@ -1,0 +1,15 @@
+# Permitir que todos los bots rastreen todo el sitio público
+User-agent: *
+Allow: /
+
+# Bloquear rutas
+Disallow: /tienda
+Disallow: /api
+Disallow: /acceso-denegado
+Disallow: /checkout
+Disallow: /perfil
+Disallow: /success-register
+Disallow: /pendiente-verificacion
+
+# Indicar la ubicación del mapa del sitio
+Sitemap: https://unicomec.com
