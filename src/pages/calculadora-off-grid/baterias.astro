@@ -323,8 +323,16 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
         <div id="calculo-baterias-view">
           <div class="px-6 py-7">
             <div class="mb-5 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
-              <p class="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Energía Ajustada del sistema</p>
-              <h3 id="energiaAjustada" class="text-3xl font-black text-slate-900">-- Wh</h3>
+              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Energía Ajustada del sistema</p>
+                  <h3 id="energiaAjustada" class="text-3xl font-black text-slate-900">-- Wh</h3>
+                </div>
+                <div>
+                  <p class="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Consumo base del sistema</p>
+                  <h3 id="consumoAutonomiaValor" class="text-3xl font-black text-slate-900">-- W</h3>
+                </div>
+              </div>
             </div>
             <div class="grid gap-4 md:grid-cols-2">
               <label class="block">
@@ -424,18 +432,31 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
         <div id="tiempo-autonomia-view" class="hidden border-t border-slate-300 bg-slate-50">
           <div class="px-6 py-7">
             <div class="mb-5 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
-              <p class="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Consumo base del sistema</p>
-              <h3 id="consumoAutonomiaValor" class="text-3xl font-black text-slate-900">-- Wh</h3>
+              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <p class="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Energía Ajustada del sistema</p>
+                  <h3 id="energiaAjustadaAutonomia" class="text-3xl font-black text-slate-900">-- Wh</h3>
+                </div>
+                <div>
+                  <p class="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Consumo base del sistema</p>
+                  <h3 id="consumoBaseAutonomia" class="text-3xl font-black text-slate-900">-- W</h3>
+                </div>
+              </div>
             </div>
 
             <div class="grid gap-4 md:grid-cols-2">
               <label class="block">
                 <span class="mb-2 block text-sm font-medium text-slate-700">Voltaje del sistema (V)</span>
-                <select id="voltajeSistemaAutonomia" class="h-11 w-full rounded border border-slate-400 bg-white px-3 text-lg text-slate-700 outline-none focus:border-[#cc3b26]">
+                <select id="voltajeSistemaAutonomia" disabled class="h-11 w-full rounded border border-slate-400 bg-slate-200 px-3 text-lg text-slate-500 outline-none focus:border-[#cc3b26] disabled:cursor-not-allowed">
                   <option value="12">12 V</option>
                   <option value="24" selected>24 V</option>
                   <option value="48">48 V</option>
                 </select>
+                <label for="activarVoltajeManualAutonomia" class="mt-3 flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                  <input id="activarVoltajeManualAutonomia" type="checkbox" class="h-4 w-4 rounded border-slate-400 text-[#cc3b26] focus:ring-[#cc3b26]" />
+                  Yo se dimensionar mi sistema
+                </label>
+                <p id="voltajeRecomendadoInfoAutonomia" class="mt-2 text-xs text-slate-500"></p>
               </label>
 
               <label class="block">
@@ -548,6 +569,43 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
   const CONSUMO_STORAGE_KEY = "unicom.offgrid.consumos";
   let modoBateriaActivo: "calculo-baterias" | "tiempo-autonomia" = "calculo-baterias";
 
+  type ResultadoBaterias = {
+    modo: "calculo-baterias" | "tiempo-autonomia";
+    totalBaterias: number;
+    capacidadBancoAh: number;
+    bateriasSerie: number;
+    bateriasParalelo: number;
+    tiempoAutonomia: number;
+    voltajeSistema: number;
+    voltajeBateria: number;
+    capacidadBatAh: number;
+    profundidadDescarga: number;
+  };
+
+  // Último resultado de cada vista; se guarda el de la vista activa.
+  let resultadoCalculoBaterias: ResultadoBaterias | null = null;
+  let resultadoTiempoAutonomia: ResultadoBaterias | null = null;
+
+  function guardarResultadoBateriasActivo(): void {
+    const resultado = modoBateriaActivo === "tiempo-autonomia" ? resultadoTiempoAutonomia : resultadoCalculoBaterias;
+    if (!resultado) return;
+
+    try {
+      const datosActuales = JSON.parse(localStorage.getItem(CONSUMO_STORAGE_KEY) || "{}");
+      datosActuales.bateriaConfiguracion = {
+        ...(datosActuales.bateriaConfiguracion ?? {}),
+        calculoBaterias: {
+          ...resultado,
+          // inversores.astro lee la capacidad por batería con este nombre
+          capacidadBateriaAh: resultado.capacidadBatAh,
+        },
+      };
+      localStorage.setItem(CONSUMO_STORAGE_KEY, JSON.stringify(datosActuales));
+    } catch (error) {
+      console.error("No se pudo guardar el cálculo de baterías en localStorage.", error);
+    }
+  }
+
   helpTriggerEl = document.querySelector<HTMLButtonElement>("#help-voltaje-trigger");
   helpCloseEl = document.querySelector<HTMLButtonElement>("#help-voltaje-close");
   helpUnderstoodEl = document.querySelector<HTMLButtonElement>("#help-voltaje-understood");
@@ -598,22 +656,49 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
     }
   };
 
+  // Vista "calculo-baterias-view"
   function actualizarCampoEnergia(): number {
-    const { totalEnergia: totalEnergia = 0 , totalEnergiaLoss: totalEnergiaLoss = 0 } = leerDatosGuardados();
+    const { totalEnergia: totalEnergia = 0 } = leerDatosGuardados();
     const totalEnergiaEl = document.getElementById("energiaAjustada") as HTMLElement | null;
     const profDescarga = parseFloat((document.getElementById("profDescarga") as HTMLInputElement).value) / 100;
     const energiaAjustada = totalEnergia / profDescarga;
+
     if (totalEnergiaEl) {
-      totalEnergiaEl.textContent = `${Number.isInteger(energiaAjustada) ? energiaAjustada : energiaAjustada.toFixed(2)} Wh`;
+      totalEnergiaEl.textContent = formatearValor(energiaAjustada, "Wh");
     }
     return energiaAjustada;
   }
 
-  function actualizarConsumoAutonomia(): void {
+  function actualizarConsumoAutonomia(): number {
     const { totalPotencia: totalPotencia = 0 } = leerDatosGuardados();
     const consumoAutonomiaEl = document.getElementById("consumoAutonomiaValor") as HTMLElement | null;
-    if (!consumoAutonomiaEl) return;
-    consumoAutonomiaEl.textContent = `${Number.isInteger(totalPotencia) ? totalPotencia : totalPotencia.toFixed(2)} Wh`;
+    if (consumoAutonomiaEl) consumoAutonomiaEl.textContent = formatearValor(totalPotencia, "W");
+    return totalPotencia;
+  }
+
+  // Vista "tiempo-autonomia-view": misma lógica, con sus propios campos
+  function actualizarCampoEnergiaAutonomia(): number {
+    const { totalEnergia: totalEnergia = 0 } = leerDatosGuardados();
+    const energiaAjustadaAutonomiaEl = document.getElementById("energiaAjustadaAutonomia") as HTMLElement | null;
+    const profDescargaAutonomia = parseFloat((document.getElementById("profDescargaAutonomia") as HTMLInputElement | null)?.value ?? "0") / 100;
+    const energiaAjustadaAutonomia = totalEnergia / profDescargaAutonomia;
+
+    if (energiaAjustadaAutonomiaEl) {
+      energiaAjustadaAutonomiaEl.textContent = formatearValor(energiaAjustadaAutonomia, "Wh");
+    }
+    return energiaAjustadaAutonomia;
+  }
+
+  function actualizarConsumoBaseAutonomia(): number {
+    const { totalPotencia: totalPotencia = 0 } = leerDatosGuardados();
+    const consumoBaseAutonomiaEl = document.getElementById("consumoBaseAutonomia") as HTMLElement | null;
+    if (consumoBaseAutonomiaEl) consumoBaseAutonomiaEl.textContent = formatearValor(totalPotencia, "W");
+    return totalPotencia;
+  }
+
+  function formatearValor(valor: number, unidad: string): string {
+    if (!Number.isFinite(valor)) return `-- ${unidad}`;
+    return `${Number.isInteger(valor) ? valor : valor.toFixed(2)} ${unidad}`;
   }
 
   function recomendarVoltajeSistema(totalEnergiaLoss: number): number {
@@ -622,13 +707,12 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
     return 48;
   }
 
-  function actualizarControlVoltajeSistema(): void {
-    const voltajeSistemaEl = document.getElementById("voltajeSistema") as HTMLSelectElement | null;
-    const voltajeBateriaEl = document.getElementById("voltajeSelect") as HTMLSelectElement | null;
-    const activarVoltajeManualEl = document.getElementById("activarVoltajeManual") as HTMLInputElement | null;
-    const voltajeRecomendadoInfoEl = document.getElementById("voltajeRecomendadoInfo") as HTMLElement | null;
-    if (!voltajeSistemaEl || !activarVoltajeManualEl) return;
-
+  // Aplica el voltaje recomendado, el estado del modo manual y el texto informativo a un recuadro de voltaje del sistema.
+  function aplicarControlVoltaje(
+    voltajeSistemaEl: HTMLSelectElement,
+    activarVoltajeManualEl: HTMLInputElement,
+    voltajeRecomendadoInfoEl: HTMLElement | null,
+  ): void {
     const { totalEnergiaLoss: totalEnergiaLoss = 0 } = leerDatosGuardados();
     const voltajeRecomendado = recomendarVoltajeSistema(totalEnergiaLoss);
     const edicionManualActiva = activarVoltajeManualEl.checked;
@@ -644,6 +728,24 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
     voltajeSistemaEl.classList.toggle("bg-white", edicionManualActiva);
     voltajeSistemaEl.classList.toggle("text-slate-700", edicionManualActiva);
 
+    if (voltajeRecomendadoInfoEl) {
+      const consumoTexto = Number.isInteger(totalEnergiaLoss) ? totalEnergiaLoss : totalEnergiaLoss.toFixed(2);
+      voltajeRecomendadoInfoEl.textContent = edicionManualActiva
+        ? `Modo manual activo. Recomendado: ${voltajeRecomendado} V (para consumo ajustado: ${consumoTexto} Wh).`
+        : `Voltaje recomendado automáticamente: ${voltajeRecomendado} V (para consumo ajustado: ${consumoTexto} Wh).`;
+    }
+  }
+
+  // Vista "calculo-baterias-view"
+  function actualizarControlVoltajeSistema(): void {
+    const voltajeSistemaEl = document.getElementById("voltajeSistema") as HTMLSelectElement | null;
+    const voltajeBateriaEl = document.getElementById("voltajeSelect") as HTMLSelectElement | null;
+    const activarVoltajeManualEl = document.getElementById("activarVoltajeManual") as HTMLInputElement | null;
+    const voltajeRecomendadoInfoEl = document.getElementById("voltajeRecomendadoInfo") as HTMLElement | null;
+    if (!voltajeSistemaEl || !activarVoltajeManualEl) return;
+
+    aplicarControlVoltaje(voltajeSistemaEl, activarVoltajeManualEl, voltajeRecomendadoInfoEl);
+
     if (voltajeBateriaEl) {
       const voltajeSistemaActual = voltajeSistemaEl.value;
       const ultimaReferenciaSistema = voltajeBateriaEl.dataset.systemVoltageRef;
@@ -654,33 +756,89 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
         voltajeBateriaEl.dataset.systemVoltageRef = voltajeSistemaActual;
       }
     }
-
-    if (voltajeRecomendadoInfoEl) {
-      voltajeRecomendadoInfoEl.textContent = edicionManualActiva
-        ? `Modo manual activo. Recomendado: ${voltajeRecomendado} V (para consumo ajustado: ${Number.isInteger(totalEnergiaLoss) ? totalEnergiaLoss : totalEnergiaLoss.toFixed(2)} Wh).`
-        : `Voltaje recomendado automáticamente: ${voltajeRecomendado} V (para consumo ajustado: ${Number.isInteger(totalEnergiaLoss) ? totalEnergiaLoss : totalEnergiaLoss.toFixed(2)} Wh).`;
-    }
   }
 
+  // Vista "tiempo-autonomia-view": mismo recuadro, con sus propios ids
+  function actualizarControlVoltajeSistemaAutonomia(): void {
+    const voltajeSistemaEl = document.getElementById("voltajeSistemaAutonomia") as HTMLSelectElement | null;
+    const activarVoltajeManualEl = document.getElementById("activarVoltajeManualAutonomia") as HTMLInputElement | null;
+    const voltajeRecomendadoInfoEl = document.getElementById("voltajeRecomendadoInfoAutonomia") as HTMLElement | null;
+    if (!voltajeSistemaEl || !activarVoltajeManualEl) return;
+
+    aplicarControlVoltaje(voltajeSistemaEl, activarVoltajeManualEl, voltajeRecomendadoInfoEl);
+  }
+
+  // Campos compartidos entre "calculo-baterias-view" y "tiempo-autonomia-view": [cálculo, autonomía]
+  const CAMPOS_COMPARTIDOS: ReadonlyArray<[string, string]> = [
+    ["voltajeSistema", "voltajeSistemaAutonomia"],
+    ["voltajeSelect", "voltajeAutonomia"],
+    ["profDescarga", "profDescargaAutonomia"],
+    ["capacidadSelect", "capacidadAutonomia"],
+  ];
+
+  function obtenerCampo(id: string): HTMLInputElement | HTMLSelectElement | null {
+    return document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
+  }
+
+  // Copia los valores de la vista de cálculo a la vista de autonomía.
+  function sincronizarCalculoHaciaAutonomia(): void {
+    const manualCalculoEl = document.getElementById("activarVoltajeManual") as HTMLInputElement | null;
+    const manualAutonomiaEl = document.getElementById("activarVoltajeManualAutonomia") as HTMLInputElement | null;
+    if (manualCalculoEl && manualAutonomiaEl) manualAutonomiaEl.checked = manualCalculoEl.checked;
+
+    CAMPOS_COMPARTIDOS.forEach(([idCalculo, idAutonomia]) => {
+      const origen = obtenerCampo(idCalculo);
+      const destino = obtenerCampo(idAutonomia);
+      if (origen && destino && destino.value !== origen.value) destino.value = origen.value;
+    });
+
+    actualizarControlVoltajeSistemaAutonomia();
+  }
+
+  // Copia los valores de la vista de autonomía a la vista de cálculo.
+  function sincronizarAutonomiaHaciaCalculo(): void {
+    const voltajeSistemaEl = obtenerCampo("voltajeSistema");
+    const voltajeSistemaAutonomiaEl = obtenerCampo("voltajeSistemaAutonomia");
+    const voltajeBateriaEl = obtenerCampo("voltajeSelect");
+    const manualCalculoEl = document.getElementById("activarVoltajeManual") as HTMLInputElement | null;
+    const manualAutonomiaEl = document.getElementById("activarVoltajeManualAutonomia") as HTMLInputElement | null;
+
+    // El checkbox "Yo se dimensionar mi sistema" se comparte entre las dos vistas.
+    if (manualCalculoEl && manualAutonomiaEl) manualCalculoEl.checked = manualAutonomiaEl.checked;
+
+    if (voltajeSistemaEl && voltajeSistemaAutonomiaEl && voltajeSistemaEl.value !== voltajeSistemaAutonomiaEl.value) {
+      voltajeSistemaEl.value = voltajeSistemaAutonomiaEl.value;
+      // Evita que el voltaje de batería se iguale al del sistema; se copia el de autonomía abajo.
+      if (voltajeBateriaEl) voltajeBateriaEl.dataset.systemVoltageRef = voltajeSistemaAutonomiaEl.value;
+    }
+    actualizarControlVoltajeSistema();
+
+    CAMPOS_COMPARTIDOS.slice(1).forEach(([idCalculo, idAutonomia]) => {
+      const origen = obtenerCampo(idAutonomia);
+      const destino = obtenerCampo(idCalculo);
+      if (origen && destino && destino.value !== origen.value) destino.value = origen.value;
+    });
+  }
 
   function calculateBattery() {
     actualizarControlVoltajeSistema();
+    const eficienciaSistema = 0.85;
     const energiaAjustada = actualizarCampoEnergia();
     const voltajeSistema = parseInt((document.getElementById("voltajeSistema") as HTMLSelectElement).value);
-    const { totalEnergia: totalEnergia = 0}  = leerDatosGuardados();
+    const { totalPotencia: totalPotencia = 0}  = leerDatosGuardados();
     const profDescarga = parseFloat((document.getElementById("profDescarga") as HTMLInputElement).value) / 100;
     const voltajeBateria = parseInt((document.getElementById("voltajeSelect") as HTMLSelectElement).value);
     const capacidadBatAh = parseInt((document.getElementById("capacidadSelect") as HTMLSelectElement).value);
 
-    if (!voltajeSistema || !totalEnergia || !profDescarga || !voltajeBateria || !capacidadBatAh) return;
+    if (!voltajeSistema || !totalPotencia || !profDescarga || !voltajeBateria || !capacidadBatAh) return;
 
     const capacidadBancoBaterias = energiaAjustada / voltajeSistema;
     const bateriasParalelo = Math.max(1, Math.ceil(capacidadBancoBaterias / capacidadBatAh));
     const bateriasSerie = Math.max(1, Math.ceil(voltajeSistema / voltajeBateria));
     const totalBaterias = bateriasSerie * bateriasParalelo;
     
-    const tiempoAutonomia = totalEnergia > 0
-      ? (capacidadBatAh * voltajeBateria * profDescarga * totalBaterias) / totalEnergia
+    const tiempoAutonomia = totalPotencia > 0
+      ? (capacidadBatAh * voltajeBateria * profDescarga * totalBaterias * eficienciaSistema) / totalPotencia
       : 0;
 
     // Mostrar resultados
@@ -699,28 +857,19 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
     document.getElementById("resultados")!.classList.remove("hidden");
     document.getElementById("diagramaContainer")!.classList.remove("hidden");
 
-    const datosActuales = JSON.parse(
-      localStorage.getItem(CONSUMO_STORAGE_KEY) || "{}"
-    );
-
-    datosActuales.bateriaConfiguracion = {
-      calculoBaterias: {
-        totalBaterias,
-        capacidadBancoAh: capacidadBancoBaterias,
-        bateriasSerie,
-        bateriasParalelo,
-        tiempoAutonomia,
-        voltajeSistema,
-        voltajeBateria,
-        capacidadBatAh,
-        profundidadDescarga: profDescarga
-      }
+    resultadoCalculoBaterias = {
+      modo: "calculo-baterias",
+      totalBaterias,
+      capacidadBancoAh: capacidadBancoBaterias,
+      bateriasSerie,
+      bateriasParalelo,
+      tiempoAutonomia,
+      voltajeSistema,
+      voltajeBateria,
+      capacidadBatAh,
+      profundidadDescarga: profDescarga,
     };
-
-    localStorage.setItem(
-      CONSUMO_STORAGE_KEY,
-      JSON.stringify(datosActuales)
-    );
+    if (modoBateriaActivo === "calculo-baterias") guardarResultadoBateriasActivo();
 
     return { bateriasSerie, bateriasParalelo, voltajeBateria, capacidadBatAh };
   }
@@ -728,11 +877,16 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
   function inicializarEnergia(): void {
     actualizarCampoEnergia();
     actualizarConsumoAutonomia();
+    actualizarCampoEnergiaAutonomia();
+    actualizarConsumoBaseAutonomia();
     actualizarControlVoltajeSistema();
+    actualizarControlVoltajeSistemaAutonomia();
+    sincronizarCalculoHaciaAutonomia();
   }
 
   function ejecutarCalculoBaterias(): void {
     const result = calculateBattery();
+    sincronizarCalculoHaciaAutonomia();
     if (!result) return;
 
     actualizarDiagramaDesdeValores(
@@ -766,19 +920,20 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
   }
 
   function calcularTiempoAutonomiaObjetivo() {
-    const { totalPotencia: totalEnergia = 0 } = leerDatosGuardados();
-    actualizarConsumoAutonomia();
-
+    actualizarControlVoltajeSistemaAutonomia();
+    const eficienciaSistema = 0.85;
+    const totalPotencia = actualizarConsumoBaseAutonomia();
+    const energiaAjustada = actualizarCampoEnergiaAutonomia();
     const autonomiaDeseada = parseFloat((document.getElementById("autonomiaDeseada") as HTMLInputElement | null)?.value ?? "0");
     const voltajeSistema = parseFloat((document.getElementById("voltajeSistemaAutonomia") as HTMLSelectElement | null)?.value ?? "0");
     const capacidadAh = parseFloat((document.getElementById("capacidadAutonomia") as HTMLSelectElement | null)?.value ?? "0");
     const voltaje = parseFloat((document.getElementById("voltajeAutonomia") as HTMLSelectElement | null)?.value ?? "0");
     const dod = parseFloat((document.getElementById("profDescargaAutonomia") as HTMLInputElement | null)?.value ?? "0") / 100;
-    if (!autonomiaDeseada || !voltajeSistema || !capacidadAh || !voltaje || !dod || !totalEnergia || dod <= 0 || dod > 1) return;
+    if (!autonomiaDeseada || !voltajeSistema || !capacidadAh || !voltaje || !dod || !energiaAjustada || dod <= 0 || dod > 1) return;
 
     const serie = Math.max(1, Math.ceil(voltajeSistema / voltaje));
 
-    const totalBaterias = (autonomiaDeseada * totalEnergia) / (capacidadAh * voltaje * dod);
+    const totalBaterias = (autonomiaDeseada * totalPotencia) / (capacidadAh * voltaje * dod * eficienciaSistema);
     const paralelo = Math.max(1, Math.ceil(totalBaterias / serie));
     const totalFinal = paralelo * serie;
 
@@ -789,6 +944,20 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
     if (paraleloEl) paraleloEl.textContent = String(paralelo);
     if (totalEl) totalEl.textContent = String(totalFinal);
     if (configEl) configEl.textContent = `${serie} en serie x ${paralelo} en paralelo`;
+
+    resultadoTiempoAutonomia = {
+      modo: "tiempo-autonomia",
+      totalBaterias: totalFinal,
+      capacidadBancoAh: paralelo * capacidadAh,
+      bateriasSerie: serie,
+      bateriasParalelo: paralelo,
+      tiempoAutonomia: autonomiaDeseada,
+      voltajeSistema,
+      voltajeBateria: voltaje,
+      capacidadBatAh: capacidadAh,
+      profundidadDescarga: dod,
+    };
+    if (modoBateriaActivo === "tiempo-autonomia") guardarResultadoBateriasActivo();
 
     actualizarDiagramaDesdeValores(serie, paralelo, voltaje, capacidadAh, "myDiagramDivAutonomia");
   }
@@ -801,9 +970,23 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
       if (!field || field.dataset.autonomiaBound === "1") return;
 
       const eventName = field instanceof HTMLSelectElement ? "change" : "input";
-      field.addEventListener(eventName, calcularTiempoAutonomiaObjetivo);
+      field.addEventListener(eventName, () => {
+        actualizarControlVoltajeSistemaAutonomia();
+        sincronizarAutonomiaHaciaCalculo();
+        calcularTiempoAutonomiaObjetivo();
+      });
       field.dataset.autonomiaBound = "1";
     });
+
+    const activarVoltajeManualAutonomiaEl = document.getElementById("activarVoltajeManualAutonomia") as HTMLInputElement | null;
+    if (activarVoltajeManualAutonomiaEl && activarVoltajeManualAutonomiaEl.dataset.autonomiaBound !== "1") {
+      activarVoltajeManualAutonomiaEl.addEventListener("change", () => {
+        actualizarControlVoltajeSistemaAutonomia();
+        sincronizarAutonomiaHaciaCalculo();
+        calcularTiempoAutonomiaObjetivo();
+      });
+      activarVoltajeManualAutonomiaEl.dataset.autonomiaBound = "1";
+    }
   }
 
   function registrarEventosMenuModoBateria(): void {
@@ -853,6 +1036,21 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
     menu.dataset.modeBound = "1";
   }
 
+  function registrarBotonContinuar(): void {
+    const botonContinuar = document.getElementById("confirmar-baterias") as HTMLAnchorElement | null;
+    if (!botonContinuar || botonContinuar.dataset.saveBound === "1") return;
+
+    botonContinuar.addEventListener("click", () => {
+      if (modoBateriaActivo === "tiempo-autonomia") {
+        calcularTiempoAutonomiaObjetivo();
+      } else {
+        ejecutarCalculoBaterias();
+      }
+      guardarResultadoBateriasActivo();
+    });
+    botonContinuar.dataset.saveBound = "1";
+  }
+
   function registrarToggleInfoResultados(): void {
     const toggleEl = document.getElementById("infoBateriaToggle") as HTMLButtonElement | null;
     const wrapEl = document.getElementById("infoBateriaSistemaWrap") as HTMLElement | null;
@@ -883,6 +1081,7 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
     registrarEventosCalculoBaterias();
     registrarEventosCalculoAutonomia();
     registrarToggleInfoResultados();
+    registrarBotonContinuar();
     ejecutarCalculoBaterias();
     calcularTiempoAutonomiaObjetivo();
   });
@@ -893,6 +1092,7 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
     registrarEventosCalculoBaterias();
     registrarEventosCalculoAutonomia();
     registrarToggleInfoResultados();
+    registrarBotonContinuar();
     ejecutarCalculoBaterias();
     calcularTiempoAutonomiaObjetivo();
   });
@@ -904,6 +1104,7 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
       registrarEventosCalculoBaterias();
       registrarEventosCalculoAutonomia();
       registrarToggleInfoResultados();
+      registrarBotonContinuar();
       ejecutarCalculoBaterias();
       calcularTiempoAutonomiaObjetivo();
     }, { once: true });
@@ -913,6 +1114,7 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
     registrarEventosCalculoBaterias();
     registrarEventosCalculoAutonomia();
     registrarToggleInfoResultados();
+    registrarBotonContinuar();
     ejecutarCalculoBaterias();
     calcularTiempoAutonomiaObjetivo();
   }
