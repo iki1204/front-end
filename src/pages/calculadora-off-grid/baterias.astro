@@ -696,6 +696,19 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
     return totalPotencia;
   }
 
+  // Convierte horas decimales a "X h Y min": la parte decimal se multiplica por 60 min/h.
+  function formatearHorasMinutos(horasDecimales: number): string {
+    if (!Number.isFinite(horasDecimales) || horasDecimales < 0) return "--";
+
+    let horas = Math.trunc(horasDecimales);
+    let minutos = Math.round((horasDecimales - horas) * 60);
+    if (minutos === 60) {
+      horas += 1;
+      minutos = 0;
+    }
+    return `${horas} h ${minutos} min`;
+  }
+
   function formatearValor(valor: number, unidad: string): string {
     if (!Number.isFinite(valor)) return `-- ${unidad}`;
     return `${Number.isInteger(valor) ? valor : valor.toFixed(2)} ${unidad}`;
@@ -845,11 +858,11 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
     (document.getElementById("batteriasSerie") as HTMLElement).textContent = `${bateriasSerie} baterias`;
     (document.getElementById("batteriasParalelo") as HTMLElement).textContent = `${bateriasParalelo} baterias`;
     (document.getElementById("totalBaterias") as HTMLElement).textContent = String(totalBaterias);
-    (document.getElementById("tiempoAutonomia") as HTMLElement).textContent = `${tiempoAutonomia.toFixed(2)} horas`;
+    (document.getElementById("tiempoAutonomia") as HTMLElement).textContent = formatearHorasMinutos(tiempoAutonomia);
     (document.getElementById("infoBateriaSistema") as HTMLElement).textContent =
       `- Sistema ${voltajeSistema}V
        - Banco de batería(s): ${totalBaterias} batería(s) en paralelo con ${bateriasSerie} en serie
-       - Tiempo de autonomía: ${tiempoAutonomia.toFixed(2)} horas
+       - Tiempo de autonomía: ${formatearHorasMinutos(tiempoAutonomia)}
        - ${capacidadBancoBaterias.toFixed(2)} Ah de capacidad total
        
        `;
