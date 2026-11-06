@@ -124,7 +124,14 @@ export async function getCachedCatalogProducts(options: { force?: boolean } = {}
     const version = new Date().toISOString();
     cachedCatalog = { version, expiresAt: Date.now() + CACHE_TTL_MS, products };
     return { version, total: products.length, products };
-  })().finally(() => {
+  })().catch((error) => {
+    // Si Strapi falla al refrescar, se sigue sirviendo el catálogo anterior en vez de dejar la tienda vacía.
+    if (cachedCatalog) {
+      console.warn("[catalogCache] Error refrescando catálogo, se usa la copia anterior:", error);
+      return { version: cachedCatalog.version, total: cachedCatalog.products.length, products: cachedCatalog.products };
+    }
+    throw error;
+  }).finally(() => {
     pendingCatalog = null;
   });
 

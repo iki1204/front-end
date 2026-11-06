@@ -835,7 +835,7 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
 
   function calculateBattery() {
     actualizarControlVoltajeSistema();
-    const eficienciaSistema = 0.85;
+    const eficienciaSistema = 0.60;
     const energiaAjustada = actualizarCampoEnergia();
     const voltajeSistema = parseInt((document.getElementById("voltajeSistema") as HTMLSelectElement).value);
     const { totalPotencia: totalPotencia = 0}  = leerDatosGuardados();
@@ -934,7 +934,7 @@ import OffGridNavigation from "../../components/OffGridNavigation.astro";
 
   function calcularTiempoAutonomiaObjetivo() {
     actualizarControlVoltajeSistemaAutonomia();
-    const eficienciaSistema = 0.85;
+    const eficienciaSistema = 0.60;
     const totalPotencia = actualizarConsumoBaseAutonomia();
     const energiaAjustada = actualizarCampoEnergiaAutonomia();
     const autonomiaDeseada = parseFloat((document.getElementById("autonomiaDeseada") as HTMLInputElement | null)?.value ?? "0");

@@ -1,7 +1,5 @@
 import type { APIRoute } from "astro";
-
-const CONTIFICO_URL = "https://api.contifico.com/sistema/api/v1";
-const CONTIFICO_API_KEY = import.meta.env.CONTIFICO_API_KEY ?? "";
+import { BodegaStockError, getBodegaStock } from "../../../lib/bodegaStock";
 
 export const GET: APIRoute = async ({ params }) => {
   const { identifier } = params;
@@ -13,31 +11,22 @@ export const GET: APIRoute = async ({ params }) => {
     });
   }
 
-  const url = `${CONTIFICO_URL}/producto/${encodeURIComponent(identifier)}/stock`;
-
   try {
-    const res = await fetch(url, {
-      headers: {
-        Authorization: CONTIFICO_API_KEY,
-      },
-    });
-
-    if (!res.ok) {
-      return new Response(JSON.stringify({ error: `HTTP ${res.status}` }), {
-        status: res.status,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    const data = await res.json();
+    // maxAgeMs: 0 -> siempre consulta Contífico (dato fresco para la página del producto),
+    // pero agrupa peticiones simultáneas y reintenta una vez ante 429/5xx.
+    const data = await getBodegaStock(identifier, { maxAgeMs: 0 });
 
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (e) {
-    return new Response(JSON.stringify({ error: "Error interno" }), {
-      status: 500,
+    const status = e instanceof BodegaStockError ? e.status : 500;
+    const message = e instanceof BodegaStockError ? e.message : "Error interno";
+    console.warn(`[bodega-stock] ${identifier}: ${message}`);
+
+    return new Response(JSON.stringify({ error: message }), {
+      status,
       headers: { "Content-Type": "application/json" },
     });
   }

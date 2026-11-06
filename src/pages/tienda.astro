@@ -2,8 +2,9 @@
 import BaseLayout from "../layouts/Layout.astro";
 import ProductCard from "../components/ProductCard.astro";
 import Container from "../components/Container.astro";
-import { getCategorias, getGlobalData, getMarcas } from "../lib/api";
+import { getCachedCategorias, getCachedGlobalData, getCachedMarcas } from "../lib/strapiCache";
 import { getCachedCatalogProducts, normalizeCatalogText } from "../lib/catalogCache";
+import { getBodegaStock, getKnownBodegaNames, warmBodegaStock } from "../lib/bodegaStock";
 
 
 
@@ -87,33 +88,18 @@ const paginateProducts = (items: any[]) => {
     };
 };
 
-const bodegaStockCache = new Map<string, Promise<any[]>>();
+// Peticiones simultáneas máximas a Contífico desde la tienda (evita el 429 por ráfagas).
+const BODEGA_CONCURRENCY = 4;
 
-const fetchBodegaStockRows = (identifier: string | null): Promise<any[]> => {
-  if (!identifier) return Promise.resolve([]);
-
-  const cacheKey = String(identifier);
-  const cached = bodegaStockCache.get(cacheKey);
-  if (cached) return cached;
-
-  const request = (async () => {
-    try {
-      const endpoint = new URL(
-        `/api/bodega-stock/${encodeURIComponent(cacheKey)}`,
-        url.origin,
-      ).toString();
-      const response = await fetch(endpoint, { cache: "no-store" });
-      if (!response.ok) return [];
-
-      const data = await response.json();
-      return Array.isArray(data) ? data : [];
-    } catch {
-      return [];
-    }
-  })();
-
-  bodegaStockCache.set(cacheKey, request);
-  return request;
+// Usa la caché compartida entre requests (TTL en lib/bodegaStock.ts) y llama a Contífico
+// directamente, sin pasar por /api/bodega-stock.
+const fetchBodegaStockRows = async (identifier: string | null): Promise<any[]> => {
+  if (!identifier) return [];
+  try {
+    return await getBodegaStock(String(identifier));
+  } catch {
+    return [];
+  }
 };
 
 const mapWithConcurrency = async <T, R>(
@@ -150,9 +136,9 @@ const safeAsyncFetch = async <T,>(fn: () => Promise<T>, defaultValue: T, label: 
 };
 
 const [categoriasResponse, marcasResponse, global, catalogResponse] = await Promise.all([
-  safeAsyncFetch(() => getCategorias(), { data: [] }, "getCategorias"),
-  safeAsyncFetch(() => getMarcas(), { data: [] }, "getMarcas"),
-  safeAsyncFetch(() => getGlobalData(), {}, "getGlobalData"),
+  safeAsyncFetch(() => getCachedCategorias(), { data: [] }, "getCategorias"),
+  safeAsyncFetch(() => getCachedMarcas(), { data: [] }, "getMarcas"),
+  safeAsyncFetch(() => getCachedGlobalData(), {}, "getGlobalData"),
   safeAsyncFetch(() => getCachedCatalogProducts(), {
     products: [],
     version: "",
@@ -172,7 +158,7 @@ const filteredCandidates = cachedProducts.filter(productMatchesFilters);
 if (stockParam === "in" && hasSelectedBodegas) {
   const matchChecks = await mapWithConcurrency(
     filteredCandidates,
-    12,
+    BODEGA_CONCURRENCY,
     async (item) => {
       const identifier = item?.identifier ? String(item.identifier) : null;
       const bodegaRows = await fetchBodegaStockRows(identifier);
@@ -204,18 +190,13 @@ if (stockParam === "in" && hasSelectedBodegas) {
   totalPages = paginated.pages;
   currentPage = paginated.page;
 
-  const rowsByProduct = await Promise.all(
-    productos.map(async (item) => {
-      const identifier = item?.identifier ? String(item.identifier) : null;
-      return fetchBodegaStockRows(identifier);
-    }),
-  );
-
-  rowsByProduct.flat().forEach((row) => {
-    const nombre = String(row?.bodega_nombre ?? "").trim();
-    if (nombre) bodegaNamesSet.add(nombre);
-  });
+  // No se espera a Contífico: el stock por bodega solo se usa aquí para listar las
+  // opciones del filtro. Se precarga en segundo plano y la página se responde ya.
+  warmBodegaStock(productos.map((item) => (item?.identifier ? String(item.identifier) : null)));
 }
+
+// Opciones del filtro: todas las bodegas conocidas hasta ahora (crece a medida que se llena la caché).
+getKnownBodegaNames().forEach((nombre) => bodegaNamesSet.add(nombre));
 
 const bodegaOptions = Array.from(bodegaNamesSet).sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
 

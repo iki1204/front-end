@@ -2,8 +2,7 @@
 User-agent: *
 Allow: /
 
-# Bloquear rutas
-Disallow: /tienda
+# Bloquear ruta
 Disallow: /api
 Disallow: /acceso-denegado
 Disallow: /checkout
