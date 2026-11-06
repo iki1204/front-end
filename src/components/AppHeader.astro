@@ -66,18 +66,18 @@ const botones = response.data.header.Botones.map((boton) => ({
                 </div>
                 <div id="navLayer" aria-hidden="true" class="fixed justify-between inset-0 z-10 h-screen w-full origin-bottom scale-y-0 bg-white/70 backdrop-blur-2xl transition duration-500 group-data-[state=active]/nav:origin-top group-data-[state=active]/nav:scale-y-100 dark:bg-gray-950/70 lg:hidden"></div>
                 <div id="navlinks" class="invisible absolute top-full  justify-center left-0 z-20 w-full origin-top-right translate-y-1 scale-90 flex-col flex-wrap gap-6 rounded-3xl border border-gray-100 bg-white p-8 opacity-0 shadow-2xl shadow-gray-600/10 transition-all duration-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none lg:visible lg:relative lg:flex lg:w-fit lg:translate-y-0 lg:scale-100 lg:flex-row lg:items-center lg:gap-0 lg:border-none lg:bg-transparent lg:p-0 lg:opacity-100 lg:shadow-none lg:dark:bg-transparent group-data-[state=active]/nav:visible group-data-[state=active]/nav:scale-100 group-data-[state=active]/nav:opacity-100 lg:group-data-[state=active]/nav:translate-y-0">
-                  <div class="relative mt-6 w-full text-gray-600 dark:text-gray-200 lg:mt-0 lg:w-auto lg:pr-2 lg:pt-0 group/menu" data-nav-dropdown>
+                  <div class="relative mt-6 w-full text-gray-600 dark:text-gray-200 lg:mt-0 lg:w-auto lg:pr-2 lg:pt-0 group/menu lg:data-[open=true]:after:absolute lg:data-[open=true]:after:inset-x-0 lg:data-[open=true]:after:top-full lg:data-[open=true]:after:h-4" data-nav-dropdown>
                       <button
                         type="button"
-                        class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
+                        class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition-colors duration-200 hover:border-primary hover:bg-primary hover:text-white group-data-[open=true]/menu:border-primary group-data-[open=true]/menu:bg-primary group-data-[open=true]/menu:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
                         aria-haspopup="true"
                       >
                         <span>Navegación</span>
-                        <svg aria-hidden="true" class="size-4 transition group-hover/menu:rotate-180 lg:group-data-[open=true]/menu:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                        <svg aria-hidden="true" class="size-4 transition duration-200 group-data-[open=true]/menu:rotate-180" viewBox="0 0 20 20" fill="currentColor">
                           <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
                         </svg>
                       </button>
-                      <div class="mt-2 w-full overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl shadow-gray-600/10 transition-[max-height,opacity,transform] duration-300 max-h-0 opacity-0 pointer-events-none scale-95 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none group-data-[open=true]/menu:max-h-80 group-data-[open=true]/menu:scale-100 group-data-[open=true]/menu:opacity-100 group-data-[open=true]/menu:pointer-events-auto lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-64 lg:-translate-x-1/2 lg:origin-top lg:group-hover/menu:max-h-80 lg:group-hover/menu:scale-100 lg:group-hover/menu:opacity-100 lg:group-hover/menu:pointer-events-auto" data-nav-panel>
+                      <div class="mt-2 w-full overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl shadow-gray-600/10 transition-[max-height,opacity,scale,translate] duration-200 ease-out motion-reduce:transition-none max-h-0 opacity-0 pointer-events-none scale-95 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none group-data-[open=true]/menu:max-h-80 group-data-[open=true]/menu:scale-100 group-data-[open=true]/menu:opacity-100 group-data-[open=true]/menu:pointer-events-auto lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-64 lg:-translate-x-1/2 lg:translate-y-1 lg:origin-top lg:group-data-[open=true]/menu:translate-y-0" data-nav-panel>
                           <div id="links-group" class="flex flex-col gap-1 rounded-xl bg-gray-50 p-2 tracking-wide dark:bg-gray-900 lg:text-sm">
                               {
                                 links.map((link) => (
@@ -89,18 +89,18 @@ const botones = response.data.header.Botones.map((boton) => ({
                           </div>
                       </div>
                   </div>            
-                  <div class="relative mt-6 w-full text-gray-600 dark:text-gray-200 lg:mt-0 lg:w-auto lg:pr-2 lg:pt-0 group/menu" data-nav-dropdown>
+                  <div class="relative mt-6 w-full text-gray-600 dark:text-gray-200 lg:mt-0 lg:w-auto lg:pr-2 lg:pt-0 group/menu lg:data-[open=true]:after:absolute lg:data-[open=true]:after:inset-x-0 lg:data-[open=true]:after:top-full lg:data-[open=true]:after:h-4" data-nav-dropdown>
                     <button
                       type="button"
-                      class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 group-hover:text-black px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
+                      class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition-colors duration-200 hover:border-primary hover:bg-primary hover:text-white group-data-[open=true]/menu:border-primary group-data-[open=true]/menu:bg-primary group-data-[open=true]/menu:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
                       aria-haspopup="true"
                     >
                       <span>Páginas</span>
-                      <svg aria-hidden="true" class="size-4 transition group-hover/menu:rotate-180 lg:group-data-[open=true]/menu:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                      <svg aria-hidden="true" class="size-4 transition duration-200 group-data-[open=true]/menu:rotate-180" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
                       </svg>
                     </button>
-                    <div class="mt-2 flex w-full flex-col gap-2 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl shadow-gray-600/10 transition-[max-height,opacity,transform] duration-300 max-h-0 opacity-0 pointer-events-none scale-95 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none group-data-[open=true]/menu:max-h-80 group-data-[open=true]/menu:scale-100 group-data-[open=true]/menu:opacity-100 group-data-[open=true]/menu:pointer-events-auto lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-56 lg:-translate-x-1/2 lg:origin-top lg:group-hover/menu:max-h-80 lg:group-hover/menu:scale-100 lg:group-hover/menu:opacity-100 lg:group-hover/menu:pointer-events-auto" data-nav-panel>
+                    <div class="mt-2 flex w-full flex-col gap-2 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl shadow-gray-600/10 transition-[max-height,opacity,scale,translate] duration-200 ease-out motion-reduce:transition-none max-h-0 opacity-0 pointer-events-none scale-95 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none group-data-[open=true]/menu:max-h-80 group-data-[open=true]/menu:scale-100 group-data-[open=true]/menu:opacity-100 group-data-[open=true]/menu:pointer-events-auto lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-56 lg:-translate-x-1/2 lg:translate-y-1 lg:origin-top lg:group-data-[open=true]/menu:translate-y-0" data-nav-panel>
                       {
                         botones.map((link) => (
                           <a href={link.to} class="relative flex h-9 w-full items-center justify-center px-4 before:absolute before:inset-0 before:rounded-full before:bg-primary before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95">
@@ -110,18 +110,18 @@ const botones = response.data.header.Botones.map((boton) => ({
                       }
                     </div>
                   </div>
-                  <div class="relative mt-16 w-full lg:mt-0 lg:w-auto group/menu" data-nav-dropdown>
+                  <div class="relative mt-16 w-full lg:mt-0 lg:w-auto group/menu lg:data-[open=true]:after:absolute lg:data-[open=true]:after:inset-x-0 lg:data-[open=true]:after:top-full lg:data-[open=true]:after:h-4" data-nav-dropdown>
                     <button
                       type="button"
-                      class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-primary hover:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
+                      class="flex h-9 w-full items-center justify-between gap-2 rounded-full border border-red/20 bg-white/80 px-4 text-sm font-semibold text-black dark:text-white shadow-sm transition-colors duration-200 hover:border-primary hover:bg-primary hover:text-white group-data-[open=true]/menu:border-primary group-data-[open=true]/menu:bg-primary group-data-[open=true]/menu:text-white focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-white/20 dark:bg-gray-900 lg:w-auto"
                       aria-haspopup="true"
                     >
                       <span>Cuenta</span>
-                      <svg aria-hidden="true" class="size-4 transition group-hover/menu:rotate-180 lg:group-data-[open=true]/menu:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                      <svg aria-hidden="true" class="size-4 transition duration-200 group-data-[open=true]/menu:rotate-180" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
                       </svg>
                     </button>
-                     <div class="mt-2 flex w-full flex-col gap-2 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl shadow-gray-600/10 transition-[max-height,opacity,transform] duration-300 max-h-0 opacity-0 pointer-events-none scale-95 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none group-data-[open=true]/menu:max-h-80 group-data-[open=true]/menu:scale-100 group-data-[open=true]/menu:opacity-100 group-data-[open=true]/menu:pointer-events-auto lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-60 lg:-translate-x-1/2 lg:origin-top lg:group-hover/menu:max-h-80 lg:group-hover/menu:scale-100 lg:group-hover/menu:opacity-100 lg:group-hover/menu:pointer-events-auto" data-nav-panel>
+                     <div class="mt-2 flex w-full flex-col gap-2 overflow-hidden rounded-2xl border border-gray-100 bg-white p-2 shadow-xl shadow-gray-600/10 transition-[max-height,opacity,scale,translate] duration-200 ease-out motion-reduce:transition-none max-h-0 opacity-0 pointer-events-none scale-95 dark:border-gray-700 dark:bg-gray-800 dark:shadow-none group-data-[open=true]/menu:max-h-80 group-data-[open=true]/menu:scale-100 group-data-[open=true]/menu:opacity-100 group-data-[open=true]/menu:pointer-events-auto lg:absolute lg:left-1/2 lg:top-full lg:mt-4 lg:w-60 lg:-translate-x-1/2 lg:translate-y-1 lg:origin-top lg:group-data-[open=true]/menu:translate-y-0" data-nav-panel>
                       <a
                           href="/perfil"
                           data-auth-visible="authenticated"
@@ -320,74 +320,119 @@ const botones = response.data.header.Botones.map((boton) => ({
 </script>
 
 <script>
+  // Menús desplegables del header.
+  // - Escritorio (>= lg) con ratón: abre al pasar el cursor (con pequeña intención) y cierra con retardo.
+  // - Táctil / móvil / teclado: abre y cierra con clic; Escape y clic fuera cierran.
+  const OPEN_DELAY = 60;
+  const CLOSE_DELAY = 200;
+  const HOVER_CLICK_GRACE = 500; // clic justo después de abrir por hover no lo cierra
+
+  const desktopQuery = window.matchMedia("(min-width: 1024px)");
+
   const initDropdowns = () => {
-    const hoverSupported =
-      typeof window !== "undefined" && typeof window.matchMedia === "function"
-        ? window.matchMedia("(hover: hover) and (pointer: fine)").matches
-        : true;
     const dropdowns = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-dropdown]"));
-    const closeDropdown = (dropdown: HTMLElement) => {
-      dropdown.removeAttribute("data-open");
-      const button = dropdown.querySelector<HTMLButtonElement>("button");
-      if (button) button.setAttribute("aria-expanded", "false");
+    if (dropdowns.length === 0) return;
+
+    const getButton = (dropdown: HTMLElement) =>
+      dropdown.querySelector<HTMLButtonElement>(":scope > button");
+
+    const setOpen = (dropdown: HTMLElement, open: boolean) => {
+      if (open) dropdown.setAttribute("data-open", "true");
+      else dropdown.removeAttribute("data-open");
+      getButton(dropdown)?.setAttribute("aria-expanded", open ? "true" : "false");
     };
-    const openDropdown = (dropdown: HTMLElement) => {
-      dropdown.setAttribute("data-open", "true");
-      const button = dropdown.querySelector<HTMLButtonElement>("button");
-      if (button) button.setAttribute("aria-expanded", "true");
-    };
-    const closeAllDropdowns = (exception?: HTMLElement) => {
+
+    const isOpen = (dropdown: HTMLElement) => dropdown.getAttribute("data-open") === "true";
+
+    const closeOthers = (current?: HTMLElement) => {
       dropdowns.forEach((dropdown) => {
-        if (exception && dropdown === exception) return;
-        closeDropdown(dropdown);
+        if (dropdown !== current && isOpen(dropdown)) setOpen(dropdown, false);
       });
     };
 
     dropdowns.forEach((dropdown) => {
-      const button = dropdown.querySelector<HTMLButtonElement>("button");
+      // Evita registrar los listeners dos veces (DOMContentLoaded + astro:page-load con ClientRouter).
+      if (dropdown.dataset.navReady === "true") return;
+      dropdown.dataset.navReady = "true";
+
+      const button = getButton(dropdown);
       if (!button) return;
       button.setAttribute("aria-expanded", "false");
+
+      let openTimer: number | null = null;
+      let closeTimer: number | null = null;
+      let openedByHoverAt = 0;
+
+      const clearTimers = () => {
+        if (openTimer !== null) { window.clearTimeout(openTimer); openTimer = null; }
+        if (closeTimer !== null) { window.clearTimeout(closeTimer); closeTimer = null; }
+      };
+
+      const isHoverPointer = (event: PointerEvent) =>
+        event.pointerType === "mouse" && desktopQuery.matches;
+
+      dropdown.addEventListener("pointerenter", (event) => {
+        if (!isHoverPointer(event)) return;
+        clearTimers();
+        if (isOpen(dropdown)) return;
+        // Si otro menú ya está abierto se cambia al instante; si no, pequeña espera de intención.
+        const anotherOpen = dropdowns.some((d) => d !== dropdown && isOpen(d));
+        const open = () => {
+          openTimer = null;
+          closeOthers(dropdown);
+          setOpen(dropdown, true);
+          openedByHoverAt = Date.now();
+        };
+        if (anotherOpen) open();
+        else openTimer = window.setTimeout(open, OPEN_DELAY);
+      });
+
+      dropdown.addEventListener("pointerleave", (event) => {
+        if (!isHoverPointer(event)) return;
+        clearTimers();
+        closeTimer = window.setTimeout(() => {
+          closeTimer = null;
+          if (dropdown.matches(":hover")) return;
+          setOpen(dropdown, false);
+        }, CLOSE_DELAY);
+      });
+
       button.addEventListener("click", (event) => {
         event.preventDefault();
-        const isOpen = dropdown.getAttribute("data-open") === "true";
-        if (isOpen) { closeDropdown(dropdown); return; }
-        closeAllDropdowns(dropdown);
-        openDropdown(dropdown);
+        clearTimers();
+        if (isOpen(dropdown)) {
+          // Si se acaba de abrir por hover, el clic no lo cierra (evita el "abre y se cierra").
+          if (Date.now() - openedByHoverAt < HOVER_CLICK_GRACE) return;
+          setOpen(dropdown, false);
+          return;
+        }
+        closeOthers(dropdown);
+        setOpen(dropdown, true);
+        openedByHoverAt = 0;
+      });
+
+      dropdown.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || !isOpen(dropdown)) return;
+        setOpen(dropdown, false);
+        button.focus();
+      });
+
+      dropdown.addEventListener("focusout", (event) => {
+        const next = event.relatedTarget as Node | null;
+        if (next && dropdown.contains(next)) return;
+        if (desktopQuery.matches && !dropdown.matches(":hover")) setOpen(dropdown, false);
       });
     });
 
     document.removeEventListener("click", (window as any).__dropdownOutsideClickHandler);
     (window as any).__dropdownOutsideClickHandler = (event: Event) => {
-      if (dropdowns.some((dropdown) => dropdown.contains(event.target as Node))) return;
-      closeAllDropdowns();
+      const current = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-dropdown]"));
+      if (current.some((dropdown) => dropdown.contains(event.target as Node))) return;
+      current.forEach((dropdown) => {
+        if (dropdown.getAttribute("data-open") === "true") setOpen(dropdown, false);
+      });
     };
     document.addEventListener("click", (window as any).__dropdownOutsideClickHandler);
-
-    if (hoverSupported && dropdowns.length > 0) {
-      dropdowns.forEach((dropdown) => {
-        const panel = dropdown.querySelector<HTMLElement>("[data-nav-panel]");
-        if (!panel) return;
-
-        let hoverCloseTimeout: number | null = null;
-        const clearHoverTimeout = () => {
-          if (hoverCloseTimeout !== null) { window.clearTimeout(hoverCloseTimeout); hoverCloseTimeout = null; }
-        };
-        const isPointerInside = () => dropdown.matches(":hover") || panel.matches(":hover");
-        const scheduleClose = () => {
-          clearHoverTimeout();
-          hoverCloseTimeout = window.setTimeout(() => {
-            hoverCloseTimeout = null;
-            if (isPointerInside()) { scheduleClose(); return; }
-            closeDropdown(dropdown);
-          }, 220);
-        };
-
-        dropdown.addEventListener("mouseenter", () => { clearHoverTimeout(); openDropdown(dropdown); });
-        dropdown.addEventListener("mouseleave", scheduleClose);
-        panel.addEventListener("mouseenter", () => { clearHoverTimeout(); openDropdown(dropdown); });
-        panel.addEventListener("mouseleave", scheduleClose);
-      });
-    }
   };
 
   if (document.readyState === "loading") {
