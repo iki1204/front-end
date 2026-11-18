@@ -4,7 +4,8 @@ import ProductCard from "../components/ProductCard.astro";
 import Container from "../components/Container.astro";
 import { getCachedCategorias, getCachedGlobalData, getCachedMarcas } from "../lib/strapiCache";
 import { getCachedCatalogProducts, normalizeCatalogText } from "../lib/catalogCache";
-import { getBodegaStock, getKnownBodegaNames, warmBodegaStock } from "../lib/bodegaStock";
+// [FILTRO BODEGAS DESACTIVADO] No se consulta bodegaStock desde la tienda.
+// import { getBodegaStock, getKnownBodegaNames, warmBodegaStock } from "../lib/bodegaStock";
 
 
 
@@ -34,14 +35,15 @@ const normalizedSearchParam = searchTerms.join(" ");
 const categoryParam = url.searchParams.get("category") ?? "all";
 const brandParam = url.searchParams.get("brand") ?? "all";
 const stockParam = url.searchParams.get("stock") ?? "all";
-const bodegaParams = url.searchParams
-  .getAll("bodega")
-  .map((value) => value.trim())
-  .filter(Boolean);
-const selectedBodegas = Array.from(new Set(bodegaParams.filter((value) => value !== "all")));
-const selectedBodegasNormalized = selectedBodegas.map((value) => value.toLowerCase().trim());
-const hasSelectedBodegas = selectedBodegas.length > 0;
-const bodegaHiddenValues = hasSelectedBodegas ? selectedBodegas : ["all"];
+// [FILTRO BODEGAS DESACTIVADO]
+// const bodegaParams = url.searchParams
+//   .getAll("bodega")
+//   .map((value) => value.trim())
+//   .filter(Boolean);
+// const selectedBodegas = Array.from(new Set(bodegaParams.filter((value) => value !== "all")));
+// const selectedBodegasNormalized = selectedBodegas.map((value) => value.toLowerCase().trim());
+// const hasSelectedBodegas = selectedBodegas.length > 0;
+// const bodegaHiddenValues = hasSelectedBodegas ? selectedBodegas : ["all"];
 const imageParam = url.searchParams.get("image") ?? "all";
 const datasheetsParam = url.searchParams.get("datasheets") ?? "all";
 const descriptionParam = url.searchParams.get("description") ?? "all";
@@ -88,42 +90,43 @@ const paginateProducts = (items: any[]) => {
     };
 };
 
-// Peticiones simultáneas máximas a Contífico desde la tienda (evita el 429 por ráfagas).
-const BODEGA_CONCURRENCY = 4;
-
-// Usa la caché compartida entre requests (TTL en lib/bodegaStock.ts) y llama a Contífico
-// directamente, sin pasar por /api/bodega-stock.
-const fetchBodegaStockRows = async (identifier: string | null): Promise<any[]> => {
-  if (!identifier) return [];
-  try {
-    return await getBodegaStock(String(identifier));
-  } catch {
-    return [];
-  }
-};
-
-const mapWithConcurrency = async <T, R>(
-  items: T[],
-  concurrency: number,
-  mapper: (item: T, index: number) => Promise<R>,
-): Promise<R[]> => {
-  const results = new Array<R>(items.length);
-  let nextIndex = 0;
-
-  const workers = Array.from(
-    { length: Math.min(Math.max(concurrency, 1), items.length) },
-    async () => {
-      while (nextIndex < items.length) {
-        const currentIndex = nextIndex;
-        nextIndex += 1;
-        results[currentIndex] = await mapper(items[currentIndex], currentIndex);
-      }
-    },
-  );
-
-  await Promise.all(workers);
-  return results;
-};
+// [FILTRO BODEGAS DESACTIVADO]
+// // Peticiones simultáneas máximas a Contífico desde la tienda (evita el 429 por ráfagas).
+// const BODEGA_CONCURRENCY = 4;
+//
+// // Usa la caché compartida entre requests (TTL en lib/bodegaStock.ts) y llama a Contífico
+// // directamente, sin pasar por /api/bodega-stock.
+// const fetchBodegaStockRows = async (identifier: string | null): Promise<any[]> => {
+//   if (!identifier) return [];
+//   try {
+//     return await getBodegaStock(String(identifier));
+//   } catch {
+//     return [];
+//   }
+// };
+//
+// const mapWithConcurrency = async <T, R>(
+//   items: T[],
+//   concurrency: number,
+//   mapper: (item: T, index: number) => Promise<R>,
+// ): Promise<R[]> => {
+//   const results = new Array<R>(items.length);
+//   let nextIndex = 0;
+//
+//   const workers = Array.from(
+//     { length: Math.min(Math.max(concurrency, 1), items.length) },
+//     async () => {
+//       while (nextIndex < items.length) {
+//         const currentIndex = nextIndex;
+//         nextIndex += 1;
+//         results[currentIndex] = await mapper(items[currentIndex], currentIndex);
+//       }
+//     },
+//   );
+//
+//   await Promise.all(workers);
+//   return results;
+// };
 
 // Wrapper para fallar silenciosamente en fetches
 const safeAsyncFetch = async <T,>(fn: () => Promise<T>, defaultValue: T, label: string): Promise<T> => {
@@ -146,7 +149,8 @@ const [categoriasResponse, marcasResponse, global, catalogResponse] = await Prom
   }, "getCachedCatalogProducts"),
 ]);
 
-const bodegaNamesSet = new Set<string>();
+// [FILTRO BODEGAS DESACTIVADO]
+// const bodegaNamesSet = new Set<string>();
 let productos: any[] = [];
 let totalPages = 1;
 let currentPage = requestedPage;
@@ -155,50 +159,54 @@ let totalItems = 0;
 const cachedProducts = Array.isArray(catalogResponse?.products) ? catalogResponse.products : [];
 const filteredCandidates = cachedProducts.filter(productMatchesFilters);
 
-if (stockParam === "in" && hasSelectedBodegas) {
-  const matchChecks = await mapWithConcurrency(
-    filteredCandidates,
-    BODEGA_CONCURRENCY,
-    async (item) => {
-      const identifier = item?.identifier ? String(item.identifier) : null;
-      const bodegaRows = await fetchBodegaStockRows(identifier);
-
-      bodegaRows.forEach((row) => {
-        const nombre = String(row?.bodega_nombre ?? "").trim();
-        if (nombre) bodegaNamesSet.add(nombre);
-      });
-
-      const hasStockInSelectedBodega = bodegaRows.some((row) => {
-        const nombre = String(row?.bodega_nombre ?? "").trim().toLowerCase();
-        const cantidad = Number(row?.cantidad ?? 0);
-        return selectedBodegasNormalized.includes(nombre) && Number.isFinite(cantidad) && cantidad > 0;
-      });
-
-      return hasStockInSelectedBodega ? item : null;
-    },
-  );
-
-  const paginated = paginateProducts(matchChecks.filter(Boolean) as any[]);
-  productos = paginated.items;
-  totalItems = paginated.total;
-  totalPages = paginated.pages;
-  currentPage = paginated.page;
-} else {
+// [FILTRO BODEGAS DESACTIVADO] Se pagina directamente sin consultar stock por bodega.
+// if (stockParam === "in" && hasSelectedBodegas) {
+//   const matchChecks = await mapWithConcurrency(
+//     filteredCandidates,
+//     BODEGA_CONCURRENCY,
+//     async (item) => {
+//       const identifier = item?.identifier ? String(item.identifier) : null;
+//       const bodegaRows = await fetchBodegaStockRows(identifier);
+//
+//       bodegaRows.forEach((row) => {
+//         const nombre = String(row?.bodega_nombre ?? "").trim();
+//         if (nombre) bodegaNamesSet.add(nombre);
+//       });
+//
+//       const hasStockInSelectedBodega = bodegaRows.some((row) => {
+//         const nombre = String(row?.bodega_nombre ?? "").trim().toLowerCase();
+//         const cantidad = Number(row?.cantidad ?? 0);
+//         return selectedBodegasNormalized.includes(nombre) && Number.isFinite(cantidad) && cantidad > 0;
+//       });
+//
+//       return hasStockInSelectedBodega ? item : null;
+//     },
+//   );
+//
+//   const paginated = paginateProducts(matchChecks.filter(Boolean) as any[]);
+//   productos = paginated.items;
+//   totalItems = paginated.total;
+//   totalPages = paginated.pages;
+//   currentPage = paginated.page;
+// } else {
+{
   const paginated = paginateProducts(filteredCandidates);
   productos = paginated.items;
   totalItems = paginated.total;
   totalPages = paginated.pages;
   currentPage = paginated.page;
 
-  // No se espera a Contífico: el stock por bodega solo se usa aquí para listar las
-  // opciones del filtro. Se precarga en segundo plano y la página se responde ya.
-  warmBodegaStock(productos.map((item) => (item?.identifier ? String(item.identifier) : null)));
+  // [FILTRO BODEGAS DESACTIVADO]
+  // // No se espera a Contífico: el stock por bodega solo se usa aquí para listar las
+  // // opciones del filtro. Se precarga en segundo plano y la página se responde ya.
+  // warmBodegaStock(productos.map((item) => (item?.identifier ? String(item.identifier) : null)));
 }
 
-// Opciones del filtro: todas las bodegas conocidas hasta ahora (crece a medida que se llena la caché).
-getKnownBodegaNames().forEach((nombre) => bodegaNamesSet.add(nombre));
-
-const bodegaOptions = Array.from(bodegaNamesSet).sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+// [FILTRO BODEGAS DESACTIVADO]
+// // Opciones del filtro: todas las bodegas conocidas hasta ahora (crece a medida que se llena la caché).
+// getKnownBodegaNames().forEach((nombre) => bodegaNamesSet.add(nombre));
+//
+// const bodegaOptions = Array.from(bodegaNamesSet).sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
 
 
 const getStrapiFileUrl = (file: any) => {
@@ -238,7 +246,7 @@ const buildHiddenFields = (
     category: categoryParam,
     brand: brandParam,
     stock: stockParam,
-    bodega: bodegaHiddenValues,
+    // bodega: bodegaHiddenValues, // [FILTRO BODEGAS DESACTIVADO]
     image: imageParam,
     datasheets: datasheetsParam,
     description: descriptionParam,
@@ -256,15 +264,16 @@ const buildHiddenFields = (
 };
 
 const priceFilterHiddenFields = buildHiddenFields({ price: [] });
-const bodegaFilterHiddenFields = buildHiddenFields({
-  stock: "in",
-  bodega: ["all"],
-});
+// [FILTRO BODEGAS DESACTIVADO]
+// const bodegaFilterHiddenFields = buildHiddenFields({
+//   stock: "in",
+//   bodega: ["all"],
+// });
 const searchResetHiddenFields = buildHiddenFields({
   category: "all",
   brand: "all",
   stock: "all",
-  bodega: ["all"],
+  // bodega: ["all"], // [FILTRO BODEGAS DESACTIVADO]
   image: "all",
   datasheets: "all",
   description: "all",
@@ -370,16 +379,17 @@ if (stockParam !== "all") {
   const stockLabel =
     stockParam === "out"
       ? "Stock: Sin stock"
-      : hasSelectedBodegas
-        ? `Stock: En stock · ${selectedBodegas.join(", ")}`
-        : "Stock: En stock";
+      // [FILTRO BODEGAS DESACTIVADO]
+      // : hasSelectedBodegas
+      //   ? `Stock: En stock · ${selectedBodegas.join(", ")}`
+      : "Stock: En stock";
 
   activeFilters.push({
     key: "stock",
     label: stockLabel,
     removeHref:
       Astro.url.pathname +
-      buildQueryString({ stock: "all", bodega: null, page: 1 }),
+      buildQueryString({ stock: "all", /* bodega: null, */ page: 1 }),
   });
 }
 
@@ -597,17 +607,18 @@ const showRightDots = endPage < totalPages;
             data-filter-select
           >
             <option
-              value={Astro.url.pathname + buildQueryString({ stock: "all", bodega: "all", page: 1, search: null})}
+              value={Astro.url.pathname + buildQueryString({ stock: "all", /* bodega: "all", */ page: 1, search: null})}
               selected={stockParam === "all"}
             >
               TODOS
             </option>
             <option
-              value={Astro.url.pathname + buildQueryString({ stock: "in", bodega: "all", page: 1, search: null })}
-              selected={stockParam === "in" && !hasSelectedBodegas}
+              value={Astro.url.pathname + buildQueryString({ stock: "in", /* bodega: "all", */ page: 1, search: null })}
+              selected={stockParam === "in" /* && !hasSelectedBodegas */}
             >
               En stock (todas las bodegas)
             </option>
+            {/* [FILTRO BODEGAS DESACTIVADO]
             {bodegaOptions.map((bodegaNombre) => (
               <option
                 value={Astro.url.pathname + buildQueryString({ stock: "in", bodega: bodegaNombre, page: 1, search: null })}
@@ -616,8 +627,9 @@ const showRightDots = endPage < totalPages;
                 En stock · {bodegaNombre}
               </option>
             ))}
+            */}
             <option
-              value={Astro.url.pathname + buildQueryString({ stock: "out", bodega: "all", page: 1, search: null })}
+              value={Astro.url.pathname + buildQueryString({ stock: "out", /* bodega: "all", */ page: 1, search: null })}
               selected={stockParam === "out"}
             >
               Sin stock
@@ -1034,17 +1046,17 @@ const showRightDots = endPage < totalPages;
                     {[
                       {
                         label: "Todos",
-                        href: Astro.url.pathname + buildQueryString({ stock: "all", bodega: "all", page: 1, search: null }),
+                        href: Astro.url.pathname + buildQueryString({ stock: "all", /* bodega: "all", */ page: 1, search: null }),
                         active: stockParam === "all",
                       },
                       {
                         label: "En stock",
-                        href: Astro.url.pathname + buildQueryString({ stock: "in", bodega: "all", page: 1, search: null }),
-                        active: stockParam === "in" && !hasSelectedBodegas,
+                        href: Astro.url.pathname + buildQueryString({ stock: "in", /* bodega: "all", */ page: 1, search: null }),
+                        active: stockParam === "in" /* && !hasSelectedBodegas */,
                       },
                       {
                         label: "Sin stock",
-                        href: Astro.url.pathname + buildQueryString({ stock: "out", bodega: "all", page: 1, search: null }),
+                        href: Astro.url.pathname + buildQueryString({ stock: "out", /* bodega: "all", */ page: 1, search: null }),
                         active: stockParam === "out",
                       },
                     ].map((option) => (
@@ -1066,6 +1078,7 @@ const showRightDots = endPage < totalPages;
                       </li>
                     ))}
 
+                    {/* [FILTRO BODEGAS DESACTIVADO]
                     <li>
                       <details
                         class={`group rounded-xl border transition ${
@@ -1130,6 +1143,7 @@ const showRightDots = endPage < totalPages;
                         </form>
                       </details>
                     </li>
+                    */}
                   </ul>
                 </div>
               </div>
